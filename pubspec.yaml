@@ -1,8 +1,11 @@
 name: cached_network_image
 description: Flutter library to load and cache network images
 version: 0.0.1
-author: Rene Floor
-homepage:
+author: Rene Floor <pub@renefloor.nl>
+homepage: https://github.com/renefloor/flutter_cached_network_image
+
+environment:
+  sdk: ">=1.8.0 <2.0.0"
 
 dependencies:
   flutter:
@@ -11,6 +14,7 @@ dependencies:
   path_provider: "^0.2.1+1"
   synchronized: "^1.1.0"
   uuid:  "^0.5.3"
+  http: "^0.11.3"
 
 dev_dependencies:
   test: ^0.12.0
