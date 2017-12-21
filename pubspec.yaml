@@ -10,11 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: "^0.2.5"
-  path_provider: "^0.2.1+1"
+  shared_preferences: "^0.3.0"
+  path_provider: "^0.3.0"
   synchronized: "^1.1.0"
   uuid:  "^0.5.3"
-  http: "^0.11.3"
+  http: "^0.11.3+14"
 
 dev_dependencies:
   test: ^0.12.0
