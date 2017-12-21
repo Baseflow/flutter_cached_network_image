@@ -1,6 +1,6 @@
 name: cached_network_image
 description: Flutter library to load and cache network images
-version: 0.0.2
+version: 0.1.0
 author: Rene Floor <pub@renefloor.nl>
 homepage: https://github.com/renefloor/flutter_cached_network_image
 
