@@ -372,19 +372,34 @@ class CacheObject {
       _map["ETag"] = headers["etag"];
     }
 
+    var fileExtension = "";
     if (headers.containsKey("content-type")) {
       var type = headers["content-type"].split("/");
-      if (type[0] == "image") {
-        if (filePath == null || !filePath.endsWith(type[1])) {
-          Directory directory = await getTemporaryDirectory();
-          var folder = new Directory("${directory.path}/imagecache");
-          if (!(await folder.exists())) {
-            folder.createSync();
-          }
-          var fileName = "${new Uuid().v1()}.${type[1]}";
-          _map["path"] = "${folder.path}/${fileName}";
-        }
+      if (type.length == 2) {
+        fileExtension = ".${type[1]}";
       }
+    }
+
+    if(filePath != null && !filePath.endsWith(fileExtension)){
+      removeOldFile(filePath);
+      _map["path"] = null;
+    }
+
+    if(filePath == null){
+      Directory directory = await getTemporaryDirectory();
+      var folder = new Directory("${directory.path}/cache");
+      if (!(await folder.exists())) {
+      folder.createSync();
+      }
+      var fileName = "${new Uuid().v1()}${fileExtension}";
+      _map["path"] = "${folder.path}/${fileName}";
+    }
+  }
+
+  removeOldFile(String filePath) async{
+    var file = new File(filePath);
+    if(await file.exists()){
+      await file.delete();
     }
   }
 
