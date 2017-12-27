@@ -131,10 +131,8 @@ class CacheManager {
       return;
     }
 
-    await synchronized(_lock, () async {
-      await _cleanCache();
-      await _saveDataInPrefs();
-    });
+    await _cleanCache();
+    await _saveDataInPrefs();
   }
 
   Future<bool> _canSave() async {
@@ -161,8 +159,11 @@ class CacheManager {
 
   _saveDataInPrefs() async{
     Map json = new Map();
-    _cacheData.forEach((key, cache) {
-      json[key] = cache._map;
+
+    await synchronized(_lock, () {
+      _cacheData.forEach((key, cache) {
+        json[key] = cache._map;
+      });
     });
     _prefs.setString("lib_cached_image_data", JSON.encode(json));
 
@@ -177,28 +178,30 @@ class CacheManager {
     if (force ||
         sinceLastClean > inbetweenCleans ||
         _cacheData.length > maxNrOfCacheObjects) {
-      var oldestDateAllowed = new DateTime.now().subtract(maxAgeCacheObject);
+      await synchronized(_lock, () async {
+        var oldestDateAllowed = new DateTime.now().subtract(maxAgeCacheObject);
 
-      //Remove old objects
-      var oldValues =
-          _cacheData.values.where((c) => c.touched.isBefore(oldestDateAllowed));
-      for (var oldValue in oldValues) {
-        await _removeFile(oldValue);
-      }
-
-      //Remove oldest objects when cache contains to many items
-      if (_cacheData.length > maxNrOfCacheObjects) {
-        var allValues = _cacheData.values.toList();
-        allValues.sort((c1, c2) => c1.touched.compareTo(c2.touched));
-        for (var i = allValues.length; i > maxNrOfCacheObjects; i--) {
-          var lastItem = allValues[i - 1];
-          await _removeFile(lastItem);
+        //Remove old objects
+        var oldValues =
+        _cacheData.values.where((c) => c.touched.isBefore(oldestDateAllowed));
+        for (var oldValue in oldValues) {
+          await _removeFile(oldValue);
         }
-      }
 
-      lastCacheClean = new DateTime.now();
-      _prefs.setInt("lib_cached_image_data_last_clean",
-          lastCacheClean.millisecondsSinceEpoch);
+        //Remove oldest objects when cache contains to many items
+        if (_cacheData.length > maxNrOfCacheObjects) {
+          var allValues = _cacheData.values.toList();
+          allValues.sort((c1, c2) => c1.touched.compareTo(c2.touched));
+          for (var i = allValues.length; i > maxNrOfCacheObjects; i--) {
+            var lastItem = allValues[i - 1];
+            await _removeFile(lastItem);
+          }
+        }
+
+        lastCacheClean = new DateTime.now();
+        _prefs.setInt("lib_cached_image_data_last_clean",
+            lastCacheClean.millisecondsSinceEpoch);
+      });
     }
   }
 
