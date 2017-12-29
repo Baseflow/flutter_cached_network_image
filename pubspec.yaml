@@ -15,6 +15,9 @@ dependencies:
   synchronized: "^1.1.0"
   uuid:  "^0.5.3"
   http: "^0.11.3+14"
+  flutter_cache_manager:
+    git:
+      url: git://github.com/renefloor/flutter_cache_manager.git
 
 dev_dependencies:
   test: ^0.12.0

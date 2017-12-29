@@ -1,3 +1,8 @@
+## [0.2.0] - 2017-12-29
+
+* **Breaking change** Removed CachedNetworkImage. From now on only the ImageProvider is supported. For a placeholder use `FadeInImage`. See also ["Fallback for Network Images"](https://github.com/flutter/flutter/issues/6229).
+* Moved CacheManager to a separate library for a more generic purpose.
+
 ## [0.1.0] - 2017-12-21
 
 * **Breaking change**. Upgraded to Gradle 4.1 and Android Studio Gradle plugin
