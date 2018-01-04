@@ -10,7 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_cache_manager: "^0.0.2"
+  flutter_cache_manager:
+    git:
+      url: git://github.com/renefloor/flutter_cache_manager.git
+      ref: develop
 
 dev_dependencies:
   test: ^0.12.0
