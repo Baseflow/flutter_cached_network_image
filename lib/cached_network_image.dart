@@ -6,7 +6,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui show Image, decodeImageFromList;
+import 'dart:ui' as ui show instantiateImageCodec, Codec;
 
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
@@ -36,33 +36,30 @@ class CachedNetworkImageProvider
 
   @override
   ImageStreamCompleter load(CachedNetworkImageProvider key) {
-    return new OneFrameImageStreamCompleter(_loadAsync(key),
+    return new MultiFrameImageStreamCompleter(
+        codec: _loadAsync(key),
+        scale: key.scale,
         informationCollector: (StringBuffer information) {
-      information.writeln('Image provider: $this');
-      information.write('Image key: $key');
-    });
+          information.writeln('Image provider: $this');
+          information.write('Image key: $key');
+        }
+    );
   }
 
-  Future<ImageInfo> _loadAsync(CachedNetworkImageProvider key) async {
+  Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var cacheManager = await CacheManager.getInstance();
     var file = await cacheManager.getFile(url);
     return _loadAsyncFromFile(key, file);
   }
 
-  Future<ImageInfo> _loadAsyncFromFile(
+  Future<ui.Codec> _loadAsyncFromFile(
       CachedNetworkImageProvider key, File file) async {
     assert(key == this);
 
     final Uint8List bytes = await file.readAsBytes();
     if (bytes.lengthInBytes == 0) return null;
 
-    final ui.Image image = await decodeImageFromList(bytes);
-    if (image == null) return null;
-
-    return new ImageInfo(
-      image: image,
-      scale: key.scale,
-    );
+    return await ui.instantiateImageCodec(bytes);
   }
 
   @override

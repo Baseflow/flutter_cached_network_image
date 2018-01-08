@@ -1,3 +1,7 @@
+## [0.2.1] - 2018-01-08
+* Moved from OneFrameImageStreamCompleter to MultiFrameImageStreamCompleter.
+* Updated CacheManager dependency for critical bug fix.
+
 ## [0.2.0] - 2017-12-29
 
 * **Breaking change** Removed CachedNetworkImage. From now on only the ImageProvider is supported. For a placeholder use `FadeInImage`. See also ["Fallback for Network Images"](https://github.com/flutter/flutter/issues/6229).
