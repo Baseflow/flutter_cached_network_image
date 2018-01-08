@@ -2,6 +2,7 @@
 # Cached network image
 
 [![pub package](https://img.shields.io/pub/v/cached_network_image.svg)](https://pub.dartlang.org/packages/cached_network_image)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/renefloor)
 
 A flutter library to show images from the internet and keep them in the cache directory.
 
@@ -10,7 +11,7 @@ A flutter library to show images from the internet and keep them in the cache di
 Add this to your package's pubspec.yaml file:
 ```
 dependencies:
-  cached_network_image: "^0.2.0"
+  cached_network_image: "^0.2.1"
 
 ```
 Add it to your dart file:
