@@ -1,3 +1,6 @@
+## [0.3.0] - TBA
+* Added CachedNetworkImage with placeholder and error widgets.
+
 ## [0.2.1] - 2018-01-08
 * Moved from OneFrameImageStreamCompleter to MultiFrameImageStreamCompleter.
 * Updated CacheManager dependency for critical bug fix.
