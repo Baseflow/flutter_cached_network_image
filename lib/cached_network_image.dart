@@ -78,7 +78,7 @@ class CachedNetworkImage extends StatefulWidget {
   ///
   /// If null, the image will pick a size that best preserves its intrinsic
   /// aspect ratio. This may result in a sudden change if the size of the
-  /// placeholder image does not match that of the target image. The size is
+  /// placeholder widget does not match that of the target image. The size is
   /// also affected by the scale factor.
   final double width;
 
@@ -86,7 +86,7 @@ class CachedNetworkImage extends StatefulWidget {
   ///
   /// If null, the image will pick a size that best preserves its intrinsic
   /// aspect ratio. This may result in a sudden change if the size of the
-  /// placeholder image does not match that of the target image. The size is
+  /// placeholder widget does not match that of the target image. The size is
   /// also affected by the scale factor.
   final double height;
 
@@ -287,6 +287,15 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           break;
         case ImagePhase.waiting:
           if (_imageResolver._imageInfo != null || _hasError) {
+            if(_hasError && widget.errorWidget == null){
+              _phase = ImagePhase.completed;
+              return;
+            }
+            if(widget.placeholder == null){
+              _phase = ImagePhase.fadeOut;
+              _updatePhase();
+              return;
+            }
             // Received image data. Begin placeholder fade-out.
             _controller.duration = widget.fadeOutDuration;
             _animation = new CurvedAnimation(
@@ -358,11 +367,12 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   @override
   Widget build(BuildContext context) {
     assert(_phase != ImagePhase.start);
-    if (_hasError && widget.errorWidget != null) {
-      return widget.errorWidget;
-    }
     if (_isShowingPlaceholder && widget.placeholder != null) {
-      return widget.placeholder;
+      return _fadedWidget(widget.placeholder);
+    }
+
+    if (_hasError && widget.errorWidget != null) {
+      return _fadedWidget(widget.errorWidget);
     }
 
     final ImageInfo imageInfo = _imageResolver._imageInfo;
@@ -377,6 +387,13 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
       alignment: widget.alignment,
       repeat: widget.repeat,
       matchTextDirection: widget.matchTextDirection,
+    );
+  }
+
+  Widget _fadedWidget(Widget w){
+    return new Opacity(
+      opacity: _animation?.value ?? 1.0,
+      child: w,
     );
   }
 
@@ -395,6 +412,9 @@ typedef void ErrorListener();
 
 class CachedNetworkImageProvider
     extends ImageProvider<CachedNetworkImageProvider> {
+
+  /// Creates an ImageProvider which loads an image from the [url], using the [scale].
+  /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
       {this.scale: 1.0, this.errorListener})
       : assert(url != null),
