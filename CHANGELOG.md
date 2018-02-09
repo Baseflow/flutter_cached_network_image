@@ -1,4 +1,4 @@
-## [0.3.0] - TBA
+## [0.3.0] - 2018-02-09
 * Added CachedNetworkImage with placeholder and error widgets.
 
 ## [0.2.1] - 2018-01-08
