@@ -11,7 +11,7 @@ A flutter library to show images from the internet and keep them in the cache di
 Add this to your package's pubspec.yaml file:
 ```
 dependencies:
-  cached_network_image: "^0.3.0-alpha"
+  cached_network_image: "^0.3.0"
 
 ```
 Add it to your dart file:

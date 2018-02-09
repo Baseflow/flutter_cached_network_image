@@ -26,7 +26,9 @@ class CachedNetworkImage extends StatefulWidget {
   ///
   /// The [imageUrl], [fadeOutDuration], [fadeOutCurve],
   /// [fadeInDuration], [fadeInCurve], [alignment], [repeat], and
-  /// [matchTextDirection] arguments must not be null.
+  /// [matchTextDirection] arguments must not be null. Arguments [width],
+  /// [height], [fit], [alignment], [repeat] and [matchTextDirection]
+  /// are only used for the image and not for the placeholder.
   const CachedNetworkImage({
     Key key,
     this.placeholder,
@@ -53,13 +55,13 @@ class CachedNetworkImage extends StatefulWidget {
         assert(matchTextDirection != null),
         super(key: key);
 
-  /// Widget displayed while the target [image] is loading.
+  /// Widget displayed while the target [imageUrl] is loading.
   final Widget placeholder;
 
   /// The target image that is displayed.
   final String imageUrl;
 
-  /// Widget displayed while the target [image] failed loading.
+  /// Widget displayed while the target [imageUrl] failed loading.
   final Widget errorWidget;
 
   /// The duration of the fade-out animation for the [placeholder].
@@ -68,10 +70,10 @@ class CachedNetworkImage extends StatefulWidget {
   /// The curve of the fade-out animation for the [placeholder].
   final Curve fadeOutCurve;
 
-  /// The duration of the fade-in animation for the [image].
+  /// The duration of the fade-in animation for the [imageUrl].
   final Duration fadeInDuration;
 
-  /// The curve of the fade-in animation for the [image].
+  /// The curve of the fade-in animation for the [imageUrl].
   final Curve fadeInCurve;
 
   /// If non-null, require the image to have this width.
@@ -286,36 +288,22 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
             _phase = ImagePhase.waiting;
           break;
         case ImagePhase.waiting:
+          if(_hasError && widget.errorWidget == null){
+            _phase = ImagePhase.completed;
+            return;
+          }
+
           if (_imageResolver._imageInfo != null || _hasError) {
-            if(_hasError && widget.errorWidget == null){
-              _phase = ImagePhase.completed;
-              return;
-            }
             if(widget.placeholder == null){
-              _phase = ImagePhase.fadeOut;
-              _updatePhase();
-              return;
+              _startFadeIn();
+            }else{
+              _startFadeOut();
             }
-            // Received image data. Begin placeholder fade-out.
-            _controller.duration = widget.fadeOutDuration;
-            _animation = new CurvedAnimation(
-              parent: _controller,
-              curve: widget.fadeOutCurve,
-            );
-            _phase = ImagePhase.fadeOut;
-            _controller.reverse(from: 1.0);
           }
           break;
         case ImagePhase.fadeOut:
           if (_controller.status == AnimationStatus.dismissed) {
-            // Done fading out placeholder. Begin target image fade-in.
-            _controller.duration = widget.fadeInDuration;
-            _animation = new CurvedAnimation(
-              parent: _controller,
-              curve: widget.fadeInCurve,
-            );
-            _phase = ImagePhase.fadeIn;
-            _controller.forward(from: 0.0);
+            _startFadeIn();
           }
           break;
         case ImagePhase.fadeIn:
@@ -329,6 +317,28 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           break;
       }
     });
+  }
+
+  // Received image data. Begin placeholder fade-out.
+  void _startFadeOut(){
+    _controller.duration = widget.fadeOutDuration;
+    _animation = new CurvedAnimation(
+      parent: _controller,
+      curve: widget.fadeOutCurve,
+    );
+    _phase = ImagePhase.fadeOut;
+    _controller.reverse(from: 1.0);
+  }
+
+  // Done fading out placeholder. Begin target image fade-in.
+  void _startFadeIn(){
+    _controller.duration = widget.fadeInDuration;
+    _animation = new CurvedAnimation(
+      parent: _controller,
+      curve: widget.fadeInCurve,
+    );
+    _phase = ImagePhase.fadeIn;
+    _controller.forward(from: 0.0);
   }
 
   @override
@@ -361,7 +371,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
         CachedNetworkImage._registeredErrors.add(key);
       }
     });
-    setState(() => _hasError = true);
+    _hasError = true;
+    _updatePhase();
   }
 
   @override
@@ -420,10 +431,13 @@ class CachedNetworkImageProvider
       : assert(url != null),
         assert(scale != null);
 
+  /// Web url of the image to load
   final String url;
 
+  /// Scale of the image
   final double scale;
 
+  /// Listener to be called when images fails to load.
   final ErrorListener errorListener;
 
   @override
