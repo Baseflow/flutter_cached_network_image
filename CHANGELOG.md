@@ -1,3 +1,7 @@
+## [0.4.0-rc.1] - 2018-03-24
+* Added optional headers.
+* Changed to Dart 2.0
+
 ## [0.3.0] - 2018-02-09
 * Added CachedNetworkImage with placeholder and error widgets.
 
