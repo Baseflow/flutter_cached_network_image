@@ -44,9 +44,8 @@ class CachedNetworkImage extends StatefulWidget {
     this.alignment: Alignment.center,
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection: false,
-    this.httpHeaders : const {},
-  })
-      : assert(imageUrl != null),
+    this.httpHeaders: const {},
+  })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
         assert(fadeInDuration != null),
@@ -229,8 +228,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void initState() {
     _hasError = false;
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-        headers: widget.httpHeaders,
-        errorListener: _imageLoadingFailed);
+        headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
     _imageResolver =
         new _ImageProviderResolver(state: this, listener: _updatePhase);
 
@@ -293,15 +291,15 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
             _phase = ImagePhase.waiting;
           break;
         case ImagePhase.waiting:
-          if(_hasError && widget.errorWidget == null){
+          if (_hasError && widget.errorWidget == null) {
             _phase = ImagePhase.completed;
             return;
           }
 
           if (_imageResolver._imageInfo != null || _hasError) {
-            if(widget.placeholder == null){
+            if (widget.placeholder == null) {
               _startFadeIn();
-            }else{
+            } else {
               _startFadeOut();
             }
           }
@@ -325,7 +323,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   // Received image data. Begin placeholder fade-out.
-  void _startFadeOut(){
+  void _startFadeOut() {
     _controller.duration = widget.fadeOutDuration;
     _animation = new CurvedAnimation(
       parent: _controller,
@@ -336,7 +334,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   // Done fading out placeholder. Begin target image fade-in.
-  void _startFadeIn(){
+  void _startFadeIn() {
     _controller.duration = widget.fadeInDuration;
     _animation = new CurvedAnimation(
       parent: _controller,
@@ -406,7 +404,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  Widget _fadedWidget(Widget w){
+  Widget _fadedWidget(Widget w) {
     return new Opacity(
       opacity: _animation?.value ?? 1.0,
       child: w,
@@ -428,7 +426,6 @@ typedef void ErrorListener();
 
 class CachedNetworkImageProvider
     extends ImageProvider<CachedNetworkImageProvider> {
-
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
