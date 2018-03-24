@@ -44,6 +44,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.alignment: Alignment.center,
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection: false,
+    this.httpHeaders : const {},
   })
       : assert(imageUrl != null),
         assert(fadeOutDuration != null),
@@ -142,6 +143,9 @@ class CachedNetworkImage extends StatefulWidget {
   /// scope.
   final bool matchTextDirection;
 
+  // Optional headers for the http request of the image url
+  final Map<String, String> httpHeaders;
+
   @override
   State<StatefulWidget> createState() => new _CachedNetworkImageState();
 }
@@ -225,6 +229,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void initState() {
     _hasError = false;
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
+        headers: widget.httpHeaders,
         errorListener: _imageLoadingFailed);
     _imageResolver =
         new _ImageProviderResolver(state: this, listener: _updatePhase);
@@ -427,7 +432,7 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener})
+      {this.scale: 1.0, this.errorListener, this.headers: const {}})
       : assert(url != null),
         assert(scale != null);
 
@@ -439,6 +444,9 @@ class CachedNetworkImageProvider
 
   /// Listener to be called when images fails to load.
   final ErrorListener errorListener;
+
+  // Set headers for the image provider, for example for authentication
+  final Map<String, String> headers;
 
   @override
   Future<CachedNetworkImageProvider> obtainKey(
@@ -461,7 +469,7 @@ class CachedNetworkImageProvider
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var cacheManager = await CacheManager.getInstance();
-    var file = await cacheManager.getFile(url);
+    var file = await cacheManager.getFile(url, headers: headers);
     return _loadAsyncFromFile(key, file);
   }
 
