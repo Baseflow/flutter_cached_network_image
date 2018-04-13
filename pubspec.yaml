@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_cache_manager: "^0.0.4"
+  flutter_cache_manager: "^0.1.0-rc.1"
 
 dev_dependencies:
   test: ^0.12.0
