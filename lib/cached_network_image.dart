@@ -22,6 +22,7 @@ class CachedNetworkImage extends StatefulWidget {
 
   /// Creates a widget that displays a [placeholder] while an [imageUrl] is loading
   /// then cross-fades to display the [imageUrl].
+  /// Optional [httpHeaders] can be used for example for authentication on the server.
   ///
   /// The [imageUrl], [fadeOutDuration], [fadeOutCurve],
   /// [fadeInDuration], [fadeInCurve], [alignment], [repeat], and
