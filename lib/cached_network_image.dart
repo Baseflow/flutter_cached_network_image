@@ -3,11 +3,10 @@ library cached_network_image;
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui show instantiateImageCodec, Codec;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui show instantiateImageCodec, Codec;
-
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /**
@@ -44,8 +43,8 @@ class CachedNetworkImage extends StatefulWidget {
     this.alignment: Alignment.center,
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection: false,
-  })
-      : assert(imageUrl != null),
+    this.httpHeaders,
+  })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
         assert(fadeInDuration != null),
@@ -142,6 +141,9 @@ class CachedNetworkImage extends StatefulWidget {
   /// scope.
   final bool matchTextDirection;
 
+  // Optional headers for the http request of the image url
+  final Map<String, String> httpHeaders;
+
   @override
   State<StatefulWidget> createState() => new _CachedNetworkImageState();
 }
@@ -225,7 +227,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void initState() {
     _hasError = false;
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-        errorListener: _imageLoadingFailed);
+        headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
     _imageResolver =
         new _ImageProviderResolver(state: this, listener: _updatePhase);
 
@@ -263,7 +265,12 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void didUpdateWidget(CachedNetworkImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.imageUrl != oldWidget.imageUrl ||
-        widget.placeholder != widget.placeholder) _resolveImage();
+        widget.placeholder != widget.placeholder) {
+      _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
+          errorListener: _imageLoadingFailed);
+
+      _resolveImage();
+    }
   }
 
   @override
@@ -288,15 +295,15 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
             _phase = ImagePhase.waiting;
           break;
         case ImagePhase.waiting:
-          if(_hasError && widget.errorWidget == null){
+          if (_hasError && widget.errorWidget == null) {
             _phase = ImagePhase.completed;
             return;
           }
 
           if (_imageResolver._imageInfo != null || _hasError) {
-            if(widget.placeholder == null){
+            if (widget.placeholder == null) {
               _startFadeIn();
-            }else{
+            } else {
               _startFadeOut();
             }
           }
@@ -320,7 +327,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   // Received image data. Begin placeholder fade-out.
-  void _startFadeOut(){
+  void _startFadeOut() {
     _controller.duration = widget.fadeOutDuration;
     _animation = new CurvedAnimation(
       parent: _controller,
@@ -331,7 +338,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   // Done fading out placeholder. Begin target image fade-in.
-  void _startFadeIn(){
+  void _startFadeIn() {
     _controller.duration = widget.fadeInDuration;
     _animation = new CurvedAnimation(
       parent: _controller,
@@ -401,7 +408,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  Widget _fadedWidget(Widget w){
+  Widget _fadedWidget(Widget w) {
     return new Opacity(
       opacity: _animation?.value ?? 1.0,
       child: w,
@@ -423,11 +430,10 @@ typedef void ErrorListener();
 
 class CachedNetworkImageProvider
     extends ImageProvider<CachedNetworkImageProvider> {
-
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener})
+      {this.scale: 1.0, this.errorListener, this.headers: const {}})
       : assert(url != null),
         assert(scale != null);
 
@@ -439,6 +445,9 @@ class CachedNetworkImageProvider
 
   /// Listener to be called when images fails to load.
   final ErrorListener errorListener;
+
+  // Set headers for the image provider, for example for authentication
+  final Map<String, String> headers;
 
   @override
   Future<CachedNetworkImageProvider> obtainKey(
@@ -461,7 +470,7 @@ class CachedNetworkImageProvider
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var cacheManager = await CacheManager.getInstance();
-    var file = await cacheManager.getFile(url);
+    var file = await cacheManager.getFile(url, headers: headers);
     return _loadAsyncFromFile(key, file);
   }
 

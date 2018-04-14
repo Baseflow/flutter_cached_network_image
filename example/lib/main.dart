@@ -37,7 +37,9 @@ class MyHomePage extends StatelessWidget {
         // the App.build method, and use it to set our appbar title.
         title: new Text(title),
       ),
-      body: new Center(
+      body:
+      new SingleChildScrollView(child:
+      new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -45,6 +47,12 @@ class MyHomePage extends StatelessWidget {
             _sizedContainer(
               new Image(
                 image: new CachedNetworkImageProvider("http://via.placeholder.com/350x150"),
+              ),
+            ),
+
+            _sizedContainer(
+              new CachedNetworkImage(
+                imageUrl: "http://via.placeholder.com/200x150",
               ),
             ),
 
@@ -68,6 +76,7 @@ class MyHomePage extends StatelessWidget {
 
           ],
         ),
+      ),
       ),
     );
   }
