@@ -3,11 +3,10 @@ library cached_network_image;
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui show instantiateImageCodec, Codec;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui show instantiateImageCodec, Codec;
-
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /**
@@ -266,7 +265,12 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void didUpdateWidget(CachedNetworkImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.imageUrl != oldWidget.imageUrl ||
-        widget.placeholder != widget.placeholder) _resolveImage();
+        widget.placeholder != widget.placeholder) {
+      _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
+          errorListener: _imageLoadingFailed);
+
+      _resolveImage();
+    }
   }
 
   @override
