@@ -459,9 +459,7 @@ class CachedNetworkImageProvider
   @override
   ImageStreamCompleter load(CachedNetworkImageProvider key) {
     return new MultiFrameImageStreamCompleter(
-        codec: _loadAsync(key).catchError((e) {
-          if (errorListener != null) errorListener();
-        }),
+        codec: _loadAsync(key),
         scale: key.scale,
         informationCollector: (StringBuffer information) {
           information.writeln('Image provider: $this');
@@ -472,7 +470,11 @@ class CachedNetworkImageProvider
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var cacheManager = await CacheManager.getInstance();
     var file = await cacheManager.getFile(url, headers: headers);
-    return _loadAsyncFromFile(key, file);
+    if (file == null) {
+      if (errorListener != null) errorListener();
+      throw new Exception("Couldn't download or retreive file.");
+    }
+    return await _loadAsyncFromFile(key, file);
   }
 
   Future<ui.Codec> _loadAsyncFromFile(
@@ -480,7 +482,11 @@ class CachedNetworkImageProvider
     assert(key == this);
 
     final Uint8List bytes = await file.readAsBytes();
-    if (bytes.lengthInBytes == 0) return null;
+
+    if (bytes.lengthInBytes == 0) {
+      if (errorListener != null) errorListener();
+      throw new Exception("File was empty");
+    }
 
     return await ui.instantiateImageCodec(bytes);
   }

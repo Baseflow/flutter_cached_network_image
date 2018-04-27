@@ -1,3 +1,6 @@
+## [0.4.1] - 2018-04-27
+* Improved error handling when a file could not be loaded.
+
 ## [0.4.0] - 2018-04-14
 * Added optional headers.
 * Changed to Dart 2.0
