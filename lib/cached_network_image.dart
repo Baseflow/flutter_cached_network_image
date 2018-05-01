@@ -434,7 +434,7 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener, this.headers: const {}})
+      {this.scale: 1.0, this.errorListener, this.headers})
       : assert(url != null),
         assert(scale != null);
 
