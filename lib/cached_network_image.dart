@@ -45,6 +45,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection = false,
     this.httpHeaders,
+    this.onlyIfCached = false,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -53,6 +54,7 @@ class CachedNetworkImage extends StatefulWidget {
         assert(alignment != null),
         assert(repeat != null),
         assert(matchTextDirection != null),
+        assert(onlyIfCached != null),
         super(key: key);
 
   /// Widget displayed while the target [imageUrl] is loading.
@@ -145,6 +147,9 @@ class CachedNetworkImage extends StatefulWidget {
   // Optional headers for the http request of the image url
   final Map<String, String> httpHeaders;
 
+  /// Gets the image only on a cache hit. Skips the download.
+  final bool onlyIfCached;
+
   @override
   State<StatefulWidget> createState() => new _CachedNetworkImageState();
 }
@@ -228,7 +233,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void initState() {
     _hasError = false;
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-        headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
+        headers: widget.httpHeaders, errorListener: _imageLoadingFailed,
+        onlyIfCached: widget.onlyIfCached);
     _imageResolver =
         new _ImageProviderResolver(state: this, listener: _updatePhase);
 
@@ -434,7 +440,7 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale = 1.0, this.errorListener, this.headers})
+      {this.scale = 1.0, this.errorListener, this.headers, this.onlyIfCached = false})
       : assert(url != null),
         assert(scale != null);
 
@@ -449,6 +455,8 @@ class CachedNetworkImageProvider
 
   // Set headers for the image provider, for example for authentication
   final Map<String, String> headers;
+
+  final bool onlyIfCached;
 
   @override
   Future<CachedNetworkImageProvider> obtainKey(
@@ -469,7 +477,7 @@ class CachedNetworkImageProvider
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var cacheManager = await CacheManager.getInstance();
-    var file = await cacheManager.getFile(url, headers: headers);
+    var file = await cacheManager.getFile(url, headers: headers, onlyFromCache: onlyIfCached);
     if (file == null) {
       if (errorListener != null) errorListener();
       throw new Exception("Couldn't download or retreive file.");
