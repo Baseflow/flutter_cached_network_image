@@ -34,16 +34,16 @@ class CachedNetworkImage extends StatefulWidget {
     this.placeholder,
     @required this.imageUrl,
     this.errorWidget,
-    this.fadeOutDuration: const Duration(milliseconds: 300),
-    this.fadeOutCurve: Curves.easeOut,
-    this.fadeInDuration: const Duration(milliseconds: 700),
-    this.fadeInCurve: Curves.easeIn,
+    this.fadeOutDuration = const Duration(milliseconds: 300),
+    this.fadeOutCurve = Curves.easeOut,
+    this.fadeInDuration = const Duration(milliseconds: 700),
+    this.fadeInCurve = Curves.easeIn,
     this.width,
     this.height,
     this.fit,
     this.alignment: Alignment.center,
     this.repeat: ImageRepeat.noRepeat,
-    this.matchTextDirection: false,
+    this.matchTextDirection = false,
     this.httpHeaders,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
@@ -434,7 +434,7 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener, this.headers})
+      {this.scale = 1.0, this.errorListener, this.headers})
       : assert(url != null),
         assert(scale != null);
 
