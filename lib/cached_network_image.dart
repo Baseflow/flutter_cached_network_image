@@ -496,7 +496,13 @@ class CachedNetworkImageProvider
       throw new Exception("File was empty");
     }
 
-    return await ui.instantiateImageCodec(bytes);
+    Future<ui.Codec> codecF = ui.instantiateImageCodec(bytes)
+      ..catchError((e){
+        if (errorListener != null) errorListener();
+        throw new Exception("File not a valid Image");
+      });
+
+    return codecF;
   }
 
   @override
