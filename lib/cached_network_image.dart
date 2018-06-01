@@ -46,6 +46,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.matchTextDirection = false,
     this.httpHeaders,
     this.onlyIfCached = false,
+    this.cachOnlyFallbackWidget,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -149,6 +150,10 @@ class CachedNetworkImage extends StatefulWidget {
 
   /// Gets the image only on a cache hit. Skips the download.
   final bool onlyIfCached;
+
+  /// Widget displayed while [onlyIfCached] is true and the target [imageUrl]
+  /// failed loading.
+  final Widget cachOnlyFallbackWidget;
 
   @override
   State<StatefulWidget> createState() => new _CachedNetworkImageState();
@@ -302,7 +307,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
             _phase = ImagePhase.waiting;
           break;
         case ImagePhase.waiting:
-          if (_hasError && widget.errorWidget == null) {
+          if (_hasError && widget.errorWidget == null && widget.cachOnlyFallbackWidget == null) {
             _phase = ImagePhase.completed;
             return;
           }
@@ -371,7 +376,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
         return true;
       case ImagePhase.fadeIn:
       case ImagePhase.completed:
-        return _hasError && widget.errorWidget == null;
+        return _hasError && ( widget.onlyIfCached ?
+          widget.cachOnlyFallbackWidget == null : widget.errorWidget == null );
     }
 
     return null;
@@ -394,6 +400,10 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     assert(_phase != ImagePhase.start);
     if (_isShowingPlaceholder && widget.placeholder != null) {
       return _fadedWidget(widget.placeholder);
+    }
+
+    if (_hasError && widget.onlyIfCached && widget.cachOnlyFallbackWidget != null) {
+      return _fadedWidget(widget.cachOnlyFallbackWidget);
     }
 
     if (_hasError && widget.errorWidget != null) {
