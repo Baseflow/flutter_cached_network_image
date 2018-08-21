@@ -9,13 +9,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-/**
- *  CachedNetworkImage for Flutter
- *
- *  Copyright (c) 2017 Rene Floor
- *
- *  Released under MIT License.
- */
+// CachedNetworkImage for Flutter
+// Copyright (c) 2017 Rene Floor
+// Released under MIT License.
 
 class CachedNetworkImage extends StatefulWidget {
   static List<Object> _registeredErrors = <Object>[];
@@ -146,7 +142,7 @@ class CachedNetworkImage extends StatefulWidget {
   final Map<String, String> httpHeaders;
 
   @override
-  State<StatefulWidget> createState() => new _CachedNetworkImageState();
+  State<StatefulWidget> createState() => _CachedNetworkImageState();
 }
 
 /// The phases a [CachedNetworkImage] goes through.
@@ -165,7 +161,7 @@ enum ImagePhase {
   /// Fading out previous image.
   fadeOut,
 
-  /// Fading in new image.
+  /// Fading in image.
   fadeIn,
 
   /// Fade-in complete.
@@ -192,7 +188,7 @@ class _ImageProviderResolver {
     final ImageStream oldImageStream = _imageStream;
     _imageStream = provider.resolve(createLocalImageConfiguration(state.context,
         size: widget.width != null && widget.height != null
-            ? new Size(widget.width, widget.height)
+            ? Size(widget.width, widget.height)
             : null));
 
     if (_imageStream.key != oldImageStream?.key) {
@@ -220,6 +216,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   Animation<double> _animation;
 
   ImagePhase _phase = ImagePhase.start;
+
   ImagePhase get phase => _phase;
 
   bool _hasError;
@@ -227,12 +224,12 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   @override
   void initState() {
     _hasError = false;
-    _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
+    _imageProvider = CachedNetworkImageProvider(widget.imageUrl,
         headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
     _imageResolver =
-        new _ImageProviderResolver(state: this, listener: _updatePhase);
+        _ImageProviderResolver(state: this, listener: _updatePhase);
 
-    _controller = new AnimationController(
+    _controller = AnimationController(
       value: 1.0,
       vsync: this,
     );
@@ -267,7 +264,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     super.didUpdateWidget(oldWidget);
     if (widget.imageUrl != oldWidget.imageUrl ||
         widget.placeholder != widget.placeholder) {
-      _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
+      _imageProvider = CachedNetworkImageProvider(widget.imageUrl,
           errorListener: _imageLoadingFailed);
 
       _resolveImage();
@@ -316,7 +313,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           break;
         case ImagePhase.fadeIn:
           if (_controller.status == AnimationStatus.completed) {
-            // Done finding in new image.
+            // Done finding in image.
             _phase = ImagePhase.completed;
           }
           break;
@@ -330,7 +327,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   // Received image data. Begin placeholder fade-out.
   void _startFadeOut() {
     _controller.duration = widget.fadeOutDuration;
-    _animation = new CurvedAnimation(
+    _animation = CurvedAnimation(
       parent: _controller,
       curve: widget.fadeOutCurve,
     );
@@ -341,7 +338,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   // Done fading out placeholder. Begin target image fade-in.
   void _startFadeIn() {
     _controller.duration = widget.fadeInDuration;
-    _animation = new CurvedAnimation(
+    _animation = CurvedAnimation(
       parent: _controller,
       curve: widget.fadeInCurve,
     );
@@ -395,12 +392,12 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     }
 
     final ImageInfo imageInfo = _imageResolver._imageInfo;
-    return new RawImage(
+    return RawImage(
       image: imageInfo?.image,
       width: widget.width,
       height: widget.height,
       scale: imageInfo?.scale ?? 1.0,
-      color: new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
+      color: Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
       colorBlendMode: BlendMode.modulate,
       fit: widget.fit,
       alignment: widget.alignment,
@@ -410,7 +407,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   Widget _fadedWidget(Widget w) {
-    return new Opacity(
+    return Opacity(
       opacity: _animation?.value ?? 1.0,
       child: w,
     );
@@ -419,10 +416,10 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder description) {
     super.debugFillProperties(description);
-    description.add(new EnumProperty<ImagePhase>('phase', _phase));
-    description.add(new DiagnosticsProperty<ImageInfo>(
-        'pixels', _imageResolver._imageInfo));
-    description.add(new DiagnosticsProperty<ImageStream>(
+    description.add(EnumProperty<ImagePhase>('phase', _phase));
+    description.add(
+        DiagnosticsProperty<ImageInfo>('pixels', _imageResolver._imageInfo));
+    description.add(DiagnosticsProperty<ImageStream>(
         'image stream', _imageResolver._imageStream));
   }
 }
@@ -453,12 +450,12 @@ class CachedNetworkImageProvider
   @override
   Future<CachedNetworkImageProvider> obtainKey(
       ImageConfiguration configuration) {
-    return new SynchronousFuture<CachedNetworkImageProvider>(this);
+    return SynchronousFuture<CachedNetworkImageProvider>(this);
   }
 
   @override
   ImageStreamCompleter load(CachedNetworkImageProvider key) {
-    return new MultiFrameImageStreamCompleter(
+    return MultiFrameImageStreamCompleter(
         codec: _loadAsync(key),
         scale: key.scale,
         informationCollector: (StringBuffer information) {
@@ -472,7 +469,7 @@ class CachedNetworkImageProvider
     var file = await cacheManager.getFile(url, headers: headers);
     if (file == null) {
       if (errorListener != null) errorListener();
-      throw new Exception("Couldn't download or retreive file.");
+      throw Exception("Couldn't download or retreive file.");
     }
     return await _loadAsyncFromFile(key, file);
   }
@@ -485,7 +482,7 @@ class CachedNetworkImageProvider
 
     if (bytes.lengthInBytes == 0) {
       if (errorListener != null) errorListener();
-      throw new Exception("File was empty");
+      throw Exception("File was empty");
     }
 
     return await ui.instantiateImageCodec(bytes);

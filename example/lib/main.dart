@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'CachedNetworkImage Demo',
-      theme: new ThemeData(
+      theme: ThemeData(
         // This is the theme of your application.
         //
         // Try running your application with "flutter run". You'll see the
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'CachedNetworkImage'),
+      home: MyHomePage(title: 'CachedNetworkImage'),
     );
   }
 }
@@ -31,61 +31,56 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
+    return Scaffold(
+      appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: new Text(title),
+        title: Text(title),
       ),
-      body:
-      new SingleChildScrollView(child:
-      new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-
-            _sizedContainer(
-              new Image(
-                image: new CachedNetworkImageProvider("http://via.placeholder.com/350x150"),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _sizedContainer(
+                Image(
+                  image: CachedNetworkImageProvider(
+                      "http://via.placeholder.com/350x150"),
+                ),
               ),
-            ),
-
-            _sizedContainer(
-              new CachedNetworkImage(
-                imageUrl: "http://via.placeholder.com/200x150",
+              _sizedContainer(
+                CachedNetworkImage(
+                  imageUrl: "http://via.placeholder.com/200x150",
+                ),
               ),
-            ),
-
-            _sizedContainer(
-              new CachedNetworkImage(
-                imageUrl: "not a valid uri",
-                placeholder: new CircularProgressIndicator(),
-                errorWidget: new Icon(Icons.error),
+              _sizedContainer(
+                CachedNetworkImage(
+                  imageUrl: "not a valid uri",
+                  placeholder: CircularProgressIndicator(),
+                  errorWidget: Icon(Icons.error),
+                ),
               ),
-            ),
-
-            _sizedContainer(
-              new CachedNetworkImage(
-                imageUrl: "http://via.placeholder.com/350x200",
-                placeholder: new CircularProgressIndicator(),
-                errorWidget: new Icon(Icons.error),
-                fadeOutDuration: new Duration(seconds: 1),
-                fadeInDuration: new Duration(seconds: 3),
+              _sizedContainer(
+                CachedNetworkImage(
+                  imageUrl: "http://via.placeholder.com/350x200",
+                  placeholder: CircularProgressIndicator(),
+                  errorWidget: Icon(Icons.error),
+                  fadeOutDuration: Duration(seconds: 1),
+                  fadeInDuration: Duration(seconds: 3),
+                ),
               ),
-            ),
-
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
 
   Widget _sizedContainer(Widget child) {
-    return new SizedBox(
+    return SizedBox(
       width: 300.0,
       height: 150.0,
-      child: new Center(
+      child: Center(
         child: child,
       ),
     );
