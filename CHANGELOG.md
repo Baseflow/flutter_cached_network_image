@@ -1,3 +1,6 @@
+## [0.4.2] - 2018-08-30
+* Updated cache manager dependency
+
 ## [0.4.1] - 2018-04-27
 * Improved error handling when a file could not be loaded.
 
