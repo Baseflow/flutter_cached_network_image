@@ -1,3 +1,6 @@
+## [0.5.0] - 2018-10-13
+* Updated cache manager for http 0.12.0
+
 ## [0.4.2] - 2018-08-30
 * Updated cache manager dependency
 
