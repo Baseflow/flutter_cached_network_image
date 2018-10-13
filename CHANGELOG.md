@@ -1,6 +1,16 @@
-## [0.4.0-rc.1] - 2018-03-24
+## [0.5.0] - 2018-10-13
+* Updated cache manager for http 0.12.0
+
+## [0.4.2] - 2018-08-30
+* Updated cache manager dependency
+
+## [0.4.1] - 2018-04-27
+* Improved error handling when a file could not be loaded.
+
+## [0.4.0] - 2018-04-14
 * Added optional headers.
 * Changed to Dart 2.0
+* Fixed bug when updating widget with new url
 
 ## [0.3.0] - 2018-02-09
 * Added CachedNetworkImage with placeholder and error widgets.

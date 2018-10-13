@@ -22,6 +22,7 @@ class CachedNetworkImage extends StatefulWidget {
 
   /// Creates a widget that displays a [placeholder] while an [imageUrl] is loading
   /// then cross-fades to display the [imageUrl].
+  /// Optional [httpHeaders] can be used for example for authentication on the server.
   ///
   /// The [imageUrl], [fadeOutDuration], [fadeOutCurve],
   /// [fadeInDuration], [fadeInCurve], [alignment], [repeat], and
@@ -433,7 +434,7 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener, this.headers: const {}})
+      {this.scale: 1.0, this.errorListener, this.headers})
       : assert(url != null),
         assert(scale != null);
 
@@ -458,9 +459,7 @@ class CachedNetworkImageProvider
   @override
   ImageStreamCompleter load(CachedNetworkImageProvider key) {
     return new MultiFrameImageStreamCompleter(
-        codec: _loadAsync(key).catchError((e) {
-          if (errorListener != null) errorListener();
-        }),
+        codec: _loadAsync(key),
         scale: key.scale,
         informationCollector: (StringBuffer information) {
           information.writeln('Image provider: $this');
@@ -471,7 +470,11 @@ class CachedNetworkImageProvider
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var cacheManager = await CacheManager.getInstance();
     var file = await cacheManager.getFile(url, headers: headers);
-    return _loadAsyncFromFile(key, file);
+    if (file == null) {
+      if (errorListener != null) errorListener();
+      throw new Exception("Couldn't download or retreive file.");
+    }
+    return await _loadAsyncFromFile(key, file);
   }
 
   Future<ui.Codec> _loadAsyncFromFile(
@@ -479,7 +482,11 @@ class CachedNetworkImageProvider
     assert(key == this);
 
     final Uint8List bytes = await file.readAsBytes();
-    if (bytes.lengthInBytes == 0) return null;
+
+    if (bytes.lengthInBytes == 0) {
+      if (errorListener != null) errorListener();
+      throw new Exception("File was empty");
+    }
 
     return await ui.instantiateImageCodec(bytes);
   }
