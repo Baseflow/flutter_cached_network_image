@@ -268,7 +268,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (widget.imageUrl != oldWidget.imageUrl ||
         widget.placeholder != widget.placeholder) {
       _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-          errorListener: _imageLoadingFailed);
+          headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
 
       _resolveImage();
     }
