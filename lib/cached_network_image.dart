@@ -45,6 +45,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection: false,
     this.httpHeaders,
+    this.cacheManager,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -54,6 +55,9 @@ class CachedNetworkImage extends StatefulWidget {
         assert(repeat != null),
         assert(matchTextDirection != null),
         super(key: key);
+
+  /// Option to use cachemanager with other settings
+  final BaseCacheManager cacheManager;
 
   /// Widget displayed while the target [imageUrl] is loading.
   final Widget placeholder;
@@ -228,7 +232,9 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void initState() {
     _hasError = false;
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-        headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
+        headers: widget.httpHeaders,
+        errorListener: _imageLoadingFailed,
+        cacheManager: widget.cacheManager);
     _imageResolver =
         new _ImageProviderResolver(state: this, listener: _updatePhase);
 
@@ -268,8 +274,9 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (widget.imageUrl != oldWidget.imageUrl ||
         widget.placeholder != widget.placeholder) {
       _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-          headers: widget.httpHeaders, 
-          errorListener: _imageLoadingFailed);
+          headers: widget.httpHeaders,
+          errorListener: _imageLoadingFailed,
+          cacheManager: widget.cacheManager);
 
       _resolveImage();
     }
@@ -435,9 +442,11 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener, this.headers})
+      {this.scale: 1.0, this.errorListener, this.headers, this.cacheManager})
       : assert(url != null),
         assert(scale != null);
+
+  final BaseCacheManager cacheManager;
 
   /// Web url of the image to load
   final String url;
@@ -469,8 +478,8 @@ class CachedNetworkImageProvider
   }
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
-    var cacheManager = await CacheManager.getInstance();
-    var file = await cacheManager.getFile(url, headers: headers);
+    var mngr = cacheManager ?? DefaultCacheManager();
+    var file = await mngr.getSingleFile(url, headers: headers);
     if (file == null) {
       if (errorListener != null) errorListener();
       throw new Exception("Couldn't download or retreive file.");
