@@ -1,3 +1,6 @@
+## [0.6.0] - WIP
+* Adapted for new cache manager library
+
 ## [0.5.0] - 2018-10-13
 * Updated cache manager for http 0.12.0
 
