@@ -45,6 +45,8 @@ class CachedNetworkImage extends StatefulWidget {
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection: false,
     this.httpHeaders,
+    this.loadedCallback,
+    this.failedCallback,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -144,6 +146,12 @@ class CachedNetworkImage extends StatefulWidget {
 
   // Optional headers for the http request of the image url
   final Map<String, String> httpHeaders;
+
+  /// The callback will be executed when the image loaded.
+  final VoidCallback loadedCallback;
+
+  /// The callback will be executed when the image failed to load.
+  final VoidCallback failedCallback;
 
   @override
   State<StatefulWidget> createState() => new _CachedNetworkImageState();
@@ -287,18 +295,29 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (_phase == ImagePhase.start) _updatePhase();
   }
 
+  void _notifyCompleted() {
+    if (_phase != ImagePhase.completed) {
+      _phase = ImagePhase.completed;
+      if (_hasError && widget.failedCallback != null) {
+        widget.failedCallback();
+      } else if (!_hasError && widget.loadedCallback != null) {
+        widget.loadedCallback();
+      }
+    }
+  }
+
   void _updatePhase() {
     setState(() {
       switch (_phase) {
         case ImagePhase.start:
           if (_imageResolver._imageInfo != null || _hasError)
-            _phase = ImagePhase.completed;
+            _notifyCompleted();
           else
             _phase = ImagePhase.waiting;
           break;
         case ImagePhase.waiting:
           if (_hasError && widget.errorWidget == null) {
-            _phase = ImagePhase.completed;
+            _notifyCompleted();
             return;
           }
 
@@ -318,7 +337,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
         case ImagePhase.fadeIn:
           if (_controller.status == AnimationStatus.completed) {
             // Done finding in new image.
-            _phase = ImagePhase.completed;
+            _notifyCompleted();
           }
           break;
         case ImagePhase.completed:
