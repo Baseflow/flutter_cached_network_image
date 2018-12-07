@@ -45,6 +45,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection: false,
     this.httpHeaders,
+    this.color,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -144,6 +145,9 @@ class CachedNetworkImage extends StatefulWidget {
 
   // Optional headers for the http request of the image url
   final Map<String, String> httpHeaders;
+
+  // Optional apply color to the image
+  final Color color;
 
   @override
   State<StatefulWidget> createState() => new _CachedNetworkImageState();
@@ -401,7 +405,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
       width: widget.width,
       height: widget.height,
       scale: imageInfo?.scale ?? 1.0,
-      color: new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
+      color: widget.color.withOpacity(_animation?.value ?? 1.0) ?? new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
       colorBlendMode: BlendMode.modulate,
       fit: widget.fit,
       alignment: widget.alignment,
