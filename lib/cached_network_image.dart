@@ -272,6 +272,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           errorListener: _imageLoadingFailed);
 
       _resolveImage();
+      _hasError = false;
     }
   }
 
