@@ -43,6 +43,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.fit,
     this.alignment: Alignment.center,
     this.repeat: ImageRepeat.noRepeat,
+    this.backgroundColor,
     this.matchTextDirection: false,
     this.httpHeaders,
   })  : assert(imageUrl != null),
@@ -75,6 +76,8 @@ class CachedNetworkImage extends StatefulWidget {
 
   /// The curve of the fade-in animation for the [imageUrl].
   final Curve fadeInCurve;
+
+  final Color backgroundColor;
 
   /// If non-null, require the image to have this width.
   ///
@@ -402,7 +405,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
       width: widget.width,
       height: widget.height,
       scale: imageInfo?.scale ?? 1.0,
-      color: new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
+      color: widget.backgroundColor??new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
       colorBlendMode: BlendMode.modulate,
       fit: widget.fit,
       alignment: widget.alignment,
