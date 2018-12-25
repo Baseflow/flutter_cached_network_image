@@ -223,6 +223,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   Animation<double> _animation;
 
   ImagePhase _phase = ImagePhase.start;
+
   ImagePhase get phase => _phase;
 
   bool _hasError;
@@ -271,8 +272,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (widget.imageUrl != oldWidget.imageUrl ||
         widget.placeholder != widget.placeholder) {
       _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-          headers: widget.httpHeaders, 
-          errorListener: _imageLoadingFailed);
+          headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
 
       _resolveImage();
       _hasError = false;
@@ -405,8 +405,11 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
       width: widget.width,
       height: widget.height,
       scale: imageInfo?.scale ?? 1.0,
-      color: widget.backgroundColor??new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
-      colorBlendMode: BlendMode.modulate,
+      color: widget.backgroundColor ??
+          new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
+      colorBlendMode: widget.backgroundColor != null
+          ? BlendMode.dstOver
+          : BlendMode.modulate,
       fit: widget.fit,
       alignment: widget.alignment,
       repeat: widget.repeat,
