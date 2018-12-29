@@ -46,6 +46,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.matchTextDirection: false,
     this.httpHeaders,
     this.cacheManager,
+    this.keepAlive: false,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -146,6 +147,9 @@ class CachedNetworkImage extends StatefulWidget {
   /// scope.
   final bool matchTextDirection;
 
+  /// Determine if the state will be disposed when image out of bound
+  final bool keepAlive;
+
   // Optional headers for the http request of the image url
   final Map<String, String> httpHeaders;
 
@@ -216,7 +220,7 @@ class _ImageProviderResolver {
 }
 
 class _CachedNetworkImageState extends State<CachedNetworkImage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin<CachedNetworkImage> {
   _ImageProviderResolver _imageResolver;
   CachedNetworkImageProvider _imageProvider;
 
@@ -433,6 +437,9 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     description.add(new DiagnosticsProperty<ImageStream>(
         'image stream', _imageResolver._imageStream));
   }
+
+  @override
+  bool get wantKeepAlive => widget.keepAlive;
 }
 
 typedef void ErrorListener();
