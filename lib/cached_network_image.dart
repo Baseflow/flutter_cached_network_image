@@ -33,6 +33,7 @@ class CachedNetworkImage extends StatefulWidget {
     Key key,
     this.placeholder,
     @required this.imageUrl,
+    this.scrollController,
     this.errorWidget,
     this.fadeOutDuration: const Duration(milliseconds: 300),
     this.fadeOutCurve: Curves.easeOut,
@@ -43,7 +44,6 @@ class CachedNetworkImage extends StatefulWidget {
     this.fit,
     this.alignment: Alignment.center,
     this.repeat: ImageRepeat.noRepeat,
-    this.backgroundColor,
     this.matchTextDirection: false,
     this.httpHeaders,
   })  : assert(imageUrl != null),
@@ -55,6 +55,9 @@ class CachedNetworkImage extends StatefulWidget {
         assert(repeat != null),
         assert(matchTextDirection != null),
         super(key: key);
+
+  /// Control [imageUrl] displayed when stop scroll in scrollview.
+  final ScrollController scrollController;
 
   /// Widget displayed while the target [imageUrl] is loading.
   final Widget placeholder;
@@ -76,8 +79,6 @@ class CachedNetworkImage extends StatefulWidget {
 
   /// The curve of the fade-in animation for the [imageUrl].
   final Curve fadeInCurve;
-
-  final Color backgroundColor;
 
   /// If non-null, require the image to have this width.
   ///
@@ -398,6 +399,11 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (_hasError && widget.errorWidget != null) {
       return _fadedWidget(widget.errorWidget);
     }
+    if (widget.scrollController != null &&
+        widget.scrollController.position.activity.velocity != 0 &&
+        _phase != ImagePhase.completed) {
+      return widget.placeholder;
+    }
 
     final ImageInfo imageInfo = _imageResolver._imageInfo;
     return new RawImage(
@@ -405,11 +411,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
       width: widget.width,
       height: widget.height,
       scale: imageInfo?.scale ?? 1.0,
-      color: widget.backgroundColor ??
-          new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
-      colorBlendMode: widget.backgroundColor != null
-          ? BlendMode.dstOver
-          : BlendMode.modulate,
+      color: new Color.fromRGBO(255, 255, 255, _animation?.value ?? 1.0),
+      colorBlendMode: BlendMode.modulate,
       fit: widget.fit,
       alignment: widget.alignment,
       repeat: widget.repeat,
