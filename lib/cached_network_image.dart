@@ -228,6 +228,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   ImagePhase get phase => _phase;
 
   bool _hasError;
+  bool _isScrolling = false;
 
   @override
   void initState() {
@@ -248,6 +249,11 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     });
     _controller.addStatusListener((AnimationStatus status) {
       _updatePhase();
+    });
+    widget.scrollController?.addListener((){
+      setState(() {
+        _isScrolling = widget.scrollController.position.activity.velocity == 0;
+      });
     });
 
     super.initState();
@@ -392,8 +398,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   @override
   Widget build(BuildContext context) {
     assert(_phase != ImagePhase.start);
-    if (widget.scrollController != null &&
-        widget.scrollController.position.activity.velocity != 0 &&
+    if (_isScrolling &&
         _phase != ImagePhase.completed) {
       return widget.placeholder;
     }
