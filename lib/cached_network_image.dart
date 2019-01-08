@@ -392,17 +392,17 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   @override
   Widget build(BuildContext context) {
     assert(_phase != ImagePhase.start);
+    if (widget.scrollController != null &&
+        widget.scrollController.position.activity.velocity != 0 &&
+        _phase != ImagePhase.completed) {
+      return widget.placeholder;
+    }
     if (_isShowingPlaceholder && widget.placeholder != null) {
       return _fadedWidget(widget.placeholder);
     }
 
     if (_hasError && widget.errorWidget != null) {
       return _fadedWidget(widget.errorWidget);
-    }
-    if (widget.scrollController != null &&
-        widget.scrollController.position.activity.velocity != 0 &&
-        _phase != ImagePhase.completed) {
-      return widget.placeholder;
     }
 
     final ImageInfo imageInfo = _imageResolver._imageInfo;
