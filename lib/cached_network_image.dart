@@ -230,6 +230,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   bool _hasError;
   bool _isScrolling = false;
 
+  var _scrollListener;
+
   @override
   void initState() {
     _hasError = false;
@@ -250,12 +252,16 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     _controller.addStatusListener((AnimationStatus status) {
       _updatePhase();
     });
-    widget.scrollController?.addListener((){
-      setState(() {
-        _isScrolling = widget.scrollController.position.activity.velocity == 0;
-      });
-    });
-
+    if (widget.scrollController?.positions?.isNotEmpty) {
+      _scrollListener = () {
+        setState(() {
+          _isScrolling =
+              widget.scrollController.position.isScrollingNotifier.value;
+        });
+      };
+      widget.scrollController?.position?.isScrollingNotifier
+          ?.addListener(_scrollListener);
+    }
     super.initState();
   }
 
@@ -302,7 +308,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     setState(() {
       switch (_phase) {
         case ImagePhase.start:
-          if (_imageResolver._imageInfo != null || _hasError)
+          if ((_imageResolver._imageInfo != null && !_isScrolling) ||
+              (_hasError && !_isScrolling))
             _phase = ImagePhase.completed;
           else
             _phase = ImagePhase.waiting;
@@ -365,6 +372,9 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void dispose() {
     _imageResolver.stopListening();
     _controller.dispose();
+    if (widget.scrollController?.positions?.isNotEmpty)
+      widget.scrollController?.position?.isScrollingNotifier
+          ?.removeListener(_scrollListener);
     super.dispose();
   }
 
@@ -398,10 +408,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   @override
   Widget build(BuildContext context) {
     assert(_phase != ImagePhase.start);
-    if (_isScrolling &&
-        _phase != ImagePhase.completed) {
-      return widget.placeholder;
-    }
+
     if (_isShowingPlaceholder && widget.placeholder != null) {
       return _fadedWidget(widget.placeholder);
     }
