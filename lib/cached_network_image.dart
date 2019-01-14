@@ -228,9 +228,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   ImagePhase get phase => _phase;
 
   bool _hasError;
-  bool _isScrolling = false;
 
-  var _scrollListener;
+  VoidCallback _scrollListener;
 
   @override
   void initState() {
@@ -238,7 +237,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
         headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
     _imageResolver =
-        new _ImageProviderResolver(state: this, listener: _updatePhase);
+    new _ImageProviderResolver(state: this, listener: _updatePhase);
 
     _controller = new AnimationController(
       value: 1.0,
@@ -252,16 +251,18 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     _controller.addStatusListener((AnimationStatus status) {
       _updatePhase();
     });
-    if (widget.scrollController?.positions?.isNotEmpty) {
+    if (widget.scrollController != null &&
+        widget.scrollController.positions?.isNotEmpty) {
       _scrollListener = () {
-        setState(() {
-          _isScrolling =
-              widget.scrollController.position.isScrollingNotifier.value;
-        });
+        //stop scroll
+        if (!widget.scrollController.position.isScrollingNotifier.value) {
+          _updatePhase();
+        }
       };
-      widget.scrollController?.position?.isScrollingNotifier
-          ?.addListener(_scrollListener);
+      widget.scrollController.position.isScrollingNotifier
+          .addListener(_scrollListener);
     }
+
     super.initState();
   }
 
@@ -298,6 +299,16 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     super.reassemble();
   }
 
+  bool _isScrolling() {
+    bool _isScrolling = false;
+    if (widget.scrollController != null &&
+        widget.scrollController.positions?.isNotEmpty) {
+      _isScrolling = widget.scrollController.position.isScrollingNotifier.value;
+      print(_isScrolling);
+    }
+    return _isScrolling;
+  }
+
   void _resolveImage() {
     _imageResolver.resolve(_imageProvider);
 
@@ -308,19 +319,21 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     setState(() {
       switch (_phase) {
         case ImagePhase.start:
-          if ((_imageResolver._imageInfo != null && !_isScrolling) ||
-              (_hasError && !_isScrolling))
+          if ((_imageResolver._imageInfo != null && !_isScrolling()) ||
+              (_hasError && !_isScrolling())) {
             _phase = ImagePhase.completed;
-          else
+          } else {
             _phase = ImagePhase.waiting;
+          }
           break;
         case ImagePhase.waiting:
-          if (_hasError && widget.errorWidget == null) {
+          if (_hasError && widget.errorWidget == null && !_isScrolling()) {
             _phase = ImagePhase.completed;
             return;
           }
 
-          if (_imageResolver._imageInfo != null || _hasError) {
+          if ((_imageResolver._imageInfo != null && !_isScrolling()) ||
+              (_hasError && !_isScrolling())) {
             if (widget.placeholder == null) {
               _startFadeIn();
             } else {
@@ -329,18 +342,20 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           }
           break;
         case ImagePhase.fadeOut:
-          if (_controller.status == AnimationStatus.dismissed) {
+          if (_controller.status == AnimationStatus.dismissed &&
+              !_isScrolling()) {
             _startFadeIn();
           }
           break;
         case ImagePhase.fadeIn:
-          if (_controller.status == AnimationStatus.completed) {
+          if (_controller.status == AnimationStatus.completed &&
+              !_isScrolling()) {
             // Done finding in new image.
             _phase = ImagePhase.completed;
           }
           break;
         case ImagePhase.completed:
-          // Nothing to do.
+        // Nothing to do.
           break;
       }
     });
@@ -372,9 +387,10 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void dispose() {
     _imageResolver.stopListening();
     _controller.dispose();
-    if (widget.scrollController?.positions?.isNotEmpty)
-      widget.scrollController?.position?.isScrollingNotifier
-          ?.removeListener(_scrollListener);
+    if (widget.scrollController != null &&
+        widget.scrollController.positions?.isNotEmpty)
+      widget.scrollController.position.isScrollingNotifier
+          .removeListener(_scrollListener);
     super.dispose();
   }
 
@@ -408,7 +424,11 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   @override
   Widget build(BuildContext context) {
     assert(_phase != ImagePhase.start);
-
+    if (_phase != ImagePhase.completed &&
+        widget.placeholder != null &&
+        _isScrolling()) {
+      return widget.placeholder;
+    }
     if (_isShowingPlaceholder && widget.placeholder != null) {
       return _fadedWidget(widget.placeholder);
     }
