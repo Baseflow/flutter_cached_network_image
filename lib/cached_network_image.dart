@@ -35,9 +35,9 @@ class CachedNetworkImage extends StatefulWidget {
     @required this.imageUrl,
     this.scrollController,
     this.errorWidget,
-    this.fadeOutDuration: const Duration(milliseconds: 300),
+    this.fadeOutDuration: const Duration(milliseconds: 0),
     this.fadeOutCurve: Curves.easeOut,
-    this.fadeInDuration: const Duration(milliseconds: 700),
+    this.fadeInDuration: const Duration(milliseconds: 0),
     this.fadeInCurve: Curves.easeIn,
     this.width,
     this.height,
@@ -237,7 +237,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
         headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
     _imageResolver =
-    new _ImageProviderResolver(state: this, listener: _updatePhase);
+        new _ImageProviderResolver(state: this, listener: _updatePhase);
 
     _controller = new AnimationController(
       value: 1.0,
@@ -304,7 +304,6 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (widget.scrollController != null &&
         widget.scrollController.positions?.isNotEmpty) {
       _isScrolling = widget.scrollController.position.isScrollingNotifier.value;
-      print(_isScrolling);
     }
     return _isScrolling;
   }
@@ -355,7 +354,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           }
           break;
         case ImagePhase.completed:
-        // Nothing to do.
+          // Nothing to do.
           break;
       }
     });
@@ -374,6 +373,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
 
   // Done fading out placeholder. Begin target image fade-in.
   void _startFadeIn() {
+    if (_isScrolling()) return;
     _controller.duration = widget.fadeInDuration;
     _animation = new CurvedAnimation(
       parent: _controller,
