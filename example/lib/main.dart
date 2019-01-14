@@ -89,7 +89,8 @@ class _MyHomeState extends State<MyHomePage> {
   }
 
   Widget _buildGrid() => GridView.builder(
-        controller: controller,
+    itemCount: 50,
+//        controller: controller,
         gridDelegate:
             SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
         itemBuilder: (_, _i) => Container(

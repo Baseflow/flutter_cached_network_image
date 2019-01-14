@@ -35,9 +35,10 @@ class CachedNetworkImage extends StatefulWidget {
     @required this.imageUrl,
     this.scrollController,
     this.errorWidget,
-    this.fadeOutDuration: const Duration(milliseconds: 0),
+    this.fadeOutDuration: const Duration(milliseconds: 300),
     this.fadeOutCurve: Curves.easeOut,
-    this.fadeInDuration: const Duration(milliseconds: 0),
+    this.fadeInDuration: const Duration(milliseconds: 700),
+    this.delayDuration: const Duration(milliseconds: 300),
     this.fadeInCurve: Curves.easeIn,
     this.width,
     this.height,
@@ -76,6 +77,9 @@ class CachedNetworkImage extends StatefulWidget {
 
   /// The duration of the fade-in animation for the [imageUrl].
   final Duration fadeInDuration;
+
+  /// The duration of the delay display for the [imageUrl].
+  final Duration delayDuration;
 
   /// The curve of the fade-in animation for the [imageUrl].
   final Curve fadeInCurve;
@@ -255,9 +259,12 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
         widget.scrollController.positions?.isNotEmpty) {
       _scrollListener = () {
         //stop scroll
-        if (!widget.scrollController.position.isScrollingNotifier.value) {
-          _updatePhase();
-        }
+        Future.delayed(widget.delayDuration, () {
+          if (mounted &&
+              !widget.scrollController.position.isScrollingNotifier.value) {
+            _updatePhase();
+          }
+        });
       };
       widget.scrollController.position.isScrollingNotifier
           .addListener(_scrollListener);
@@ -424,12 +431,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   @override
   Widget build(BuildContext context) {
     assert(_phase != ImagePhase.start);
-    if (_phase != ImagePhase.completed &&
-        widget.placeholder != null &&
-        _isScrolling()) {
-      return widget.placeholder;
-    }
     if (_isShowingPlaceholder && widget.placeholder != null) {
+      if (_isScrolling()) return widget.placeholder;
       return _fadedWidget(widget.placeholder);
     }
 
