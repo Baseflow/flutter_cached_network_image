@@ -139,7 +139,7 @@ class CachedNetworkImage extends StatefulWidget {
 
 class _ImageTransitionHolder {
   final FileInfo image;
-  final AnimationController animationController;
+  AnimationController animationController;
   final bool hasError;
   Curve curve;
   final TickerFuture forwardTickerFuture;
@@ -150,9 +150,17 @@ class _ImageTransitionHolder {
     this.hasError: false,
     this.curve: Curves.easeIn,
   }) : forwardTickerFuture = animationController.forward();
+
+  dispose() {
+    if (animationController != null) {
+      animationController.dispose();
+      animationController = null;
+    }
+  }
 }
 
-class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProviderStateMixin {
+class CachedNetworkImageState extends State<CachedNetworkImage>
+    with TickerProviderStateMixin {
   List<_ImageTransitionHolder> _imageHolders = List();
   Key _streamBuilderKey = UniqueKey();
 
@@ -163,18 +171,32 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
 
   @override
   void didUpdateWidget(CachedNetworkImage oldWidget) {
-    if (oldWidget.imageUrl != widget.imageUrl && !widget.useOldImageOnUrlChange) {
+    if (oldWidget.imageUrl != widget.imageUrl &&
+        !widget.useOldImageOnUrlChange) {
       _streamBuilderKey = UniqueKey();
+      _disposeImageHolders();
       _imageHolders.clear();
     }
-
     super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _disposeImageHolders();
+    super.dispose();
+  }
+
+  _disposeImageHolders() {
+    for (var imageHolder in _imageHolders) {
+      imageHolder.dispose();
+    }
   }
 
   _nonAnimatedWidget() {
     return StreamBuilder<FileInfo>(
       initialData: _fileCache[widget.imageUrl],
-      stream: _cacheManager().getFile(widget.imageUrl, headers: widget.httpHeaders),
+      stream:
+          _cacheManager().getFile(widget.imageUrl, headers: widget.httpHeaders),
       builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
         _fileCache[widget.imageUrl] = snapshot.data;
         var fileInfo = snapshot.data;
@@ -203,6 +225,9 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
     if (_imageHolders.length > 0) {
       var lastHolder = _imageHolders.last;
       lastHolder.forwardTickerFuture.then((_) {
+        if (lastHolder.animationController == null) {
+          return;
+        }
         if (widget.fadeOutDuration != null) {
           lastHolder.animationController.duration = widget.fadeOutDuration;
         } else {
@@ -225,7 +250,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
         hasError: hasError ?? false,
         animationController: AnimationController(
           vsync: this,
-          duration: duration ?? (widget.fadeInDuration ?? Duration(milliseconds: 500)),
+          duration: duration ??
+              (widget.fadeInDuration ?? Duration(milliseconds: 500)),
         ),
       ),
     );
@@ -235,9 +261,11 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
     return StreamBuilder<FileInfo>(
       key: _streamBuilderKey,
       initialData: _fileCache[widget.imageUrl],
-      stream: _cacheManager().getFile(widget.imageUrl, headers: widget.httpHeaders).where((f) =>
-          f?.originalUrl != _fileCache[widget.imageUrl]?.originalUrl ||
-          f?.validTill != _fileCache[widget.imageUrl]?.validTill),
+      stream: _cacheManager()
+          .getFile(widget.imageUrl, headers: widget.httpHeaders)
+          .where((f) =>
+              f?.originalUrl != _fileCache[widget.imageUrl]?.originalUrl ||
+              f?.validTill != _fileCache[widget.imageUrl]?.validTill),
       builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
         _fileCache[widget.imageUrl] = snapshot.data;
         var fileInfo = snapshot.data;
@@ -254,15 +282,19 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
         } else if (_imageHolders.length == 0 ||
             _imageHolders.last.image?.originalUrl != fileInfo.originalUrl ||
             _imageHolders.last.image?.validTill != fileInfo.validTill) {
-          _addImage(image: fileInfo, duration: _imageHolders.length > 0 ? null : Duration.zero);
+          _addImage(
+              image: fileInfo,
+              duration: _imageHolders.length > 0 ? null : Duration.zero);
         }
 
         var children = <Widget>[];
         for (var holder in _imageHolders) {
           if (holder.image == null) {
-            children.add(_transitionWidget(holder: holder, child: _placeholder()));
+            children
+                .add(_transitionWidget(holder: holder, child: _placeholder()));
           } else if (holder.hasError) {
-            children.add(_transitionWidget(holder: holder, child: _errorWidget()));
+            children
+                .add(_transitionWidget(holder: holder, child: _errorWidget()));
           } else {
             children.add(_transitionWidget(
               holder: holder,
@@ -289,7 +321,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
 
   Widget _transitionWidget({_ImageTransitionHolder holder, Widget child}) {
     return FadeTransition(
-      opacity: CurvedAnimation(curve: holder.curve, parent: holder.animationController),
+      opacity: CurvedAnimation(
+          curve: holder.curve, parent: holder.animationController),
       child: child,
     );
   }

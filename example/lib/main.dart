@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(new MyApp());
 
@@ -82,13 +82,13 @@ class MyHomePage extends StatelessWidget {
 
   _gridView() {
     return new GridView.builder(
-        itemCount: 150,
+        itemCount: 250,
         gridDelegate:
             new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
         itemBuilder: (BuildContext context, int index) {
           return new CachedNetworkImage(
             imageUrl:
-                "http://via.placeholder.com/${(index + 1) * 10}x${(index + 1) * 10}",
+                "http://via.placeholder.com/${(index + 1)}x${(index % 100 + 1)}",
             placeholder: _loader(),
           );
         });
