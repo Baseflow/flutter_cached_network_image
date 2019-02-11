@@ -99,6 +99,10 @@ class CachedNetworkImage extends StatefulWidget {
   // Optional headers for the http request of the image url
   final Map<String, String> httpHeaders;
 
+  /// When set to true it will animate from the old image to the new image
+  /// if the url changes.
+  final bool useOldImageOnUrlChange;
+
   CachedNetworkImage({
     Key key,
     this.placeholder,
@@ -116,6 +120,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.matchTextDirection: false,
     this.httpHeaders,
     this.cacheManager,
+    this.useOldImageOnUrlChange: false,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -149,10 +154,21 @@ class _ImageTransitionHolder {
 
 class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProviderStateMixin {
   List<_ImageTransitionHolder> _imageHolders = List();
+  Key _streamBuilderKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
     return _animatedWidget();
+  }
+
+  @override
+  void didUpdateWidget(CachedNetworkImage oldWidget) {
+    if (oldWidget.imageUrl != widget.imageUrl && !widget.useOldImageOnUrlChange) {
+      _streamBuilderKey = UniqueKey();
+      _imageHolders.clear();
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   _nonAnimatedWidget() {
@@ -186,17 +202,17 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   _addImage({FileInfo image, bool hasError, Duration duration}) {
     if (_imageHolders.length > 0) {
       var lastHolder = _imageHolders.last;
-      if (widget.fadeOutDuration != null) {
-        lastHolder.animationController.duration = widget.fadeOutDuration;
-      } else {
-        lastHolder.animationController.duration = Duration(seconds: 1);
-      }
-      if (widget.fadeOutCurve != null) {
-        lastHolder.curve = widget.fadeOutCurve;
-      } else {
-        lastHolder.curve = Curves.easeOut;
-      }
       lastHolder.forwardTickerFuture.then((_) {
+        if (widget.fadeOutDuration != null) {
+          lastHolder.animationController.duration = widget.fadeOutDuration;
+        } else {
+          lastHolder.animationController.duration = Duration(seconds: 1);
+        }
+        if (widget.fadeOutCurve != null) {
+          lastHolder.curve = widget.fadeOutCurve;
+        } else {
+          lastHolder.curve = Curves.easeOut;
+        }
         lastHolder.animationController.reverse().then((_) {
           _imageHolders.remove(lastHolder);
           return null;
@@ -217,6 +233,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
 
   _animatedWidget() {
     return StreamBuilder<FileInfo>(
+      key: _streamBuilderKey,
       initialData: _fileCache[widget.imageUrl],
       stream: _cacheManager().getFile(widget.imageUrl, headers: widget.httpHeaders).where((f) =>
           f?.originalUrl != _fileCache[widget.imageUrl]?.originalUrl ||
