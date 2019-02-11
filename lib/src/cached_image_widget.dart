@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 Map<String, FileInfo> _fileCache = new Map<String, FileInfo>();
 
-class CachedNetworkImage extends StatelessWidget {
+class CachedNetworkImage extends StatefulWidget {
   /// Option to use cachemanager with other settings
   final BaseCacheManager cacheManager;
 
@@ -82,13 +83,13 @@ class CachedNetworkImage extends StatelessWidget {
   ///
   /// If this is true, then in [TextDirection.ltr] contexts, the image will be
   /// drawn with its origin in the top left (the "normal" painting direction for
-  /// images); and in [TextDirection.rtl] contexts, the image will be drawn with
+  /// children); and in [TextDirection.rtl] contexts, the image will be drawn with
   /// a scaling factor of -1 in the horizontal direction so that the origin is
   /// in the top right.
   ///
-  /// This is occasionally used with images in right-to-left environments, for
-  /// images that were designed for left-to-right locales. Be careful, when
-  /// using this, to not flip images with integral shadows, text, or other
+  /// This is occasionally used with children in right-to-left environments, for
+  /// children that were designed for left-to-right locales. Be careful, when
+  /// using this, to not flip children with integral shadows, text, or other
   /// effects that will look incorrect when flipped.
   ///
   /// If this is true, there must be an ambient [Directionality] widget in
@@ -97,6 +98,10 @@ class CachedNetworkImage extends StatelessWidget {
 
   // Optional headers for the http request of the image url
   final Map<String, String> httpHeaders;
+
+  /// When set to true it will animate from the old image to the new image
+  /// if the url changes.
+  final bool useOldImageOnUrlChange;
 
   CachedNetworkImage({
     Key key,
@@ -115,6 +120,7 @@ class CachedNetworkImage extends StatelessWidget {
     this.matchTextDirection: false,
     this.httpHeaders,
     this.cacheManager,
+    this.useOldImageOnUrlChange: false,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -126,18 +132,52 @@ class CachedNetworkImage extends StatelessWidget {
         super(key: key);
 
   @override
+  CachedNetworkImageState createState() {
+    return new CachedNetworkImageState();
+  }
+}
+
+class _ImageTransitionHolder {
+  final FileInfo image;
+  final AnimationController animationController;
+  final bool hasError;
+  Curve curve;
+  final TickerFuture forwardTickerFuture;
+
+  _ImageTransitionHolder({
+    this.image,
+    @required this.animationController,
+    this.hasError: false,
+    this.curve: Curves.easeIn,
+  }) : forwardTickerFuture = animationController.forward();
+}
+
+class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProviderStateMixin {
+  List<_ImageTransitionHolder> _imageHolders = List();
+  Key _streamBuilderKey = UniqueKey();
+
+  @override
   Widget build(BuildContext context) {
-    return _nonAnimatedWidget();
+    return _animatedWidget();
+  }
+
+  @override
+  void didUpdateWidget(CachedNetworkImage oldWidget) {
+    if (oldWidget.imageUrl != widget.imageUrl && !widget.useOldImageOnUrlChange) {
+      _streamBuilderKey = UniqueKey();
+      _imageHolders.clear();
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   _nonAnimatedWidget() {
     return StreamBuilder<FileInfo>(
-      stream: _cacheManager().getFile(imageUrl, headers: httpHeaders),
+      initialData: _fileCache[widget.imageUrl],
+      stream: _cacheManager().getFile(widget.imageUrl, headers: widget.httpHeaders),
       builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
-        if (snapshot?.data != null) {
-          _fileCache[imageUrl] = snapshot.data;
-        }
-        var fileInfo = _fileCache[imageUrl];
+        _fileCache[widget.imageUrl] = snapshot.data;
+        var fileInfo = snapshot.data;
         if (fileInfo == null) {
           // placeholder
           return _placeholder();
@@ -148,30 +188,125 @@ class CachedNetworkImage extends StatelessWidget {
         }
         return Image.file(
           fileInfo.file,
-          fit: fit,
-          width: width,
-          height: height,
-          alignment: alignment,
-          repeat: repeat,
-          matchTextDirection: matchTextDirection,
+          fit: widget.fit,
+          width: widget.width,
+          height: widget.height,
+          alignment: widget.alignment,
+          repeat: widget.repeat,
+          matchTextDirection: widget.matchTextDirection,
         );
       },
     );
   }
 
+  _addImage({FileInfo image, bool hasError, Duration duration}) {
+    if (_imageHolders.length > 0) {
+      var lastHolder = _imageHolders.last;
+      lastHolder.forwardTickerFuture.then((_) {
+        if (widget.fadeOutDuration != null) {
+          lastHolder.animationController.duration = widget.fadeOutDuration;
+        } else {
+          lastHolder.animationController.duration = Duration(seconds: 1);
+        }
+        if (widget.fadeOutCurve != null) {
+          lastHolder.curve = widget.fadeOutCurve;
+        } else {
+          lastHolder.curve = Curves.easeOut;
+        }
+        lastHolder.animationController.reverse().then((_) {
+          _imageHolders.remove(lastHolder);
+          return null;
+        });
+      });
+    }
+    _imageHolders.add(
+      _ImageTransitionHolder(
+        image: image,
+        hasError: hasError ?? false,
+        animationController: AnimationController(
+          vsync: this,
+          duration: duration ?? (widget.fadeInDuration ?? Duration(milliseconds: 500)),
+        ),
+      ),
+    );
+  }
+
+  _animatedWidget() {
+    return StreamBuilder<FileInfo>(
+      key: _streamBuilderKey,
+      initialData: _fileCache[widget.imageUrl],
+      stream: _cacheManager().getFile(widget.imageUrl, headers: widget.httpHeaders).where((f) =>
+          f?.originalUrl != _fileCache[widget.imageUrl]?.originalUrl ||
+          f?.validTill != _fileCache[widget.imageUrl]?.validTill),
+      builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
+        _fileCache[widget.imageUrl] = snapshot.data;
+        var fileInfo = snapshot.data;
+        if (fileInfo == null) {
+          // placeholder
+          if (_imageHolders.length == 0 || _imageHolders.last.image != null) {
+            _addImage(image: null, duration: Duration(milliseconds: 500));
+          }
+        } else if (fileInfo.file == null) {
+          // error
+          if (_imageHolders.length == 0 || !_imageHolders.last.hasError) {
+            _addImage(image: fileInfo, hasError: true);
+          }
+        } else if (_imageHolders.length == 0 ||
+            _imageHolders.last.image?.originalUrl != fileInfo.originalUrl ||
+            _imageHolders.last.image?.validTill != fileInfo.validTill) {
+          _addImage(image: fileInfo, duration: _imageHolders.length > 0 ? null : Duration.zero);
+        }
+
+        var children = <Widget>[];
+        for (var holder in _imageHolders) {
+          if (holder.image == null) {
+            children.add(_transitionWidget(holder: holder, child: _placeholder()));
+          } else if (holder.hasError) {
+            children.add(_transitionWidget(holder: holder, child: _errorWidget()));
+          } else {
+            children.add(_transitionWidget(
+              holder: holder,
+              child: Image.file(
+                holder.image.file,
+                fit: widget.fit,
+                width: widget.width,
+                height: widget.height,
+                alignment: widget.alignment,
+                repeat: widget.repeat,
+                matchTextDirection: widget.matchTextDirection,
+              ),
+            ));
+          }
+        }
+
+        return Stack(
+          alignment: widget.alignment,
+          children: children.reversed.toList(),
+        );
+      },
+    );
+  }
+
+  Widget _transitionWidget({_ImageTransitionHolder holder, Widget child}) {
+    return FadeTransition(
+      opacity: CurvedAnimation(curve: holder.curve, parent: holder.animationController),
+      child: child,
+    );
+  }
+
   _cacheManager() {
-    return cacheManager ?? DefaultCacheManager();
+    return widget.cacheManager ?? DefaultCacheManager();
   }
 
   _placeholder() {
-    return placeholder ??
+    return widget.placeholder ??
         new SizedBox(
-          width: width,
-          height: height,
+          width: widget.width,
+          height: widget.height,
         );
   }
 
   _errorWidget() {
-    return errorWidget ?? _placeholder();
+    return widget.errorWidget ?? _placeholder();
   }
 }
