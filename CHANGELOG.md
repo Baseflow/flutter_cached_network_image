@@ -1,5 +1,6 @@
 ## [0.6.0] - WIP
 * Adapted for new cache manager library
+* Completely rewritten animated image view
 
 ## [0.5.1] - 2018-11-19
 * Fixed error throwing
