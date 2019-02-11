@@ -37,25 +37,27 @@ class MyHomePage extends StatelessWidget {
         // the App.build method, and use it to set our appbar title.
         title: new Text(title),
       ),
-      body:
-      new SingleChildScrollView(child:
-      new Center(
+      body: _gridView(),
+    );
+  }
+
+  _testContent() {
+    return new SingleChildScrollView(
+      child: new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-
             _sizedContainer(
               new Image(
-                image: new CachedNetworkImageProvider("http://via.placeholder.com/350x150"),
+                image: new CachedNetworkImageProvider(
+                    "http://via.placeholder.com/350x150"),
               ),
             ),
-
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "http://via.placeholder.com/200x150",
               ),
             ),
-
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "not a valid uri",
@@ -63,7 +65,6 @@ class MyHomePage extends StatelessWidget {
                 errorWidget: new Icon(Icons.error),
               ),
             ),
-
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "http://via.placeholder.com/350x200",
@@ -73,11 +74,29 @@ class MyHomePage extends StatelessWidget {
                 fadeInDuration: new Duration(seconds: 3),
               ),
             ),
-
           ],
         ),
       ),
-      ),
+    );
+  }
+
+  _gridView() {
+    return new GridView.builder(
+        itemCount: 150,
+        gridDelegate:
+            new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        itemBuilder: (BuildContext context, int index) {
+          return new CachedNetworkImage(
+            imageUrl:
+                "http://via.placeholder.com/${(index + 1) * 10}x${(index + 1) * 10}",
+            placeholder: _loader(),
+          );
+        });
+  }
+
+  _loader() {
+    return new Center(
+      child: CircularProgressIndicator(),
     );
   }
 
