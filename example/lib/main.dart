@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(new MyApp());
 
@@ -37,47 +37,74 @@ class MyHomePage extends StatelessWidget {
         // the App.build method, and use it to set our appbar title.
         title: new Text(title),
       ),
-      body:
-      new SingleChildScrollView(child:
-      new Center(
+      body: _gridView(),
+    );
+  }
+
+  _testContent() {
+    return new SingleChildScrollView(
+      child: new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-
             _sizedContainer(
               new Image(
-                image: new CachedNetworkImageProvider("http://via.placeholder.com/350x150"),
+                image: new CachedNetworkImageProvider(
+                    "http://via.placeholder.com/350x150"),
               ),
             ),
-
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "http://via.placeholder.com/200x150",
               ),
             ),
-
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "not a valid uri",
-                placeholder: new CircularProgressIndicator(),
-                errorWidget: new Icon(Icons.error),
+                placeholder: (context, url) => new CircularProgressIndicator(),
+                errorWidget: (context, url, error) => new Icon(Icons.error),
               ),
             ),
-
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "http://via.placeholder.com/350x200",
-                placeholder: new CircularProgressIndicator(),
-                errorWidget: new Icon(Icons.error),
+                placeholder: (context, url) => new CircularProgressIndicator(),
+                errorWidget: (context, url, error) => new Icon(Icons.error),
                 fadeOutDuration: new Duration(seconds: 1),
                 fadeInDuration: new Duration(seconds: 3),
               ),
             ),
-
           ],
         ),
       ),
-      ),
+    );
+  }
+
+  _gridView() {
+    return new GridView.builder(
+        itemCount: 250,
+        gridDelegate:
+            new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        itemBuilder: (BuildContext context, int index) {
+          return new CachedNetworkImage(
+            imageUrl:
+                "http://via.placeholder.com/${(index + 1)}x${(index % 100 + 1)}",
+            placeholder: _loader,
+            errorWidget: _error,
+          );
+        });
+  }
+
+  Widget _loader(BuildContext context, String url) {
+    return new Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _error(BuildContext context, String url, Exception error) {
+    print(error);
+    return new Center(
+      child: Icon(Icons.error),
     );
   }
 

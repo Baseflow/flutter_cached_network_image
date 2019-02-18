@@ -1,3 +1,12 @@
+## [0.6.0] - 2019-02-18
+* Adapted for new cache manager library
+* Completely rewritten image view
+* Now using builders for placeholder and error widgets
+* Added optional builder to customize the image
+
+## [0.5.1] - 2018-11-19
+* Fixed error throwing
+
 ## [0.5.0] - 2018-10-13
 * Updated cache manager for http 0.12.0
 
