@@ -11,9 +11,9 @@ The CachedNetworkImage can be used directly or through the ImageProvider.
 
 ```
 new CachedNetworkImage(
-       imageUrl: "http://via.placeholder.com/350x150",
-       placeholder: new CircularProgressIndicator(),
-       errorWidget: new Icon(Icons.error),
+        imageUrl: "http://via.placeholder.com/350x150",
+        placeholder: (context, url) => new CircularProgressIndicator(),
+        errorWidget: (context, url, error) => new Icon(Icons.error),
      ),
  ```
 
