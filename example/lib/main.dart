@@ -61,15 +61,15 @@ class MyHomePage extends StatelessWidget {
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "not a valid uri",
-                placeholder: new CircularProgressIndicator(),
-                errorWidget: new Icon(Icons.error),
+                placeholder: (context, url) => new CircularProgressIndicator(),
+                errorWidget: (context, url, error) => new Icon(Icons.error),
               ),
             ),
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "http://via.placeholder.com/350x200",
-                placeholder: new CircularProgressIndicator(),
-                errorWidget: new Icon(Icons.error),
+                placeholder: (context, url) => new CircularProgressIndicator(),
+                errorWidget: (context, url, error) => new Icon(Icons.error),
                 fadeOutDuration: new Duration(seconds: 1),
                 fadeInDuration: new Duration(seconds: 3),
               ),
@@ -89,14 +89,22 @@ class MyHomePage extends StatelessWidget {
           return new CachedNetworkImage(
             imageUrl:
                 "http://via.placeholder.com/${(index + 1)}x${(index % 100 + 1)}",
-            placeholder: _loader(),
+            placeholder: _loader,
+            errorWidget: _error,
           );
         });
   }
 
-  _loader() {
+  Widget _loader(BuildContext context, String url) {
     return new Center(
       child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _error(BuildContext context, String url, Exception error) {
+    print(error);
+    return new Center(
+      child: Icon(Icons.error),
     );
   }
 
