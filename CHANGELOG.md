@@ -1,4 +1,6 @@
-## [0.6.0] - 2019-02-18
+## [0.6.0] - 2019-02-18 BREAKING CHANGES
+* Breaking changes in API and behaviour
+* Very much improved though
 * Adapted for new cache manager library
 * Completely rewritten image view
 * Now using builders for placeholder and error widgets

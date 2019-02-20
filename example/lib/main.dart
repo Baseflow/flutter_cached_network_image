@@ -55,12 +55,13 @@ class MyHomePage extends StatelessWidget {
             ),
             _sizedContainer(
               new CachedNetworkImage(
+                placeholder: (context, url) => new CircularProgressIndicator(),
                 imageUrl: "http://via.placeholder.com/200x150",
               ),
             ),
             _sizedContainer(
               new CachedNetworkImage(
-                imageUrl: "not a valid uri",
+                imageUrl: "http://notAvalid.uri",
                 placeholder: (context, url) => new CircularProgressIndicator(),
                 errorWidget: (context, url, error) => new Icon(Icons.error),
               ),

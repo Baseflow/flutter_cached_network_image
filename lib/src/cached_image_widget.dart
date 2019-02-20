@@ -284,15 +284,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
               child: new Container(
                 height: widget.height ?? double.infinity,
                 width: widget.width ?? double.infinity,
-                child: Image.file(
-                  holder.image.file,
-                  fit: widget.fit,
-                  width: widget.width,
-                  height: widget.height,
-                  alignment: widget.alignment,
-                  repeat: widget.repeat,
-                  matchTextDirection: widget.matchTextDirection,
-                ),
+                child: _image(context, FileImage(holder.image.file)),
               ),
             ));
           }
@@ -319,16 +311,17 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   _image(BuildContext context, ImageProvider imageProvider) {
-    return widget.imageBuilder(context, imageProvider) ??
-        new Image(
-          image: imageProvider,
-          fit: widget.fit,
-          width: widget.width,
-          height: widget.height,
-          alignment: widget.alignment,
-          repeat: widget.repeat,
-          matchTextDirection: widget.matchTextDirection,
-        );
+    return widget.imageBuilder != null
+        ? widget.imageBuilder(context, imageProvider)
+        : new Image(
+            image: imageProvider,
+            fit: widget.fit,
+            width: widget.width,
+            height: widget.height,
+            alignment: widget.alignment,
+            repeat: widget.repeat,
+            matchTextDirection: widget.matchTextDirection,
+          );
   }
 
   _placeholder(BuildContext context) {
