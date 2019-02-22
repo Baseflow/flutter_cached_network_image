@@ -112,6 +112,19 @@ class CachedNetworkImage extends StatefulWidget {
   /// if the url changes.
   final bool useOldImageOnUrlChange;
 
+  /// If non-null, this color is blended with each image pixel using [colorBlendMode].
+  final Color color;
+
+  /// Used to combine [color] with this image.
+  ///
+  /// The default is [BlendMode.srcIn]. In terms of the blend mode, [color] is
+  /// the source and this image is the destination.
+  ///
+  /// See also:
+  ///
+  ///  * [BlendMode], which includes an illustration of the effect of each blend mode.
+  final BlendMode colorBlendMode;
+
   CachedNetworkImage({
     Key key,
     @required this.imageUrl,
@@ -131,6 +144,8 @@ class CachedNetworkImage extends StatefulWidget {
     this.httpHeaders,
     this.cacheManager,
     this.useOldImageOnUrlChange: false,
+    this.color,
+    this.colorBlendMode,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -320,6 +335,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             height: widget.height,
             alignment: widget.alignment,
             repeat: widget.repeat,
+            color: widget.color,
+            colorBlendMode: widget.colorBlendMode,
             matchTextDirection: widget.matchTextDirection,
           );
   }
