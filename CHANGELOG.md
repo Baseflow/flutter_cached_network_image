@@ -1,3 +1,7 @@
+## [0.6.2] - 2019-02-27
+* Added option to blend image with color
+* Added option in CacheManager to clear the cache
+
 ## [0.6.1] - 2019-02-25 BREAKING CHANGES
 * No longer assume infinite size.
 
