@@ -1,3 +1,6 @@
+## [0.6.1] - 2019-02-25 BREAKING CHANGES
+* No longer assume infinite size.
+
 ## [0.6.0] - 2019-02-18 BREAKING CHANGES
 * Breaking changes in API and behaviour
 * Very much improved though
