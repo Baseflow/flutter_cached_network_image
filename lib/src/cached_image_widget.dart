@@ -312,10 +312,14 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   Widget _transitionWidget({_ImageTransitionHolder holder, Widget child}) {
-    return FadeTransition(
-      opacity: CurvedAnimation(
-          curve: holder.curve, parent: holder.animationController),
-      child: child,
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: FadeTransition(
+        opacity: CurvedAnimation(
+            curve: holder.curve, parent: holder.animationController),
+        child: child,
+      ),
     );
   }
 
