@@ -304,6 +304,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
         }
 
         return Stack(
+          fit: StackFit.passthrough,
           alignment: widget.alignment,
           children: children.reversed.toList(),
         );
