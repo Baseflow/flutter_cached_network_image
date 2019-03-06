@@ -1,3 +1,8 @@
+## [0.7.0] - 2019-03-06
+* BREAKING CHANGE: Renamed ErrorWidgetBuilder to LoadingErrorWidgetBuilder
+* LoadingErrorWidgetBuilder returns an Object instead of an Exception
+* Fixed BoxFit to also work when size is not defined
+
 ## [0.6.2] - 2019-02-27
 * Added option to blend image with color
 * Added option in CacheManager to clear the cache
