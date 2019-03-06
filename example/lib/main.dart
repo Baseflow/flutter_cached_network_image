@@ -37,7 +37,7 @@ class MyHomePage extends StatelessWidget {
         // the App.build method, and use it to set our appbar title.
         title: new Text(title),
       ),
-      body: _gridView(),
+      body: _testContent(),
     );
   }
 
@@ -62,6 +62,13 @@ class MyHomePage extends StatelessWidget {
             _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "http://notAvalid.uri",
+                placeholder: (context, url) => new CircularProgressIndicator(),
+                errorWidget: (context, url, error) => new Icon(Icons.error),
+              ),
+            ),
+            _sizedContainer(
+              new CachedNetworkImage(
+                imageUrl: "not a uri at all",
                 placeholder: (context, url) => new CircularProgressIndicator(),
                 errorWidget: (context, url, error) => new Icon(Icons.error),
               ),

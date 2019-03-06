@@ -8,8 +8,8 @@ Map<String, FileInfo> _fileCache = new Map<String, FileInfo>();
 typedef Widget ImageWidgetBuilder(
     BuildContext context, ImageProvider imageProvider);
 typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
-typedef Widget ErrorWidgetBuilder(
-    BuildContext context, String url, Exception e);
+typedef Widget LoadingErrorWidgetBuilder(
+    BuildContext context, String url, Object error);
 
 class CachedNetworkImage extends StatefulWidget {
   /// Option to use cachemanager with other settings
@@ -25,7 +25,7 @@ class CachedNetworkImage extends StatefulWidget {
   final PlaceholderWidgetBuilder placeholder;
 
   /// Widget displayed while the target [imageUrl] failed loading.
-  final ErrorWidgetBuilder errorWidget;
+  final LoadingErrorWidgetBuilder errorWidget;
 
   /// The duration of the fade-out animation for the [placeholder].
   final Duration fadeOutDuration;
@@ -165,7 +165,7 @@ class CachedNetworkImage extends StatefulWidget {
 class _ImageTransitionHolder {
   final FileInfo image;
   AnimationController animationController;
-  final Exception error;
+  final Object error;
   Curve curve;
   final TickerFuture forwardTickerFuture;
 
@@ -217,7 +217,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     }
   }
 
-  _addImage({FileInfo image, Exception error, Duration duration}) {
+  _addImage({FileInfo image, Object error, Duration duration}) {
     if (_imageHolders.length > 0) {
       var lastHolder = _imageHolders.last;
       lastHolder.forwardTickerFuture.then((_) {
@@ -349,9 +349,9 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
           );
   }
 
-  _errorWidget(BuildContext context, Exception e) {
+  _errorWidget(BuildContext context, Object error) {
     return widget.errorWidget != null
-        ? widget.errorWidget(context, widget.imageUrl, e)
+        ? widget.errorWidget(context, widget.imageUrl, error)
         : _placeholder(context);
   }
 }
