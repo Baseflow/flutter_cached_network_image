@@ -291,9 +291,9 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             children.add(_transitionWidget(
                 holder: holder, child: _errorWidget(context, holder.error)));
           } else if (holder.image == null) {
-            children.add(_transitionWidget(
-                holder: holder, child: _placeholder(context)));
+            children.add(_placeholder(context));
           } else {
+            children.clear();
             children.add(_transitionWidget(
                 holder: holder,
                 child: _image(

@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 
 void main() => runApp(new MyApp());
 
@@ -25,66 +29,96 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   final String title;
+
   MyHomePage({this.title});
 
+  @override
+  State<StatefulWidget> createState() {
+    return _MyHomePageState();
+  }
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: new Text(title),
+        title: new Text(widget.title),
       ),
-      body: _testContent(),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              Container(
+                child: Swiper(
+                  itemBuilder: (BuildContext context, int index) {
+                    return CachedNetworkImage(
+                      placeholder: (context, url) => Image.asset("assets/placeholder.png"),
+                      imageUrl: "http://via.placeholder.com/${600+index}x640/0000FF",
+                      fit: BoxFit.cover,
+                    );
+                  },
+                  itemCount: 10,
+                  controller: new SwiperController(),
+                  pagination: SwiperPagination(
+                      builder:
+                      DotSwiperPaginationBuilder(size: 5.0, activeSize: 5.0)),
+                ),
+                width: MediaQuery.of(context).size.width,
+                height: 400.0,
+              ),
+              _testContent(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   _testContent() {
-    return new SingleChildScrollView(
-      child: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _sizedContainer(
-              new Image(
-                image: new CachedNetworkImageProvider(
-                    "http://via.placeholder.com/350x150"),
-              ),
-            ),
-            _sizedContainer(
-              new CachedNetworkImage(
-                placeholder: (context, url) => new CircularProgressIndicator(),
-                imageUrl: "http://via.placeholder.com/200x150",
-              ),
-            ),
-            _sizedContainer(
-              new CachedNetworkImage(
-                imageUrl: "http://notAvalid.uri",
-                placeholder: (context, url) => new CircularProgressIndicator(),
-                errorWidget: (context, url, error) => new Icon(Icons.error),
-              ),
-            ),
-            _sizedContainer(
-              new CachedNetworkImage(
-                imageUrl: "not a uri at all",
-                placeholder: (context, url) => new CircularProgressIndicator(),
-                errorWidget: (context, url, error) => new Icon(Icons.error),
-              ),
-            ),
-            _sizedContainer(
-              new CachedNetworkImage(
-                imageUrl: "http://via.placeholder.com/350x200",
-                placeholder: (context, url) => new CircularProgressIndicator(),
-                errorWidget: (context, url, error) => new Icon(Icons.error),
-                fadeOutDuration: new Duration(seconds: 1),
-                fadeInDuration: new Duration(seconds: 3),
-              ),
-            ),
-          ],
+    return  new Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        _sizedContainer(
+          new Image(
+            image: new CachedNetworkImageProvider(
+                "http://via.placeholder.com/350x150"),
+          ),
         ),
-      ),
+        _sizedContainer(
+          new CachedNetworkImage(
+            placeholder: (context, url)  => new CircularProgressIndicator(),
+            imageUrl: "http://via.placeholder.com/600x750",
+          ),
+        ),
+        _sizedContainer(
+          new CachedNetworkImage(
+            imageUrl: "http://notAvalid.uri",
+            placeholder: (context, url) => new CircularProgressIndicator(),
+            errorWidget: (context, url, error) => new Icon(Icons.error),
+          ),
+        ),
+        _sizedContainer(
+          new CachedNetworkImage(
+            imageUrl: "not a uri at all",
+            placeholder: (context, url) => new CircularProgressIndicator(),
+            errorWidget: (context, url, error) => new Icon(Icons.error),
+          ),
+        ),
+        _sizedContainer(
+          new CachedNetworkImage(
+            imageUrl: "http://via.placeholder.com/350x200",
+            placeholder: (context, url) => new CircularProgressIndicator(),
+            errorWidget: (context, url, error) => new Icon(Icons.error),
+            fadeOutDuration: new Duration(seconds: 1),
+            fadeInDuration: new Duration(seconds: 3),
+          ),
+        ),
+      ],
     );
   }
 
@@ -92,11 +126,11 @@ class MyHomePage extends StatelessWidget {
     return new GridView.builder(
         itemCount: 250,
         gridDelegate:
-            new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
         itemBuilder: (BuildContext context, int index) {
           return new CachedNetworkImage(
             imageUrl:
-                "http://via.placeholder.com/${(index + 1)}x${(index % 100 + 1)}",
+            "http://via.placeholder.com/${(index + 1)}x${(index % 100 + 1)}",
             placeholder: _loader,
             errorWidget: _error,
           );
