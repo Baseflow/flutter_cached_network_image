@@ -12,7 +12,7 @@ A flutter library to show images from the internet and keep them in the cache di
 ## How to use
 The CachedNetworkImage can be used directly or through the ImageProvider.
 
-```
+```dart
 new CachedNetworkImage(
         imageUrl: "http://via.placeholder.com/350x150",
         placeholder: (context, url) => new CircularProgressIndicator(),
@@ -21,7 +21,7 @@ new CachedNetworkImage(
  ```
 
 
-````
+````dart
 new Image(image: new CachedNetworkImageProvider(url))
 ````
 
