@@ -1,5 +1,5 @@
-import 'dart:async';
-import 'dart:io';
+import 'dart:async' show Future;
+import 'dart:io' show File;
 import 'dart:typed_data';
 import 'dart:ui' as ui show instantiateImageCodec, Codec;
 
@@ -41,12 +41,16 @@ class CachedNetworkImageProvider
   @override
   ImageStreamCompleter load(CachedNetworkImageProvider key) {
     return new MultiFrameImageStreamCompleter(
-        codec: _loadAsync(key),
-        scale: key.scale,
-        informationCollector: (StringBuffer information) {
-          information.writeln('Image provider: $this');
-          information.write('Image key: $key');
-        });
+      codec: _loadAsync(key),
+      scale: key.scale,
+      informationCollector: () sync* {
+        yield DiagnosticsProperty<ImageProvider>(
+          'Image provider: $this \n Image key: $key',
+          this,
+          style: DiagnosticsTreeStyle.errorProperty,
+        );
+      },
+    );
   }
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
