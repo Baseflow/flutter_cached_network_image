@@ -1,3 +1,6 @@
+## [0.8.0] - 2019-05-06
+* Fixed compile error on informationCollector by temporarily disabling it.
+
 ## [0.7.0] - 2019-03-06
 * BREAKING CHANGE: Renamed ErrorWidgetBuilder to LoadingErrorWidgetBuilder
 * LoadingErrorWidgetBuilder returns an Object instead of an Exception
