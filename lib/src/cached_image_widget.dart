@@ -254,12 +254,12 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   _animatedWidget() {
-    return StreamBuilder<FileInfo>(
+    return FutureBuilder<FileInfo>(
       key: _streamBuilderKey,
       initialData: _fileCache[widget.imageUrl],
-      stream: _cacheManager()
+      future: _cacheManager()
           .getFile(widget.imageUrl, headers: widget.httpHeaders)
-          .where((f) =>
+          .firstWhere((f) =>
               f?.originalUrl != _fileCache[widget.imageUrl]?.originalUrl ||
               f?.validTill != _fileCache[widget.imageUrl]?.validTill),
       builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
