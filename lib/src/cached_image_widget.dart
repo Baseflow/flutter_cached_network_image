@@ -259,7 +259,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
       initialData: _fileCache[widget.imageUrl],
       future: _cacheManager()
           .getFile(widget.imageUrl, headers: widget.httpHeaders)
-          /// This 'where' filter is pointless. It's not saving much because FileInfo
+          /// This 'where' filter becomes pointless. It's not saving much because FileInfo
           /// is already loaded from cache/network.
           /// Filtering the result to the future results in a StateError passed down to snapshot.error
           /// We could have some logic in the builder, but again, we're not saving much. 
@@ -325,7 +325,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  BaseCacheManager _cacheManager() {
+  _cacheManager() {
     return widget.cacheManager ?? DefaultCacheManager();
   }
 
