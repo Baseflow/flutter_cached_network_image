@@ -259,9 +259,14 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
       initialData: _fileCache[widget.imageUrl],
       future: _cacheManager()
           .getFile(widget.imageUrl, headers: widget.httpHeaders)
-          .firstWhere((f) =>
-              f?.originalUrl != _fileCache[widget.imageUrl]?.originalUrl ||
-              f?.validTill != _fileCache[widget.imageUrl]?.validTill),
+          /// This 'where' filter is pointless. It's not saving much because FileInfo
+          /// is already loaded from cache/network.
+          /// Filtering the result to the future results in a StateError passed down to snapshot.error
+          /// We could have some logic in the builder, but again, we're not saving much. 
+          // .where((f) =>
+          //     f?.originalUrl != _fileCache[widget.imageUrl]?.originalUrl ||
+          //     f?.validTill != _fileCache[widget.imageUrl]?.validTill )
+          .first,
       builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
         if (snapshot.hasError) {
           // error
@@ -320,7 +325,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  _cacheManager() {
+  BaseCacheManager _cacheManager() {
     return widget.cacheManager ?? DefaultCacheManager();
   }
 
