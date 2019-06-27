@@ -1,3 +1,6 @@
+## [1.0.0] - 2019-06-27
+* Updated dependencies
+
 ## [0.8.0] - 2019-05-06
 * Fixed compile error on informationCollector by temporarily disabling it.
 
