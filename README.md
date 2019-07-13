@@ -25,5 +25,23 @@ CachedNetworkImage(
 Image(image: new CachedNetworkImageProvider(url))
 ````
 
+When you want to have both the placholder functionality and want to get the imageprovider to use in another widget you can provide an imageBuilder:
+```dart
+CachedNetworkImage(
+  imageUrl: "http://via.placeholder.com/200x150",
+  imageBuilder: (context, imageProvider) => Container(
+    decoration: BoxDecoration(
+      image: DecorationImage(
+          image: imageProvider,
+          fit: BoxFit.cover,
+          colorFilter:
+              ColorFilter.mode(Colors.red, BlendMode.colorBurn)),
+    ),
+  ),
+  placeholder: (context, url) => CircularProgressIndicator(),
+  errorWidget: (context, url, error) => Icon(Icons.error),
+),
+```
+
 ## How it works
 The cached network images stores and retrieves files using the [flutter_cache_manager](https://pub.dartlang.org/packages/flutter_cache_manager). 

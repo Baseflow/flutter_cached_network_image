@@ -1,3 +1,10 @@
+## [1.1.0] - 2019-07-13
+
+* Improved performance
+* Keep fetched files in sync with filemanager.
+* Better error handling.
+* Added extra example to show the imageBuilder
+
 ## [1.0.0] - 2019-06-27
 * Updated dependencies
 

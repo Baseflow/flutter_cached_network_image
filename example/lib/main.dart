@@ -60,6 +60,22 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
             _sizedContainer(
+              CachedNetworkImage(
+                imageUrl: "http://via.placeholder.com/300x150",
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                        colorFilter:
+                            ColorFilter.mode(Colors.red, BlendMode.colorBurn)),
+                  ),
+                ),
+                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
+            ),
+            _sizedContainer(
               new CachedNetworkImage(
                 imageUrl: "http://notAvalid.uri",
                 placeholder: (context, url) => new CircularProgressIndicator(),
