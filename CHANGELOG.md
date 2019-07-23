@@ -1,3 +1,6 @@
+## [1.1.1] - 2019-07-23
+* Updated cache manager for error handling fix
+
 ## [1.1.0] - 2019-07-13
 
 * Improved performance
