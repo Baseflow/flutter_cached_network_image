@@ -126,6 +126,11 @@ class CachedNetworkImage extends StatefulWidget {
   ///  * [BlendMode], which includes an illustration of the effect of each blend mode.
   final BlendMode colorBlendMode;
 
+  /// Target the interpolation quality for image scaling.
+  ///
+  /// If not given a value, defaults to FilterQuality.low.
+  final FilterQuality filterQuality;
+
   CachedNetworkImage({
     Key key,
     @required this.imageUrl,
@@ -146,6 +151,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.cacheManager,
     this.useOldImageOnUrlChange: false,
     this.color,
+    this.filterQuality : FilterQuality.low,
     this.colorBlendMode,
     this.placeholderFadeInDuration,
   })  : assert(imageUrl != null),
@@ -154,6 +160,7 @@ class CachedNetworkImage extends StatefulWidget {
         assert(fadeInDuration != null),
         assert(fadeInCurve != null),
         assert(alignment != null),
+        assert(filterQuality != null),
         assert(repeat != null),
         assert(matchTextDirection != null),
         super(key: key);
@@ -347,6 +354,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             color: widget.color,
             colorBlendMode: widget.colorBlendMode,
             matchTextDirection: widget.matchTextDirection,
+            filterQuality: widget.filterQuality,
           );
   }
 
