@@ -8,13 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 typedef void ErrorListener();
+typedef CompressCallback = Future<File> Function(File);
 
 class CachedNetworkImageProvider
     extends ImageProvider<CachedNetworkImageProvider> {
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener, this.headers, this.cacheManager})
+      {this.scale: 1.0,
+      this.errorListener,
+      this.headers,
+      this.cacheManager,
+      this.compressCallback,
+      this.isDeleteSourceCached: false})
       : assert(url != null),
         assert(scale != null);
 
@@ -31,6 +37,10 @@ class CachedNetworkImageProvider
 
   // Set headers for the image provider, for example for authentication
   final Map<String, String> headers;
+
+  final CompressCallback compressCallback;
+
+  final bool isDeleteSourceCached;
 
   @override
   Future<CachedNetworkImageProvider> obtainKey(
@@ -61,6 +71,7 @@ class CachedNetworkImageProvider
       if (errorListener != null) errorListener();
       return Future<ui.Codec>.error("Couldn't download or retrieve file.");
     }
+    file = await _compress(file, mngr);
     return await _loadAsyncFromFile(key, file);
   }
 
@@ -74,8 +85,25 @@ class CachedNetworkImageProvider
       if (errorListener != null) errorListener();
       throw new Exception("File was empty");
     }
-
     return await ui.instantiateImageCodec(bytes);
+  }
+
+  Future<File> _compress(File file, BaseCacheManager mngr) async {
+    var tempUrl = "${url}temp";
+    var result;
+    if (compressCallback != null) {
+      result = await mngr.getSingleFile(tempUrl, headers: headers);
+      if (result == null) {
+        result = await compressCallback(file);
+        mngr.putFile(tempUrl, result.readAsBytesSync());
+        if (isDeleteSourceCached) {
+          await mngr.removeFile(url);
+        }
+      }
+    } else {
+      result = file;
+    }
+    return result;
   }
 
   @override

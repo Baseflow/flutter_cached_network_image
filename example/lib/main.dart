@@ -1,5 +1,10 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(new MyApp());
 
@@ -27,6 +32,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatelessWidget {
   final String title;
+
   MyHomePage({this.title});
 
   @override
@@ -51,6 +57,27 @@ class MyHomePage extends StatelessWidget {
               new Image(
                 image: new CachedNetworkImageProvider(
                     "http://via.placeholder.com/350x150"),
+              ),
+            ),
+            _sizedContainer(
+              new Image(
+                image: new CachedNetworkImageProvider(
+                  "https://www.moejam.com/uploadfile/2014/0504/20140504012525197.jpg",
+                  isDeleteSourceCached: true,
+                  compressCallback: (_file) async {
+                    final tempDir = await getTemporaryDirectory();
+                    var paths = _file.absolute.path.split("/");
+                    var resultName = paths[paths.length - 1];
+                    File result = await FlutterImageCompress.compressAndGetFile(
+                      _file.absolute.path,
+                      tempDir.path + "/$resultName",
+                      minWidth: 768,
+                      minHeight: 1024,
+                      quality: 88,
+                    );
+                    return result;
+                  },
+                ),
               ),
             ),
             _sizedContainer(
