@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 typedef Widget ImageWidgetBuilder(
@@ -126,6 +130,8 @@ class CachedNetworkImage extends StatefulWidget {
   ///  * [BlendMode], which includes an illustration of the effect of each blend mode.
   final BlendMode colorBlendMode;
 
+  final bool playGif;
+
   CachedNetworkImage({
     Key key,
     @required this.imageUrl,
@@ -148,6 +154,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.color,
     this.colorBlendMode,
     this.placeholderFadeInDuration,
+    this.playGif: true,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -256,7 +263,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  FileInfo _getFromMemory(){
+  FileInfo _getFromMemory() {
     return _cacheManager().getFileFromMemory(widget.imageUrl);
   }
 
@@ -335,19 +342,38 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   _image(BuildContext context, ImageProvider imageProvider) {
-    return widget.imageBuilder != null
-        ? widget.imageBuilder(context, imageProvider)
-        : new Image(
-            image: imageProvider,
-            fit: widget.fit,
-            width: widget.width,
-            height: widget.height,
-            alignment: widget.alignment,
-            repeat: widget.repeat,
-            color: widget.color,
-            colorBlendMode: widget.colorBlendMode,
-            matchTextDirection: widget.matchTextDirection,
-          );
+    if (widget.playGif) {
+      return widget.imageBuilder != null
+          ? widget.imageBuilder(context, imageProvider)
+          : new Image(
+              image: imageProvider,
+              fit: widget.fit,
+              width: widget.width,
+              height: widget.height,
+              alignment: widget.alignment,
+              repeat: widget.repeat,
+              color: widget.color,
+              colorBlendMode: widget.colorBlendMode,
+              matchTextDirection: widget.matchTextDirection,
+            );
+    } else {
+      return FutureBuilder(
+        builder: (_, _snapshot) => RawImage(
+          image: _snapshot.data,
+        ),
+        future: _getGifFirstFrame(imageProvider),
+      );
+    }
+  }
+
+  Future<ui.Image> _getGifFirstFrame(ImageProvider provider) async {
+    File file = await _cacheManager().getSingleFile(widget.imageUrl);
+    var data = file.readAsBytesSync();
+
+    ui.Codec codec = await PaintingBinding.instance
+        .instantiateImageCodec(data.buffer.asUint8List());
+    ui.FrameInfo frameInfo = await codec.getNextFrame();
+    return Future<ui.Image>.value(frameInfo.image);
   }
 
   _placeholder(BuildContext context) {
