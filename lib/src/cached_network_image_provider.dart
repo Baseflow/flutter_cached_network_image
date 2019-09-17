@@ -71,7 +71,13 @@ class CachedNetworkImageProvider
       if (errorListener != null) errorListener();
       return Future<ui.Codec>.error("Couldn't download or retrieve file.");
     }
-    file = await _compress(file, mngr);
+    if (compressCallback != null) {
+      file = await _compress(file, mngr);
+      if (file == null) {
+        if (errorListener != null) errorListener();
+        return Future<ui.Codec>.error("Image compression failed.");
+      }
+    }
     return await _loadAsyncFromFile(key, file);
   }
 
@@ -90,18 +96,16 @@ class CachedNetworkImageProvider
 
   Future<File> _compress(File file, BaseCacheManager mngr) async {
     var tempUrl = "${url}temp";
+    FileInfo fileInfo = await mngr.getFileFromCache(tempUrl);
     var result;
-    if (compressCallback != null) {
-      result = await mngr.getSingleFile(tempUrl, headers: headers);
-      if (result == null) {
-        result = await compressCallback(file);
-        mngr.putFile(tempUrl, result.readAsBytesSync());
-        if (isDeleteSourceCached) {
-          await mngr.removeFile(url);
-        }
+    if (fileInfo == null) {
+      result = await compressCallback(file);
+      mngr.putFile(tempUrl, result.readAsBytesSync());
+      if (isDeleteSourceCached) {
+        await mngr.removeFile(url);
       }
-    } else {
-      result = file;
+    }else{
+      result = fileInfo.file;
     }
     return result;
   }
