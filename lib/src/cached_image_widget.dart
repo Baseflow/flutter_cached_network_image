@@ -160,7 +160,7 @@ class CachedNetworkImage extends StatefulWidget {
 
   @override
   CachedNetworkImageState createState() {
-    return new CachedNetworkImageState();
+    return CachedNetworkImageState();
   }
 }
 
@@ -256,12 +256,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  FileInfo _getFromMemory(){
-    return _cacheManager().getFileFromMemory(widget.imageUrl);
-  }
-
   _animatedWidget() {
-    var fromMemory = _getFromMemory();
+    var fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
 
     return StreamBuilder<FileInfo>(
       key: _streamBuilderKey,
@@ -337,7 +333,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   _image(BuildContext context, ImageProvider imageProvider) {
     return widget.imageBuilder != null
         ? widget.imageBuilder(context, imageProvider)
-        : new Image(
+        : Image(
             image: imageProvider,
             fit: widget.fit,
             width: widget.width,
@@ -353,7 +349,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   _placeholder(BuildContext context) {
     return widget.placeholder != null
         ? widget.placeholder(context, widget.imageUrl)
-        : new SizedBox(
+        : SizedBox(
             width: widget.width,
             height: widget.height,
           );

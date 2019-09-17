@@ -35,12 +35,12 @@ class CachedNetworkImageProvider
   @override
   Future<CachedNetworkImageProvider> obtainKey(
       ImageConfiguration configuration) {
-    return new SynchronousFuture<CachedNetworkImageProvider>(this);
+    return SynchronousFuture<CachedNetworkImageProvider>(this);
   }
 
   @override
   ImageStreamCompleter load(CachedNetworkImageProvider key) {
-    return new MultiFrameImageStreamCompleter(
+    return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key),
       scale: key.scale,
 // TODO enable information collector on next stable release of flutter
@@ -72,7 +72,7 @@ class CachedNetworkImageProvider
 
     if (bytes.lengthInBytes == 0) {
       if (errorListener != null) errorListener();
-      throw new Exception("File was empty");
+      throw Exception("File was empty");
     }
 
     return await ui.instantiateImageCodec(bytes);
