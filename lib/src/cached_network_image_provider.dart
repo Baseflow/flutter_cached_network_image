@@ -82,15 +82,7 @@ class CachedNetworkImageProvider
     if (_mockUrls.containsKey(url)) {
       bytes = _mockUrls[url];
     } else {
-      var mngr = cacheManager ?? DefaultCacheManager();
-      var file = await mngr.getSingleFile(url, headers: headers);
-
-      if (file == null) {
-        if (errorListener != null) errorListener();
-        return Future<ui.Codec>.error("Couldn't download or retrieve file.");
-      }
-
-      bytes = await file.readAsBytes();
+      bytes = await _loadBytesWithCacheManager();
     }
 
     if (bytes.lengthInBytes == 0) {
@@ -99,6 +91,18 @@ class CachedNetworkImageProvider
     }
 
     return await ui.instantiateImageCodec(bytes);
+  }
+
+  Future<Uint8List> _loadBytesWithCacheManager() async {
+    var mngr = cacheManager ?? DefaultCacheManager();
+    var file = await mngr.getSingleFile(url, headers: headers);
+
+    if (file == null) {
+      if (errorListener != null) errorListener();
+      return Future<Uint8List>.error("Couldn't download or retrieve file.");
+    }
+
+    return await file.readAsBytes();
   }
 
   @override
