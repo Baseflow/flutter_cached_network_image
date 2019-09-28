@@ -57,18 +57,13 @@ class CachedNetworkImageProvider
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var mngr = cacheManager ?? DefaultCacheManager();
     var file = await mngr.getSingleFile(url, headers: headers);
+
     if (file == null) {
       if (errorListener != null) errorListener();
       return Future<ui.Codec>.error("Couldn't download or retrieve file.");
     }
-    return await _loadAsyncFromFile(key, file);
-  }
 
-  Future<ui.Codec> _loadAsyncFromFile(
-      CachedNetworkImageProvider key, File file) async {
-    assert(key == this);
-
-    final Uint8List bytes = await file.readAsBytes();
+    var bytes = await file.readAsBytes();
 
     if (bytes.lengthInBytes == 0) {
       if (errorListener != null) errorListener();
