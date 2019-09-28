@@ -42,6 +42,9 @@ class CachedNetworkImageProvider
   ///
   /// Since there won't be any HTTP request and the SQLite database won't be
   /// reached, this mock can be used to avoid platform-channel interactions.
+  ///
+  /// Accordingly, the caching features of this library won't apply to the
+  /// [url], once nothing is going to be cached after all.
   static void setMockUrl(String url, Uint8List bytes) {
     assert(url != null && url.isNotEmpty);
     assert(bytes != null && bytes.lengthInBytes > 0);
