@@ -90,7 +90,9 @@ class CachedNetworkImageProvider
   bool operator ==(dynamic other) {
     if (other.runtimeType != runtimeType) return false;
     final CachedNetworkImageProvider typedOther = other;
-    return url == typedOther.url && scale == typedOther.scale;
+    return url == typedOther.url && scale == typedOther.scale &&
+        targetWidth == typedOther.targetWidth && targetHeight ==
+        typedOther.targetHeight;
   }
 
   @override
