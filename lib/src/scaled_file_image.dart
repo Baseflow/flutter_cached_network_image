@@ -69,7 +69,9 @@ class ScaledFileImage extends ImageProvider<ScaledFileImage> {
       return false;
     final ScaledFileImage typedOther = other;
     return file?.path == typedOther.file?.path
-        && scale == typedOther.scale;
+        && scale == typedOther.scale &&
+        targetWidth == typedOther.targetWidth &&
+        targetHeight == typedOther.targetHeight;
   }
 
   @override
