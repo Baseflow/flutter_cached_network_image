@@ -198,11 +198,12 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
 
   @override
   void didUpdateWidget(CachedNetworkImage oldWidget) {
-    if (oldWidget.imageUrl != widget.imageUrl &&
-        !widget.useOldImageOnUrlChange) {
+    if (oldWidget.imageUrl != widget.imageUrl) {
       _streamBuilderKey = UniqueKey();
-      _disposeImageHolders();
-      _imageHolders.clear();
+      if (!widget.useOldImageOnUrlChange) {
+        _disposeImageHolders();
+        _imageHolders.clear();
+      }
     }
     super.didUpdateWidget(oldWidget);
   }
