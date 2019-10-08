@@ -257,7 +257,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  FileInfo _getFromMemory(){
+  FileInfo _getFromMemory() {
     return _cacheManager().getFileFromMemory(widget.imageUrl);
   }
 
@@ -269,6 +269,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
       initialData: fromMemory,
       stream: _cacheManager()
           .getFile(widget.imageUrl, headers: widget.httpHeaders)
+          // ignore errors if not mounted
+          .handleError(() {}, test: (_) => !mounted)
           .where((f) =>
               f?.originalUrl != fromMemory?.originalUrl ||
               f?.validTill != fromMemory?.validTill),
@@ -331,7 +333,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  _cacheManager() {
+  BaseCacheManager _cacheManager() {
     return widget.cacheManager ?? DefaultCacheManager();
   }
 
