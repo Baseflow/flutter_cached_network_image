@@ -78,7 +78,8 @@ class ScaledFileImage extends ImageProvider<ScaledFileImage> {
   int get hashCode => hashValues(file?.path, scale);
 
   @override
-  String toString() => '$runtimeType("${file?.path}", scale: $scale)';
+  String toString() => '$runtimeType("${file?.path}", scale: $scale, '
+      'targetHeight: $targetHeight, targetWidth: $targetWidth)';
 }
 
 
