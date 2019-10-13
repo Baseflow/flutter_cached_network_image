@@ -25,7 +25,7 @@ CachedNetworkImage(
 Image(image: new CachedNetworkImageProvider(url))
 ````
 
-When you want to have both the placholder functionality and want to get the imageprovider to use in another widget you can provide an imageBuilder:
+When you want to have both the placeholder functionality and want to get the imageprovider to use in another widget you can provide an imageBuilder:
 ```dart
 CachedNetworkImage(
   imageUrl: "http://via.placeholder.com/200x150",

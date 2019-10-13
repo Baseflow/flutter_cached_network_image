@@ -14,7 +14,8 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener, this.headers, this.cacheManager})
+      {this.scale: 1.0, this.errorListener, this.headers, this.cacheManager,
+        this.targetWidth, this.targetHeight})
       : assert(url != null),
         assert(scale != null);
 
@@ -25,6 +26,12 @@ class CachedNetworkImageProvider
 
   /// Scale of the image
   final double scale;
+
+  /// Target image width, to which the image shall be scaled after decoding
+  final int targetWidth;
+
+  /// Target image height, to which the image shall be scaled after decoding
+  final int targetHeight;
 
   /// Listener to be called when images fails to load.
   final ErrorListener errorListener;
@@ -75,14 +82,17 @@ class CachedNetworkImageProvider
       throw Exception("File was empty");
     }
 
-    return await ui.instantiateImageCodec(bytes);
+    return await ui.instantiateImageCodec(bytes, targetWidth: targetWidth,
+        targetHeight: targetHeight);
   }
 
   @override
   bool operator ==(dynamic other) {
     if (other.runtimeType != runtimeType) return false;
     final CachedNetworkImageProvider typedOther = other;
-    return url == typedOther.url && scale == typedOther.scale;
+    return url == typedOther.url && scale == typedOther.scale &&
+        targetWidth == typedOther.targetWidth && targetHeight ==
+        typedOther.targetHeight;
   }
 
   @override

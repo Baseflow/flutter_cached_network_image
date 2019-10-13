@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+import 'scaled_file_image.dart';
+
+import 'dart:ui';
+
 typedef Widget ImageWidgetBuilder(
     BuildContext context, ImageProvider imageProvider);
 typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
@@ -198,11 +202,12 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
 
   @override
   void didUpdateWidget(CachedNetworkImage oldWidget) {
-    if (oldWidget.imageUrl != widget.imageUrl &&
-        !widget.useOldImageOnUrlChange) {
+    if (oldWidget.imageUrl != widget.imageUrl) {
       _streamBuilderKey = UniqueKey();
-      _disposeImageHolders();
-      _imageHolders.clear();
+      if (!widget.useOldImageOnUrlChange) {
+        _disposeImageHolders();
+        _imageHolders.clear();
+      }
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -264,6 +269,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
       initialData: fromMemory,
       stream: _cacheManager()
           .getFile(widget.imageUrl, headers: widget.httpHeaders)
+          // ignore errors if not mounted
+          .handleError(() {}, test: (_) => !mounted)
           .where((f) =>
               f?.originalUrl != fromMemory?.originalUrl ||
               f?.validTill != fromMemory?.validTill),
@@ -300,11 +307,20 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             children.add(_transitionWidget(
                 holder: holder, child: _placeholder(context)));
           } else {
+            int targetWidth;
+            int targetHeight;
+            if (widget.width != null)
+              targetWidth = (widget.width * window.devicePixelRatio).round();
+            if (widget.height != null)
+              targetHeight =
+                  (widget.height * window.devicePixelRatio).round();
+
             children.add(_transitionWidget(
                 holder: holder,
                 child: _image(
                   context,
-                  FileImage(holder.image.file),
+                  ScaledFileImage(holder.image.file,
+                      targetWidth: targetWidth, targetHeight: targetHeight),
                 )));
           }
         }
@@ -326,7 +342,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  _cacheManager() {
+  BaseCacheManager _cacheManager() {
     return widget.cacheManager ?? DefaultCacheManager();
   }
 
