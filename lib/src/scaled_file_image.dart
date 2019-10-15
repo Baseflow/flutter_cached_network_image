@@ -42,7 +42,7 @@ class ScaledFileImage extends ImageProvider<ScaledFileImage> {
   }
 
   @override
-  ImageStreamCompleter load(ScaledFileImage key) {
+  ImageStreamCompleter load(ScaledFileImage key, DecoderCallback decode) {
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key),
       scale: key.scale,
