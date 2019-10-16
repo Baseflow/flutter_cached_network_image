@@ -1,3 +1,10 @@
+## [1.1.2] - 2019-10-16
+* Add filterQuality property.
+* Scale image to size when showing in widget.
+* Better error handling.
+* Fix for useOldImageOnUrlChange.
+* Update cache manager to 1.1.2.
+
 ## [1.1.1] - 2019-07-23
 * Updated cache manager for error handling fix
 

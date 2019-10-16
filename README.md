@@ -15,14 +15,14 @@ The CachedNetworkImage can be used directly or through the ImageProvider.
 ```dart
 CachedNetworkImage(
         imageUrl: "http://via.placeholder.com/350x150",
-        placeholder: (context, url) => new CircularProgressIndicator(),
-        errorWidget: (context, url, error) => new Icon(Icons.error),
+        placeholder: (context, url) => CircularProgressIndicator(),
+        errorWidget: (context, url, error) => Icon(Icons.error),
      ),
  ```
 
 
 ````dart
-Image(image: new CachedNetworkImageProvider(url))
+Image(image: CachedNetworkImageProvider(url))
 ````
 
 When you want to have both the placeholder functionality and want to get the imageprovider to use in another widget you can provide an imageBuilder:

@@ -155,7 +155,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.cacheManager,
     this.useOldImageOnUrlChange: false,
     this.color,
-    this.filterQuality : FilterQuality.low,
+    this.filterQuality: FilterQuality.low,
     this.colorBlendMode,
     this.placeholderFadeInDuration,
   })  : assert(imageUrl != null),
@@ -319,8 +319,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             if (widget.width != null)
               targetWidth = (widget.width * window.devicePixelRatio).round();
             if (widget.height != null)
-              targetHeight =
-                  (widget.height * window.devicePixelRatio).round();
+              targetHeight = (widget.height * window.devicePixelRatio).round();
 
             children.add(_transitionWidget(
                 holder: holder,

@@ -17,10 +17,10 @@ class ScaledFileImage extends ImageProvider<ScaledFileImage> {
   /// Creates an object that decodes a [File] as an image.
   ///
   /// The arguments must not be null.
-  const ScaledFileImage(this.file, { this.scale = 1.0, this.targetHeight,
-    this.targetWidth })
-    : assert(file != null),
-      assert(scale != null);
+  const ScaledFileImage(this.file,
+      {this.scale = 1.0, this.targetHeight, this.targetWidth})
+      : assert(file != null),
+        assert(scale != null);
 
   /// The file to decode into an image.
   final File file;
@@ -56,8 +56,7 @@ class ScaledFileImage extends ImageProvider<ScaledFileImage> {
     assert(key == this);
 
     final Uint8List bytes = await file.readAsBytes();
-    if (bytes.lengthInBytes == 0)
-      return null;
+    if (bytes.lengthInBytes == 0) return null;
 
     return await instantiateImageCodec(bytes,
         targetWidth: targetWidth, targetHeight: targetHeight);
@@ -65,11 +64,10 @@ class ScaledFileImage extends ImageProvider<ScaledFileImage> {
 
   @override
   bool operator ==(dynamic other) {
-    if (other.runtimeType != runtimeType)
-      return false;
+    if (other.runtimeType != runtimeType) return false;
     final ScaledFileImage typedOther = other;
-    return file?.path == typedOther.file?.path
-        && scale == typedOther.scale &&
+    return file?.path == typedOther.file?.path &&
+        scale == typedOther.scale &&
         targetWidth == typedOther.targetWidth &&
         targetHeight == typedOther.targetHeight;
   }
@@ -81,5 +79,3 @@ class ScaledFileImage extends ImageProvider<ScaledFileImage> {
   String toString() => '$runtimeType("${file?.path}", scale: $scale, '
       'targetHeight: $targetHeight, targetWidth: $targetWidth)';
 }
-
-
