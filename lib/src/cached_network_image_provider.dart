@@ -5,7 +5,8 @@ import 'dart:ui' as ui show instantiateImageCodec, Codec;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+import 'cached_image_manager.dart';
 
 typedef void ErrorListener();
 
@@ -23,7 +24,7 @@ class CachedNetworkImageProvider
       : assert(url != null),
         assert(scale != null);
 
-  final BaseCacheManager cacheManager;
+  final CacheManager cacheManager;
 
   /// Web url of the image to load
   final String url;
@@ -67,7 +68,7 @@ class CachedNetworkImageProvider
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var mngr = cacheManager ?? DefaultCacheManager();
-    var file = await mngr.getSingleFile(url, headers: headers);
+    var file = await mngr.getImageFile(url, headers: headers);
     if (file == null) {
       if (errorListener != null) errorListener();
       return Future<ui.Codec>.error("Couldn't download or retrieve file.");

@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+import 'cached_image_manager.dart';
 import 'scaled_file_image.dart';
 
 import 'dart:ui';
@@ -15,7 +15,7 @@ typedef Widget LoadingErrorWidgetBuilder(
 
 class CachedNetworkImage extends StatefulWidget {
   /// Option to use cachemanager with other settings
-  final BaseCacheManager cacheManager;
+  final CacheManager cacheManager;
 
   /// The target image that is displayed.
   final String imageUrl;
@@ -152,7 +152,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.repeat: ImageRepeat.noRepeat,
     this.matchTextDirection: false,
     this.httpHeaders,
-    this.cacheManager,
+    CacheManager cacheManager,
     this.useOldImageOnUrlChange: false,
     this.color,
     this.filterQuality: FilterQuality.low,
@@ -167,6 +167,7 @@ class CachedNetworkImage extends StatefulWidget {
         assert(filterQuality != null),
         assert(repeat != null),
         assert(matchTextDirection != null),
+        this.cacheManager = cacheManager ?? DefaultCacheManager(),
         super(key: key);
 
   @override
@@ -176,7 +177,7 @@ class CachedNetworkImage extends StatefulWidget {
 }
 
 class _ImageTransitionHolder {
-  final FileInfo image;
+  final CachedImage image;
   AnimationController animationController;
   final Object error;
   Curve curve;
@@ -231,7 +232,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     }
   }
 
-  _addImage({FileInfo image, Object error, Duration duration}) {
+  _addImage({CachedImage image, Object error, Duration duration}) {
     if (_imageHolders.length > 0) {
       var lastHolder = _imageHolders.last;
       lastHolder.forwardTickerFuture.then((_) {
@@ -269,19 +270,19 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   _animatedWidget() {
-    var fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
+    var fromMemory = widget.cacheManager.getImageFromMemory(widget.imageUrl);
 
-    return StreamBuilder<FileInfo>(
+    return StreamBuilder<CachedImage>(
       key: _streamBuilderKey,
       initialData: fromMemory,
-      stream: _cacheManager()
-          .getFile(widget.imageUrl, headers: widget.httpHeaders)
+      stream: widget.cacheManager
+          .getImage(widget.imageUrl, headers: widget.httpHeaders)
           // ignore errors if not mounted
           .handleError(() {}, test: (_) => !mounted)
           .where((f) =>
               f?.originalUrl != fromMemory?.originalUrl ||
               f?.validTill != fromMemory?.validTill),
-      builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<CachedImage> snapshot) {
         if (snapshot.hasError) {
           // error
           if (_imageHolders.length == 0 || _imageHolders.last.error == null) {
@@ -346,10 +347,6 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
           curve: holder.curve, parent: holder.animationController),
       child: child,
     );
-  }
-
-  BaseCacheManager _cacheManager() {
-    return widget.cacheManager ?? DefaultCacheManager();
   }
 
   _image(BuildContext context, ImageProvider imageProvider) {
