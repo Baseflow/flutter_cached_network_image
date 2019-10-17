@@ -1,3 +1,6 @@
+## [1.1.2+1] - 2019-10-17
+* Fix for widgets declared with infinite size.
+
 ## [1.1.2] - 2019-10-16
 * Add filterQuality property.
 * Scale image to size when showing in widget.
