@@ -1,3 +1,6 @@
+## [2.0.0-rc] - 2019-10-17
+* BREAKING CHANGE: Compatibility for [breaking change in Flutter 1.10.15](https://groups.google.com/forum/#!topic/flutter-announce/lUKzLAd8OG8)
+
 ## [1.1.2+1] - 2019-10-17
 * Fix for widgets declared with infinite size.
 
