@@ -317,12 +317,10 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             int targetWidth;
             int targetHeight;
             if (widget.width != null &&
-                widget.width != double.infinity &&
-                widget.width != double.nan)
+                widget.width.isFinite)
               targetWidth = (widget.width * window.devicePixelRatio).round();
             if (widget.height != null &&
-                widget.height != double.infinity &&
-                widget.height != double.nan)
+                widget.height.isFinite)
               targetHeight = (widget.height * window.devicePixelRatio).round();
 
             children.add(_transitionWidget(
