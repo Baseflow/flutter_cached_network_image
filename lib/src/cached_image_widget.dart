@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-import 'scaled_file_image.dart';
-
-import 'dart:ui';
-
 typedef Widget ImageWidgetBuilder(
     BuildContext context, ImageProvider imageProvider);
 typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
@@ -314,21 +310,11 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             children.add(_transitionWidget(
                 holder: holder, child: _placeholder(context)));
           } else {
-            int targetWidth;
-            int targetHeight;
-            if (widget.width != null &&
-                widget.width.isFinite)
-              targetWidth = (widget.width * window.devicePixelRatio).round();
-            if (widget.height != null &&
-                widget.height.isFinite)
-              targetHeight = (widget.height * window.devicePixelRatio).round();
-
             children.add(_transitionWidget(
                 holder: holder,
                 child: _image(
                   context,
-                  ScaledFileImage(holder.image.file,
-                      targetWidth: targetWidth, targetHeight: targetHeight),
+                  FileImage(holder.image.file),
                 )));
           }
         }
