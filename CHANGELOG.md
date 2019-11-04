@@ -1,3 +1,6 @@
+## [1.1.3] - 2019-11-04
+* Revert scaling of image due to issues with BoxFit.
+
 ## [1.1.2+1] - 2019-10-17
 * Fix for widgets declared with infinite size.
 
