@@ -1,7 +1,18 @@
+**Breaking change with ImageProvider.load in Flutter 1.10**
+
+The Flutter team made a breaking change with the ImageProvider in Flutter 1.10.15 (currently Master channel only).
+
+If you are experiencing one of the following errors upgrade to [2.0.0-rc](https://pub.dev/packages/cached_network_image/versions/2.0.0-rc).
+
+```
+The method 'ScaledFileImage.load' has fewer positional arguments than those of overridden method 'ImageProvider.load'
+```
+```
+The method 'CachedNetworkImageProvider.load' has fewer positional arguments than those of overridden method 'ImageProvider.load'
+```
+
 
 # Cached network image
-**BREAKING CHANGES IN 0.6.0**
-
 Widget now uses builders for the placeholder and error widget and uses sqflite for cache management. See the [docs](https://pub.dartlang.org/documentation/cached_network_image/latest/cached_network_image/cached_network_image-library.html) for more information.
 
 [![pub package](https://img.shields.io/pub/v/cached_network_image.svg)](https://pub.dartlang.org/packages/cached_network_image)
