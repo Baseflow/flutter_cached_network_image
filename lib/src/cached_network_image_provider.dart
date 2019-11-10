@@ -55,7 +55,7 @@ class CachedNetworkImageProvider extends ImageProvider<CachedNetworkImageProvide
       if (errorListener != null) errorListener();
       throw Exception('Couldn\'t download or retrieve file: $url');
     }
-    return await _loadAsyncFromFile(key, file);
+    return _loadAsyncFromFile(key, file);
   }
 
   Future<ui.Codec> _loadAsyncFromFile(CachedNetworkImageProvider key, File file) async {
@@ -68,7 +68,7 @@ class CachedNetworkImageProvider extends ImageProvider<CachedNetworkImageProvide
       throw Exception('File was empty');
     }
 
-    return await ui.instantiateImageCodec(bytes);
+    return ui.instantiateImageCodec(bytes);
   }
 
   @override
