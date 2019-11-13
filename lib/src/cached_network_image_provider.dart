@@ -59,7 +59,7 @@ class CachedNetworkImageProvider
     var file = await mngr.getSingleFile(url, headers: headers);
     if (file == null) {
       if (errorListener != null) errorListener();
-      return Future<ui.Codec>.error("Couldn't download or retrieve file.");
+      return Future<ui.Codec>.error("Couldn't download or retrieve file: $url");
     }
     return await _loadAsyncFromFile(key, file);
   }
