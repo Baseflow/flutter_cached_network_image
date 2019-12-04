@@ -57,6 +57,17 @@ class MyHomePage extends StatelessWidget {
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
+            CachedNetworkImage(
+              imageUrl: 'http://via.placeholder.com/300x300',
+              placeholder: (context, url) => CircleAvatar(
+                backgroundColor: Colors.amber,
+                radius: 150,
+              ),
+              imageBuilder: (context, image) => CircleAvatar(
+                backgroundImage: image,
+                radius: 150,
+              ),
+            ),
             _sizedContainer(
               CachedNetworkImage(
                 imageUrl: 'http://notAvalid.uri',
