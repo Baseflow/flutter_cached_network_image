@@ -312,9 +312,12 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
           } else {
             children.add(_transitionWidget(
                 holder: holder,
-                child: _image(
-                  context,
-                  FileImage(holder.image.file),
+                child: KeyedSubtree(
+                  key: Key(holder.image.file.path),
+                  child: _image(
+                    context,
+                    FileImage(holder.image.file),
+                  ),
                 )));
           }
         }
