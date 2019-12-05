@@ -6,6 +6,7 @@ homepage: https://github.com/renefloor/flutter_cached_network_image
 
 environment:
   sdk: ">=2.0.0-dev.28.0 <3.0.0"
+  flutter: "<1.10.15-pre.148"
 
 dependencies:
   flutter:
