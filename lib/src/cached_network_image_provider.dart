@@ -39,7 +39,8 @@ class CachedNetworkImageProvider
   }
 
   @override
-  ImageStreamCompleter load(CachedNetworkImageProvider key) {
+  ImageStreamCompleter load(CachedNetworkImageProvider key, DecoderCallback decode) {
+    // TODO: handle decode callback
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key),
       scale: key.scale,

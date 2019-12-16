@@ -4,6 +4,8 @@
 build/
 packages
 .packages
+.dart_tool
+.flutter-plugins-dependencies
 
 # Or the files created by dart2js.
 *.dart.js
