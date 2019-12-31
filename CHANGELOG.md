@@ -1,3 +1,6 @@
+## [2.0.0] - 2019-12-31
+* Public release of 2.0 version
+
 ## [2.0.0-rc.1] - 2019-11-04
 * Revert scaling of image due to issues with BoxFit.
 
