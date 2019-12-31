@@ -1,3 +1,9 @@
+## [2.0.0-rc.1] - 2019-11-04
+* Revert scaling of image due to issues with BoxFit.
+
+## [2.0.0-rc] - 2019-10-17
+* BREAKING CHANGE: Compatibility for [breaking change in Flutter 1.10.15](https://groups.google.com/forum/#!topic/flutter-announce/lUKzLAd8OG8)
+
 ## [1.1.3] - 2019-11-04
 * Revert scaling of image due to issues with BoxFit.
 
