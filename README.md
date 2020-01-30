@@ -48,3 +48,5 @@ Web support uses standard widget "Image" and standard browser caching. Therefore
 
 I was unable to isolate BaseCacheManager from conditional import so I had to introduce a breaking change. This parameter is not available anymore and you are not capable of use another cache manager instead of the default one
 
+"CachedNetworkImageProvider" was NOT ported!
+

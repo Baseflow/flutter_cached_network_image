@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'base_cached_network_image.dart';
-import 'cached_image_types.dart';
+import 'cached_image_widget.dart';
 
 /// Implemented in `browser_poly_image.dart` and `io_poly_image.dart`.
 BaseCachedNetworkImage createCachedNetworkImage(
@@ -20,6 +21,7 @@ BaseCachedNetworkImage createCachedNetworkImage(
         ImageRepeat repeat,
         bool matchTextDirection,
         final Map<String, String> httpHeaders,
+        BaseCacheManager cacheManager,
         bool useOldImageOnUrlChange,
         Color color,
         FilterQuality filterQuality,

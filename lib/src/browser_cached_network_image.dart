@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'base_cached_network_image.dart';
-import 'cached_image_types.dart';
+import 'cached_image_widget.dart';
 
 BaseCachedNetworkImage createCachedNetworkImage(
         {Key key,
@@ -19,6 +20,7 @@ BaseCachedNetworkImage createCachedNetworkImage(
         ImageRepeat repeat,
         bool matchTextDirection,
         final Map<String, String> httpHeaders,
+        BaseCacheManager cacheManager,
         bool useOldImageOnUrlChange,
         Color color,
         FilterQuality filterQuality,
@@ -41,6 +43,7 @@ BaseCachedNetworkImage createCachedNetworkImage(
         repeat: repeat,
         matchTextDirection: matchTextDirection,
         httpHeaders: httpHeaders,
+        cacheManager: cacheManager,
         useOldImageOnUrlChange: useOldImageOnUrlChange,
         color: color,
         filterQuality: filterQuality,
@@ -66,6 +69,7 @@ class BrowserCachedNetworkImage extends BaseCachedNetworkImage {
       ImageRepeat repeat,
       bool matchTextDirection,
       final Map<String, String> httpHeaders,
+      BaseCacheManager cacheManager,
       bool useOldImageOnUrlChange,
       Color color,
       FilterQuality filterQuality,

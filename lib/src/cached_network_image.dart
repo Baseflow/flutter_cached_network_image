@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'cached_image_types.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'cached_image_widget.dart';
 
 // ignore: uri_does_not_exist
 import 'cached_network_image_stub.dart'
@@ -26,6 +27,7 @@ abstract class CachedNetworkImage extends StatefulWidget {
           ImageRepeat repeat: ImageRepeat.noRepeat,
           bool matchTextDirection: false,
           final Map<String, String> httpHeaders,
+          BaseCacheManager cacheManager,
           bool useOldImageOnUrlChange: false,
           Color color,
           FilterQuality filterQuality: FilterQuality.low,
@@ -48,6 +50,7 @@ abstract class CachedNetworkImage extends StatefulWidget {
           repeat: repeat,
           matchTextDirection: matchTextDirection,
           httpHeaders: httpHeaders,
+          cacheManager: cacheManager,
           useOldImageOnUrlChange: useOldImageOnUrlChange,
           color: color,
           filterQuality: filterQuality,
