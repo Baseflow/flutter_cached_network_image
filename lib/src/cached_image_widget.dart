@@ -2,12 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
-typedef Widget ImageWidgetBuilder(
-    BuildContext context, ImageProvider imageProvider);
-typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
-typedef Widget LoadingErrorWidgetBuilder(
-    BuildContext context, String url, Object error);
+import 'cached_image_types.dart';
 
 class CachedNetworkImage extends StatefulWidget {
   /// Option to use cachemanager with other settings
