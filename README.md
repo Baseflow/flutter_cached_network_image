@@ -46,7 +46,5 @@ The cached network images stores and retrieves files using the [flutter_cache_ma
 ## Web support
 Web support uses standard widget "Image" and standard browser caching. Therefore, some properties are ignored (only in web version). 
 
-I was unable to isolate BaseCacheManager from conditional import so I had to introduce a breaking change. This parameter is not available anymore and you are not capable of use another cache manager instead of the default one
-
 "CachedNetworkImageProvider" was NOT ported!
 
