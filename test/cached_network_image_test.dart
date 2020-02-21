@@ -10,17 +10,23 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' show GestureBinding;
 import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart' show PaintingBinding, RendererBinding, SemanticsBinding;
+import 'package:flutter/rendering.dart'
+    show PaintingBinding, RendererBinding, SemanticsBinding;
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter/services.dart' show ServicesBinding;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:test_api/test_api.dart' show TypeMatcher;
 
 import 'image_data.dart';
 
 class TestRenderingFlutterBinding extends BindingBase
-    with ServicesBinding, GestureBinding, SchedulerBinding, PaintingBinding, SemanticsBinding, RendererBinding {}
+    with
+        ServicesBinding,
+        GestureBinding,
+        SchedulerBinding,
+        PaintingBinding,
+        SemanticsBinding,
+        RendererBinding {}
 
 void main() {
   group(ImageProvider, () {
@@ -47,25 +53,33 @@ void main() {
 
         final MockHttpClientRequest request = MockHttpClientRequest();
         final MockHttpClientResponse response = MockHttpClientResponse();
-        when(httpClient.getUrl(any)).thenAnswer((_) => Future<HttpClientRequest>.value(request));
-        when(request.close()).thenAnswer((_) => Future<HttpClientResponse>.value(response));
+        when(httpClient.getUrl(any))
+            .thenAnswer((_) => Future<HttpClientRequest>.value(request));
+        when(request.close())
+            .thenAnswer((_) => Future<HttpClientResponse>.value(response));
         when(response.statusCode).thenReturn(errorStatusCode);
 
         final Completer<dynamic> caughtError = Completer<dynamic>();
 
         final ImageProvider imageProvider = NetworkImage(nonconst(requestUrl));
-        final ImageStream result = imageProvider.resolve(ImageConfiguration.empty);
+        final ImageStream result =
+            imageProvider.resolve(ImageConfiguration.empty);
         result.addListener(
-            ImageStreamListener((ImageInfo info, bool syncCall) {}, onError: (dynamic error, StackTrace stackTrace) {
+            ImageStreamListener((ImageInfo info, bool syncCall) {},
+                onError: (dynamic error, StackTrace stackTrace) {
           caughtError.complete(error);
         }));
 
         final dynamic err = await caughtError.future;
         expect(
-            err,
-            const TypeMatcher<NetworkImageLoadException>()
-                .having((NetworkImageLoadException e) => e.statusCode, 'statusCode', errorStatusCode)
-                .having((NetworkImageLoadException e) => e.uri, 'uri', Uri.base.resolve(requestUrl)));
+          err,
+          throwsA(
+            predicate((e) =>
+                e is NetworkImageLoadException &&
+                e.statusCode == errorStatusCode &&
+                e.uri == Uri.base.resolve(requestUrl)),
+          ),
+        );
       });
 
       test('Disallows null urls', () {
@@ -74,13 +88,17 @@ void main() {
         }, throwsAssertionError);
       });
 
-      test('Uses the HttpClient provided by debugNetworkImageHttpClientProvider if set', () async {
+      test(
+          'Uses the HttpClient provided by debugNetworkImageHttpClientProvider if set',
+          () async {
         when(httpClient.getUrl(any)).thenThrow('client1');
         final List<dynamic> capturedErrors = <dynamic>[];
 
         Future<void> loadNetworkImage() async {
+          final DecoderCallback callback = null;
           final NetworkImage networkImage = NetworkImage(nonconst('foo'));
-          final ImageStreamCompleter completer = networkImage.load(networkImage);
+          final ImageStreamCompleter completer =
+              networkImage.load(networkImage, callback);
           completer.addListener(ImageStreamListener(
             (ImageInfo image, bool synchronousCall) {},
             onError: (dynamic error, StackTrace stackTrace) {
@@ -109,15 +127,17 @@ void main() {
           FlutterError.onError = (FlutterErrorDetails details) {
             throw Error();
           };
-          final ImageStream result = imageProvider.resolve(ImageConfiguration.empty);
+          final ImageStream result =
+              imageProvider.resolve(ImageConfiguration.empty);
           result.addListener(
-              ImageStreamListener((ImageInfo info, bool syncCall) {}, onError: (dynamic error, StackTrace stackTrace) {
+              ImageStreamListener((ImageInfo info, bool syncCall) {},
+                  onError: (dynamic error, StackTrace stackTrace) {
             caughtError.complete(true);
           }));
           expect(await caughtError.future, true);
         }, zoneSpecification: ZoneSpecification(
-          handleUncaughtError:
-              (Zone zone, ZoneDelegate zoneDelegate, Zone parent, Object error, StackTrace stackTrace) {
+          handleUncaughtError: (Zone zone, ZoneDelegate zoneDelegate,
+              Zone parent, Object error, StackTrace stackTrace) {
             uncaught = true;
           },
         ));
@@ -127,14 +147,19 @@ void main() {
       test('Notifies listeners of chunk events', () async {
         final List<Uint8List> chunks = <Uint8List>[];
         const int chunkSize = 8;
-        for (int offset = 0; offset < kTransparentImage.length; offset += chunkSize) {
-          chunks.add(Uint8List.fromList(kTransparentImage.skip(offset).take(chunkSize).toList()));
+        for (int offset = 0;
+            offset < kTransparentImage.length;
+            offset += chunkSize) {
+          chunks.add(Uint8List.fromList(
+              kTransparentImage.skip(offset).take(chunkSize).toList()));
         }
         final Completer<void> imageAvailable = Completer<void>();
         final MockHttpClientRequest request = MockHttpClientRequest();
         final MockHttpClientResponse response = MockHttpClientResponse();
-        when(httpClient.getUrl(any)).thenAnswer((_) => Future<HttpClientRequest>.value(request));
-        when(request.close()).thenAnswer((_) => Future<HttpClientResponse>.value(response));
+        when(httpClient.getUrl(any))
+            .thenAnswer((_) => Future<HttpClientRequest>.value(request));
+        when(request.close())
+            .thenAnswer((_) => Future<HttpClientResponse>.value(response));
         when(response.statusCode).thenReturn(HttpStatus.ok);
         when(response.contentLength).thenReturn(kTransparentImage.length);
         when(response.listen(
@@ -143,8 +168,10 @@ void main() {
           onError: anyNamed('onError'),
           cancelOnError: anyNamed('cancelOnError'),
         )).thenAnswer((Invocation invocation) {
-          final void Function(List<int>) onData = invocation.positionalArguments[0];
-          final void Function(Object) onError = invocation.namedArguments[#onError];
+          final void Function(List<int>) onData =
+              invocation.positionalArguments[0];
+          final void Function(Object) onError =
+              invocation.namedArguments[#onError];
           final void Function() onDone = invocation.namedArguments[#onDone];
           final bool cancelOnError = invocation.namedArguments[#cancelOnError];
 
@@ -157,7 +184,8 @@ void main() {
         });
 
         final ImageProvider imageProvider = NetworkImage(nonconst('foo'));
-        final ImageStream result = imageProvider.resolve(ImageConfiguration.empty);
+        final ImageStream result =
+            imageProvider.resolve(ImageConfiguration.empty);
         final List<ImageChunkEvent> events = <ImageChunkEvent>[];
         result.addListener(ImageStreamListener(
           (ImageInfo image, bool synchronousCall) {
@@ -169,7 +197,8 @@ void main() {
         await imageAvailable.future;
         expect(events.length, chunks.length);
         for (int i = 0; i < events.length; i++) {
-          expect(events[i].cumulativeBytesLoaded, math.min((i + 1) * chunkSize, kTransparentImage.length));
+          expect(events[i].cumulativeBytesLoaded,
+              math.min((i + 1) * chunkSize, kTransparentImage.length));
           expect(events[i].expectedTotalBytes, kTransparentImage.length);
         }
       }, skip: isBrowser);

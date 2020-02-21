@@ -24,9 +24,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget content;
     return Scaffold(
-      appBar: AppBar(title: Text('CachedNetworkImage')),
+      appBar: AppBar(title: const Text('CachedNetworkImage')),
       body: _content(currentPage),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (value) => setState(() {
@@ -36,22 +35,22 @@ class _MyHomePageState extends State<MyHomePage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.image),
-            title: Text('Basic'),
+            title: const Text('Basic'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            title: Text('ListView'),
+            title: const Text('ListView'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.grid_on),
-            title: Text('GridView'),
+            title: const Text('GridView'),
           ),
         ],
       ),
     );
   }
 
-  _content(int page) {
+  Widget _content(int page) {
     switch (currentPage) {
       case 0:
         return _basicContent();
@@ -59,10 +58,12 @@ class _MyHomePageState extends State<MyHomePage> {
         return _listViewContent();
       case 2:
         return _gridView();
+      default:
+        return _basicContent();
     }
   }
 
-  _basicContent() {
+  Widget _basicContent() {
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -140,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _listViewContent() {
+  Widget _listViewContent() {
     return ListView.builder(
       itemBuilder: (BuildContext context, int index) => Card(
         child: Column(
@@ -160,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _gridView() {
+  Widget _gridView() {
     return GridView.builder(
       itemCount: 250,
       gridDelegate:
