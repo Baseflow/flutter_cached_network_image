@@ -14,30 +14,55 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int currentPage = 0;
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('CachedNetworkImage'),
-          bottom: TabBar(
-            tabs: const <Widget>[
-              Tab(text: 'Test'),
-              Tab(text: 'Grid'),
-            ],
+    Widget content;
+    return Scaffold(
+      appBar: AppBar(title: Text('CachedNetworkImage')),
+      body: _content(currentPage),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (value) => setState(() {
+          currentPage = value;
+        }),
+        currentIndex: currentPage,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.image),
+            title: Text('Basic'),
           ),
-        ),
-        body: TabBarView(children: <Widget>[
-          _testContent(),
-          _gridView(),
-        ]),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            title: Text('ListView'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.grid_on),
+            title: Text('GridView'),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _testContent() {
+  _content(int page) {
+    switch (currentPage) {
+      case 0:
+        return _basicContent();
+      case 1:
+        return _listViewContent();
+      case 2:
+        return _gridView();
+    }
+  }
+
+  _basicContent() {
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -75,6 +100,17 @@ class MyHomePage extends StatelessWidget {
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
+            CachedNetworkImage(
+              imageUrl: 'http://via.placeholder.com/300x300',
+              placeholder: (context, url) => CircleAvatar(
+                backgroundColor: Colors.amber,
+                radius: 150,
+              ),
+              imageBuilder: (context, image) => CircleAvatar(
+                backgroundImage: image,
+                radius: 150,
+              ),
+            ),
             _sizedContainer(
               CachedNetworkImage(
                 imageUrl: 'http://notAvalid.uri',
@@ -104,17 +140,36 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  Widget _gridView() {
+  _listViewContent() {
+    return ListView.builder(
+      itemBuilder: (BuildContext context, int index) => Card(
+        child: Column(
+          children: <Widget>[
+            CachedNetworkImage(
+              imageUrl: 'https://loremflickr.com/320/240/music?lock=$index',
+              placeholder: (BuildContext context, String url) => Container(
+                width: 320,
+                height: 240,
+                color: Colors.purple,
+              ),
+            ),
+          ],
+        ),
+      ),
+      itemCount: 250,
+    );
+  }
+
+  _gridView() {
     return GridView.builder(
       itemCount: 250,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-      itemBuilder: (BuildContext context, int index) {
-        return CachedNetworkImage(
-          imageUrl: 'http://via.placeholder.com/${(index + 1)}x${(index % 100 + 1)}',
-          placeholder: _loader,
-          errorWidget: _error,
-        );
-      },
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+      itemBuilder: (BuildContext context, int index) => CachedNetworkImage(
+        imageUrl: 'https://loremflickr.com/100/100/music?lock=$index',
+        placeholder: _loader,
+        errorWidget: _error,
+      ),
     );
   }
 
