@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -152,8 +154,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.colorBlendMode,
     this.placeholderFadeInDuration,
-  })  : assert(imageUrl != null),
-        assert(fadeOutDuration != null),
+  })  : assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
         assert(fadeInDuration != null),
         assert(fadeInCurve != null),
@@ -261,12 +262,16 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   }
 
   Widget _animatedWidget() {
-    var fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
+    var fromMemory = widget.imageUrl == null
+        ? null
+        : _cacheManager().getFileFromMemory(widget.imageUrl);
 
     return StreamBuilder<FileInfo>(
       key: _streamBuilderKey,
       initialData: fromMemory,
-      stream: _cacheManager()
+      stream: widget.imageUrl == null
+        ? Stream.value(null)
+        : _cacheManager()
           .getFile(widget.imageUrl, headers: widget.httpHeaders)
           // ignore errors if not mounted
           .handleError(() {}, test: (_) => !mounted)
