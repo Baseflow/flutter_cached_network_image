@@ -373,22 +373,12 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
     ImageProvider provider,
     BuildContext context, {
     Size size,
-  }) {
-    final config = createLocalImageConfiguration(context, size: size);
+  }) async {
     final completer = Completer<void>();
-    final ImageStream stream = provider.resolve(config);
-    ImageStreamListener listener;
-    listener = ImageStreamListener(
-      (image, sync) {
-        completer.complete();
-        stream.removeListener(listener);
-      },
-      onError: (exception, stackTrace) {
-        completer.completeError(exception, stackTrace);
-        stream.removeListener(listener);
-      },
-    );
-    stream.addListener(listener);
+    await precacheImage(provider, context, size: size, onError: completer.completeError);
+    if (!completer.isCompleted) {
+      completer.complete();
+    }
     return completer.future;
   }
 
