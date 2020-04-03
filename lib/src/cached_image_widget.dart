@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -196,6 +195,7 @@ class _ImageTransitionHolder {
 class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProviderStateMixin {
   final _imageHolders = <_ImageTransitionHolder>[];
   Key _streamBuilderKey = UniqueKey();
+  Completer<FileInfo> _loadFileCompleter;
 
   @override
   Widget build(BuildContext context) {
@@ -262,17 +262,44 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
     );
   }
 
+  Future<FileInfo> _loadFile(FileInfo fromMemory) {
+    if (_loadFileCompleter?.isCompleted == false) {
+      return _loadFileCompleter.future;
+    }
+    _loadFileCompleter = Completer<FileInfo>();
+
+    StreamSubscription subscription;
+    subscription = _cacheManager()
+        .getFile(widget.imageUrl, headers: widget.httpHeaders)
+        // ignore errors if not mounted
+        .handleError(() {}, test: (_) => !mounted)
+        .where((f) => f?.originalUrl != fromMemory?.originalUrl || f?.validTill != fromMemory?.validTill)
+        .listen((fileInfo) async {
+          await subscription.cancel();
+          if (fileInfo != null) {
+            await precacheImage(
+                FileImage(fileInfo.file),
+                context,
+                size: widget.width != null && widget.height != null ?
+                  Size(widget.width, widget.height) : null,
+                onError: _loadFileCompleter.completeError,
+            );
+          }
+          if (!_loadFileCompleter.isCompleted) {
+            _loadFileCompleter.complete(fileInfo);
+          }
+        }, onError: _loadFileCompleter.completeError,
+    );
+    return _loadFileCompleter.future;
+  }
+
   Widget _animatedWidget() {
     var fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
 
-    return StreamBuilder<FileInfo>(
+    return FutureBuilder<FileInfo>(
       key: _streamBuilderKey,
       initialData: fromMemory,
-      stream: _cacheManager()
-          .getFile(widget.imageUrl, headers: widget.httpHeaders)
-          // ignore errors if not mounted
-          .handleError(() {}, test: (_) => !mounted)
-          .where((f) => f?.originalUrl != fromMemory?.originalUrl || f?.validTill != fromMemory?.validTill),
+      future: _loadFile(fromMemory),
       builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
         if (snapshot.hasError) {
           // error
@@ -333,53 +360,20 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   }
 
   Widget _image(BuildContext context, ImageProvider imageProvider) {
-    return FutureBuilder(
-      future: _precacheImage(
-        imageProvider,
-        context,
-        size: widget.width != null && widget.height != null
-            ? Size(widget.width, widget.height)
-            : null,
-      ),
-      builder: (c, snapshot) {
-        if (snapshot.hasError) {
-          assert(() {
-            print('CachedNetworkImage: Failed to load file from $imageProvider'
-                '\n with error: ${snapshot.error}');
-            return true;
-          }());
-          return _errorWidget(c, snapshot.error);
-        } else {
-          return widget.imageBuilder != null
-              ? widget.imageBuilder(c, imageProvider)
-              : Image(
-                  image: imageProvider,
-                  fit: widget.fit,
-                  width: widget.width,
-                  height: widget.height,
-                  alignment: widget.alignment,
-                  repeat: widget.repeat,
-                  color: widget.color,
-                  colorBlendMode: widget.colorBlendMode,
-                  matchTextDirection: widget.matchTextDirection,
-                  filterQuality: widget.filterQuality,
-                );
-        }
-      },
-    );
-  }
-
-  Future<void> _precacheImage(
-    ImageProvider provider,
-    BuildContext context, {
-    Size size,
-  }) async {
-    final completer = Completer<void>();
-    await precacheImage(provider, context, size: size, onError: completer.completeError);
-    if (!completer.isCompleted) {
-      completer.complete();
-    }
-    return completer.future;
+    return widget.imageBuilder != null
+        ? widget.imageBuilder(context, imageProvider)
+        : Image(
+            image: imageProvider,
+            fit: widget.fit,
+            width: widget.width,
+            height: widget.height,
+            alignment: widget.alignment,
+            repeat: widget.repeat,
+            color: widget.color,
+            colorBlendMode: widget.colorBlendMode,
+            matchTextDirection: widget.matchTextDirection,
+            filterQuality: widget.filterQuality,
+          );
   }
 
   Widget _placeholder(BuildContext context) {
