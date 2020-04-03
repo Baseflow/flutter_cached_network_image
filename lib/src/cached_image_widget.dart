@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -331,20 +333,63 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   }
 
   Widget _image(BuildContext context, ImageProvider imageProvider) {
-    return widget.imageBuilder != null
-        ? widget.imageBuilder(context, imageProvider)
-        : Image(
-            image: imageProvider,
-            fit: widget.fit,
-            width: widget.width,
-            height: widget.height,
-            alignment: widget.alignment,
-            repeat: widget.repeat,
-            color: widget.color,
-            colorBlendMode: widget.colorBlendMode,
-            matchTextDirection: widget.matchTextDirection,
-            filterQuality: widget.filterQuality,
-          );
+    return FutureBuilder(
+      future: _precacheImage(
+        imageProvider,
+        context,
+        size: widget.width != null && widget.height != null
+            ? Size(widget.width, widget.height)
+            : null,
+      ),
+      builder: (c, snapshot) {
+        if (snapshot.hasError) {
+          assert(() {
+            print('CachedNetworkImage: Failed to load file from $imageProvider'
+                '\n with error: ${snapshot.error}');
+            return true;
+          }());
+          return _errorWidget(c, snapshot.error);
+        } else {
+          return widget.imageBuilder != null
+              ? widget.imageBuilder(c, imageProvider)
+              : Image(
+                  image: imageProvider,
+                  fit: widget.fit,
+                  width: widget.width,
+                  height: widget.height,
+                  alignment: widget.alignment,
+                  repeat: widget.repeat,
+                  color: widget.color,
+                  colorBlendMode: widget.colorBlendMode,
+                  matchTextDirection: widget.matchTextDirection,
+                  filterQuality: widget.filterQuality,
+                );
+        }
+      },
+    );
+  }
+
+  Future<void> _precacheImage(
+    ImageProvider provider,
+    BuildContext context, {
+    Size size,
+  }) {
+    final config = createLocalImageConfiguration(context, size: size);
+    final completer = Completer<void>();
+    final ImageStream stream = provider.resolve(config);
+    ImageStreamListener listener;
+    listener = ImageStreamListener(
+      (image, sync) {
+        completer.complete();
+        stream.removeListener(listener);
+      },
+      onError: (exception, stackTrace) {
+        completer.completeError(exception, stackTrace);
+        stream.removeListener(listener);
+      },
+    );
+    stream.addListener(listener);
+    return completer.future;
   }
 
   Widget _placeholder(BuildContext context) {

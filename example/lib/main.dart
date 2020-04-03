@@ -135,6 +135,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 fadeInDuration: const Duration(seconds: 3),
               ),
             ),
+            _sizedContainer(
+              CachedNetworkImage(
+                imageUrl: 'https://flutter.dev/',
+                placeholder: (context, url) => const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
           ],
         ),
       ),
