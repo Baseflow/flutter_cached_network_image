@@ -245,7 +245,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
         }
         lastHolder.animationController.reverse().then((_) {
           _imageHolders.remove(lastHolder);
-          if (mounted) setState(() {});
+          if (mounted && lastHolder.animationController.isCompleted) setState(() {});
           return null;
         });
       });
