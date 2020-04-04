@@ -1,7 +1,7 @@
 import 'package:bitmap/bitmap.dart';
-import 'package:blurhash_dart/blurhash_dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 
 void main() => runApp(MyApp());
 
@@ -71,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            _blurHashImage(),
             _sizedContainer(
               const Image(
                 image: CachedNetworkImageProvider(
@@ -78,10 +79,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            _blurHashImage(),
             _sizedContainer(
               CachedNetworkImage(
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 imageUrl: 'http://via.placeholder.com/200x150',
               ),
             ),
@@ -100,7 +101,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -118,21 +120,24 @@ class _MyHomePageState extends State<MyHomePage> {
             _sizedContainer(
               CachedNetworkImage(
                 imageUrl: 'http://notAvalid.uri',
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
                 imageUrl: 'not a uri at all',
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
                 imageUrl: 'http://via.placeholder.com/350x200',
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fadeOutDuration: const Duration(seconds: 1),
                 fadeInDuration: const Duration(seconds: 3),
@@ -144,16 +149,14 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _blurHashImage(){
+  Widget _blurHashImage() {
     return SizedBox(
       width: double.infinity,
       child: CachedNetworkImage(
-        placeholder: (context, url) {
-          var blurHash = 'LEHV6nWB2yk8pyo0adR*.7kCMdnj';
-          var pixels = decodeBlurHash(blurHash, 35, 20);
-          var bitmap = Bitmap.fromHeadless(35, 20, pixels);
-          return Image.memory(bitmap.buildHeaded(), fit: BoxFit.cover,);
-        },
+        placeholder: (context, url) => const AspectRatio(
+          aspectRatio: 1.6,
+          child: BlurHash(hash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj'),
+        ),
         imageUrl: 'https://blurha.sh/assets/images/img1.jpg',
         fit: BoxFit.cover,
       ),
