@@ -1,3 +1,5 @@
+import 'package:bitmap/bitmap.dart';
+import 'package:blurhash_dart/blurhash_dart.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -76,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
+            _blurHashImage(),
             _sizedContainer(
               CachedNetworkImage(
                 placeholder: (context, url) => const CircularProgressIndicator(),
@@ -137,6 +140,22 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _blurHashImage(){
+    return SizedBox(
+      width: double.infinity,
+      child: CachedNetworkImage(
+        placeholder: (context, url) {
+          var blurHash = 'LEHV6nWB2yk8pyo0adR*.7kCMdnj';
+          var pixels = decodeBlurHash(blurHash, 35, 20);
+          var bitmap = Bitmap.fromHeadless(35, 20, pixels);
+          return Image.memory(bitmap.buildHeaded(), fit: BoxFit.cover,);
+        },
+        imageUrl: 'https://blurha.sh/assets/images/img1.jpg',
+        fit: BoxFit.cover,
       ),
     );
   }

@@ -4,6 +4,8 @@ description: A new Flutter project.
 dependencies:
   flutter:
     sdk: flutter
+  blurhash_dart: ^0.2.3
+  bitmap: ^0.0.6
   cached_network_image:
     path: ../
 
