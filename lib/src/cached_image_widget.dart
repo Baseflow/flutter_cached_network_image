@@ -125,6 +125,11 @@ class CachedNetworkImage extends StatefulWidget {
   ///  * [BlendMode], which includes an illustration of the effect of each blend mode.
   final BlendMode colorBlendMode;
 
+  /// If this is true, it will be available handling codec error.
+  ///
+  /// If this is true, placeholder is shown even while reading the image from disk.
+  final bool usePrecache;
+
   /// Target the interpolation quality for image scaling.
   ///
   /// If not given a value, defaults to FilterQuality.low.
@@ -153,6 +158,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.colorBlendMode,
     this.placeholderFadeInDuration,
+    this.usePrecache = true,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -331,6 +337,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   }
 
   Future _precacheImage(FileInfo fileInfo, Size size) async {
+    if (!widget.usePrecache) return;
     final completer = Completer<void>();
     await precacheImage(FileImage(fileInfo.file), context, size: size,
         onError: completer.completeError);
