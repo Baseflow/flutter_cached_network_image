@@ -270,41 +270,37 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   }
 
   Stream<FileInfo> _loadFile() {
-    if (_loadFileStreamController == null) {
-      _loadFileStreamController = StreamController<FileInfo>.broadcast();
-      _pushFileToStream(_loadFileStreamController);
-    }
+    final oldStreamController = _loadFileStreamController;
+    _loadFileStreamController = StreamController<FileInfo>.broadcast();
+    _pushFileToStream(_loadFileStreamController, oldStreamController);
     return _loadFileStreamController.stream;
   }
 
-  Future _pushFileToStream(StreamController streamController) async {
+  Future _pushFileToStream(StreamController streamController, oldStreamController) async {
     final url = widget.imageUrl;
     final headers = widget.httpHeaders;
     final size = widget.width != null && widget.height != null
         ? Size(widget.width, widget.height) : null;
+    if (oldStreamController?.isClosed == false) {
+      await oldStreamController.sink.done;
+    }
     try {
       var alreadyAdded = false;
-      var cacheFile = _cacheManager().getFileFromMemory(widget.imageUrl);
+      FileInfo cacheFile;
+      try {
+        cacheFile = await _cacheManager().getFileFromCache(url);
+      } catch (e) {
+        _print('CachedNetworkImage: Failed to load cached file for $url with error:\n$e');
+      }
       if (cacheFile != null) {
-        streamController.sink.add(cacheFile);
-        alreadyAdded = true;
-      } else {
         try {
-          cacheFile = await _cacheManager().getFileFromCache(url);
+          await _precacheImage(cacheFile, size);
+          streamController.sink.add(cacheFile);
+          alreadyAdded = true;
         } catch (e) {
-          _print('CachedNetworkImage: Failed to load cached file for $url with error:\n$e');
-        }
-        // ignore: invariant_booleans
-        if (cacheFile != null) {
-          try {
-            await _precacheImage(cacheFile, size);
-            streamController.sink.add(cacheFile);
-            alreadyAdded = true;
-          } catch (e) {
-            _print('CachedNetworkImage: Failed to precache cached file for $url with error:\n$e');
-            if (streamController.hasListener) {
-              streamController.sink.addError(e);
-            }
+          _print('CachedNetworkImage: Failed to precache cached file for $url with error:\n$e');
+          if (streamController.hasListener) {
+            streamController.sink.addError(e);
           }
         }
       }
@@ -353,12 +349,19 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   }
 
   Widget _animatedWidget() {
+    var fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
+    var alreadyBuiltData = false;
+
     return StreamBuilder<FileInfo>(
       key: _streamBuilderKey,
+      initialData: fromMemory,
       stream: _loadFile()
           // ignore errors if not mounted
-          .handleError(() {}, test: (_) => !mounted),
+          .handleError(() {}, test: (_) => !mounted)
+          .where((f) => !alreadyBuiltData ||
+            f?.originalUrl != fromMemory?.originalUrl || f?.validTill != fromMemory?.validTill),
       builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
+        alreadyBuiltData |= snapshot.hasData;
         if (snapshot.hasError) {
           // error
           if (_imageHolders.isEmpty || _imageHolders.last.error == null) {
