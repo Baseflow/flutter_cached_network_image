@@ -238,16 +238,16 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     super.dispose();
   }
 
-  void _createFileStream(){
+  void _createFileStream() {
     _fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
 
     _fileResponseStream = _cacheManager()
         .getFileStream(
-      widget.imageUrl,
-      headers: widget.httpHeaders,
-      withProgress: widget.progressIndicatorBuilder != null,
-    )
-    // ignore errors if not mounted
+          widget.imageUrl,
+          headers: widget.httpHeaders,
+          withProgress: widget.progressIndicatorBuilder != null,
+        )
+        // ignore errors if not mounted
         .handleError(() {}, test: (_) => !mounted)
         .where((f) {
       if (f is FileInfo) {
@@ -271,9 +271,9 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
       Duration duration}) {
     if (_imageHolders.isNotEmpty) {
       var lastHolder = _imageHolders.last;
-      if(lastHolder.progress != null && progress != null){
+      if (lastHolder.progress != null && progress != null) {
         _imageHolders.removeLast();
-      }else {
+      } else {
         lastHolder.forwardTickerFuture.then((_) {
           if (lastHolder.animationController == null) {
             return;
@@ -282,7 +282,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             lastHolder.animationController.duration = widget.fadeOutDuration;
           } else {
             lastHolder.animationController.duration =
-            const Duration(seconds: 1);
+                const Duration(seconds: 1);
           }
           if (widget.fadeOutCurve != null) {
             lastHolder.curve = widget.fadeOutCurve;
@@ -328,7 +328,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             // placeholder
             if (_imageHolders.isEmpty || _imageHolders.last.image != null) {
               DownloadProgress progress;
-              if(widget.progressIndicatorBuilder != null){
+              if (widget.progressIndicatorBuilder != null) {
                 progress = DownloadProgress(widget.imageUrl, null, 0);
               }
               _addImage(
