@@ -1,3 +1,7 @@
+## [2.1.0] - 2020-04-10
+* Update CacheManager
+* Added option for progress indicator
+
 ## [2.0.0] - 2019-12-31
 * Public release of 2.0 version
 
