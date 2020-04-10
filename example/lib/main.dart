@@ -1,4 +1,3 @@
-import 'package:bitmap/bitmap.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -77,6 +76,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 image: CachedNetworkImageProvider(
                   'http://via.placeholder.com/350x150',
                 ),
+              ),
+            ),
+            _sizedContainer(
+              CachedNetworkImage(
+                progressIndicatorBuilder: (context, url, progress) =>
+                    CircularProgressIndicator(
+                  value: progress.progress,
+                ),
+                imageUrl:
+                    'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
               ),
             ),
             _sizedContainer(
