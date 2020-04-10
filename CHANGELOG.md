@@ -1,3 +1,6 @@
+## [2.1.0+1] - 2020-04-10
+* Update minimal Dart sdk version
+
 ## [2.1.0] - 2020-04-10
 * Update CacheManager
 * Added option for progress indicator
