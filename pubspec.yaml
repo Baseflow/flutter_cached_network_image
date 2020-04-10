@@ -11,7 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_cache_manager: "^1.1.3"
+  flutter_cache_manager:
+    git: 'git@github.com:Baseflow/flutter_cache_manager.git'
 
 dev_dependencies:
   pedantic: "^1.8.0+1"
