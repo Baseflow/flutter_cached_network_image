@@ -28,23 +28,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('CachedNetworkImage')),
-      body: Center(
-        child: _sizedContainer(
-          CachedNetworkImage(
-            progressIndicatorBuilder: (context, url, progress) {
-              print('Very large image: ${progress.progress}');
-              return CircularProgressIndicator(
-                value: progress.progress,
-              );
-            },
-            imageUrl: 'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
-          ),
-        ),
-      ),
-    );
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('CachedNetworkImage')),
       body: _content(currentPage),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (value) => setState(() {
@@ -98,13 +81,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             _sizedContainer(
               CachedNetworkImage(
-                progressIndicatorBuilder: (context, url, progress) {
-                  print('Very large image: ${progress.progress}');
-                  return CircularProgressIndicator(
-                    value: progress.progress,
-                  );
-                },
-                imageUrl: 'http://via.placeholder.com/2000x1500',
+                progressIndicatorBuilder: (context, url, progress) =>
+                    CircularProgressIndicator(
+                  value: progress.progress,
+                ),
+                imageUrl:
+                    'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
               ),
             ),
             _sizedContainer(

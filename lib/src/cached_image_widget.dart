@@ -227,8 +227,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
         _disposeImageHolders();
         _imageHolders.clear();
       }
+      _createFileStream();
     }
-    _createFileStream();
     super.didUpdateWidget(oldWidget);
   }
 
@@ -239,7 +239,6 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   void _createFileStream(){
-    print('creating file stream');
     _fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
 
     _fileResponseStream = _cacheManager()
@@ -318,10 +317,6 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
       initialData: _fromMemory,
       stream: _fileResponseStream,
       builder: (BuildContext context, AsyncSnapshot<FileResponse> snapshot) {
-        if(snapshot.data is DownloadProgress){
-          var progress = (snapshot.data as DownloadProgress).progress;
-          print('Streambuilder progress: $progress');
-        }
         if (snapshot.hasError) {
           // error
           if (_imageHolders.isEmpty || _imageHolders.last.error == null) {
@@ -332,7 +327,12 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
           if (fileResponse == null) {
             // placeholder
             if (_imageHolders.isEmpty || _imageHolders.last.image != null) {
+              DownloadProgress progress;
+              if(widget.progressIndicatorBuilder != null){
+                progress = DownloadProgress(widget.imageUrl, null, 0);
+              }
               _addImage(
+                  progress: progress,
                   image: null,
                   duration: widget.placeholderFadeInDuration ?? Duration.zero);
             }
