@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+import 'scaled_cache_manager.dart';
+
 typedef void ErrorListener();
 
 class CachedNetworkImageProvider
@@ -13,7 +15,10 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale = 1.0, this.errorListener, this.headers, this.cacheManager})
+      {this.scale = 1.0, this.errorListener, this.headers, this.cacheManager,
+        this.useScaleCacheManager,
+        this.cacheWidth,
+        this.cacheHeight})
       : assert(url != null),
         assert(scale != null);
 
@@ -31,6 +36,15 @@ class CachedNetworkImageProvider
   // Set headers for the image provider, for example for authentication
   final Map<String, String> headers;
 
+  /// Use experimental scaleCacheManager.
+  final bool useScaleCacheManager;
+
+  /// Used in conjunction with `useScaleCacheManager` as the cache image width.
+  final int cacheWidth;
+
+  /// Used in conjunction with `useScaleCacheManager` as the cache image height.
+  final int cacheHeight;
+
   @override
   Future<CachedNetworkImageProvider> obtainKey(
       ImageConfiguration configuration) {
@@ -38,8 +52,7 @@ class CachedNetworkImageProvider
   }
 
   @override
-  ImageStreamCompleter load(
-      CachedNetworkImageProvider key, DecoderCallback decode) {
+  ImageStreamCompleter load(CachedNetworkImageProvider key, DecoderCallback decode) {
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key),
       scale: key.scale,
@@ -54,13 +67,23 @@ class CachedNetworkImageProvider
   }
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
-    var mngr = cacheManager ?? DefaultCacheManager();
-    var file = await mngr.getSingleFile(url, headers: headers);
+    var mngr =
+        useScaleCacheManager ? ScaledImageCacheManager() : (cacheManager ?? DefaultCacheManager());
+    final modifiedUrl = _transformedUrl(mngr, url);
+    var file = await mngr.getSingleFile(modifiedUrl, headers: headers);
     if (file == null) {
       if (errorListener != null) errorListener();
-      throw Exception('Couldn\'t download or retrieve file: $url');
+      throw Exception('Couldn\'t download or retrieve file: $modifiedUrl');
     }
     return _loadAsyncFromFile(key, file);
+  }
+
+  String _transformedUrl(BaseCacheManager manager, String url) {
+    if (manager is ScaledImageCacheManager) {
+      return getDimensionSuffixedUrl(manager.cacheConfig, url, cacheWidth, cacheHeight);
+    } else {
+      return url;
+    }
   }
 
   Future<ui.Codec> _loadAsyncFromFile(

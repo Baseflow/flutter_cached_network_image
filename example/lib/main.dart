@@ -1,6 +1,15 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'cache/sample_manager.dart';
+
+const bool useScaleCache = true;
+
+final cacheManager = SampleCacheManager();
 
 void main() => runApp(MyApp());
 
@@ -22,6 +31,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    ScaledImageCacheManager.init(cacheConfig: ScaledImageCacheConfig(storagePath: _getCacheDir()));
+  }
+
+  Future<Directory> _getCacheDir() async {
+    final dirs = await getExternalCacheDirectories();
+    return dirs.first;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +92,12 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             _blurHashImage(),
             _sizedContainer(
-              const Image(
+              Image(
                 image: CachedNetworkImageProvider(
                   'http://via.placeholder.com/350x150',
+                  useScaleCacheManager: useScaleCache,
+                  cacheManager: cacheManager,
+                  cacheWidth: 300,
                 ),
               ),
             ),
@@ -90,13 +113,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             _sizedContainer(
               CachedNetworkImage(
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
+                useScaleCacheManager: useScaleCache,
+                cacheManager: cacheManager,
+                placeholder: (context, url) => const CircularProgressIndicator(),
                 imageUrl: 'http://via.placeholder.com/200x150',
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
+                useScaleCacheManager: useScaleCache,
+                cacheManager: cacheManager,
                 imageUrl: 'http://via.placeholder.com/300x150',
                 imageBuilder: (context, imageProvider) => Container(
                   decoration: BoxDecoration(
@@ -110,12 +136,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
+                placeholder: (context, url) => const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             CachedNetworkImage(
+              useScaleCacheManager: useScaleCache,
+              cacheManager: cacheManager,
               imageUrl: 'http://via.placeholder.com/300x300',
               placeholder: (context, url) => CircleAvatar(
                 backgroundColor: Colors.amber,
@@ -128,25 +155,28 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             _sizedContainer(
               CachedNetworkImage(
+                cacheManager: cacheManager,
+                useScaleCacheManager: useScaleCache,
                 imageUrl: 'http://notAvalid.uri',
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
+                placeholder: (context, url) => const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
+                cacheManager: cacheManager,
+                useScaleCacheManager: useScaleCache,
                 imageUrl: 'not a uri at all',
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
+                placeholder: (context, url) => const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
+                cacheManager: cacheManager,
+                useScaleCacheManager: useScaleCache,
                 imageUrl: 'http://via.placeholder.com/350x200',
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
+                placeholder: (context, url) => const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fadeOutDuration: const Duration(seconds: 1),
                 fadeInDuration: const Duration(seconds: 3),
@@ -162,6 +192,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return SizedBox(
       width: double.infinity,
       child: CachedNetworkImage(
+        cacheManager: cacheManager,
+        useScaleCacheManager: useScaleCache,
         placeholder: (context, url) => const AspectRatio(
           aspectRatio: 1.6,
           child: BlurHash(hash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj'),
@@ -178,6 +210,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: <Widget>[
             CachedNetworkImage(
+              cacheManager: cacheManager,
+              useScaleCacheManager: useScaleCache,
               imageUrl: 'https://loremflickr.com/320/240/music?lock=$index',
               placeholder: (BuildContext context, String url) => Container(
                 width: 320,
@@ -195,9 +229,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _gridView() {
     return GridView.builder(
       itemCount: 250,
-      gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
       itemBuilder: (BuildContext context, int index) => CachedNetworkImage(
+        cacheManager: cacheManager,
+        useScaleCacheManager: useScaleCache,
         imageUrl: 'https://loremflickr.com/100/100/music?lock=$index',
         placeholder: _loader,
         errorWidget: _error,

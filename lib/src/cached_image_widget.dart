@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+import 'scaled_cache_manager.dart';
+
 typedef Widget ImageWidgetBuilder(
     BuildContext context, ImageProvider imageProvider);
 typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
@@ -136,6 +138,9 @@ class CachedNetworkImage extends StatefulWidget {
   /// If not given a value, defaults to FilterQuality.low.
   final FilterQuality filterQuality;
 
+  /// Use experimental scaleCacheManager.
+  final bool useScaleCacheManager;
+
   CachedNetworkImage({
     Key key,
     @required this.imageUrl,
@@ -160,6 +165,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.colorBlendMode,
     this.placeholderFadeInDuration,
+    this.useScaleCacheManager = false,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -175,6 +181,7 @@ class CachedNetworkImage extends StatefulWidget {
   CachedNetworkImageState createState() {
     return CachedNetworkImageState();
   }
+
 }
 
 class _ImageTransitionHolder {
@@ -210,7 +217,40 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
 
   @override
   Widget build(BuildContext context) {
-    return _animatedWidget();
+    return LayoutBuilder(builder: (ctx, constraints) {
+      if (widget.width != null || widget.height != null) {
+        constraints = BoxConstraints(
+            maxWidth: widget.width ?? double.minPositive,
+            maxHeight: widget.height ?? double.minPositive);
+      } else {
+        final ratio =MediaQuery.of(context).devicePixelRatio;
+        constraints =BoxConstraints(
+          maxWidth: constraints.maxWidth != double.infinity? constraints.maxWidth*ratio:constraints.maxWidth,
+          maxHeight: constraints.maxHeight != double.infinity? constraints.maxHeight*ratio:constraints.maxHeight,
+
+        );
+      }
+      final url = _transformedUrl(constraints);
+      return _animatedWidget(url);
+    });
+  }
+
+  String _transformedUrl(BoxConstraints constraints) {
+    final _manager = _cacheManager();
+    if (_manager is ScaledImageCacheManager) {
+      var width = constraints.maxWidth;
+      var height = constraints.maxHeight;
+      if (width == double.infinity) {
+        width = null;
+      }
+      if (height == double.infinity) {
+        height = null;
+      }
+      return getDimensionSuffixedUrl(
+          _manager.cacheConfig, widget.imageUrl, width?.toInt(), height?.toInt());
+    } else {
+      return widget.imageUrl;
+    }
   }
 
   @override
@@ -311,7 +351,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  Widget _animatedWidget() {
+  Widget _animatedWidget(String url) {
     return StreamBuilder<FileResponse>(
       key: _streamBuilderKey,
       initialData: _fromMemory,
@@ -401,7 +441,11 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   BaseCacheManager _cacheManager() {
-    return widget.cacheManager ?? DefaultCacheManager();
+    if (widget.useScaleCacheManager) {
+      return ScaledImageCacheManager();
+    } else {
+      return (widget.cacheManager ?? DefaultCacheManager());
+    }
   }
 
   Widget _image(BuildContext context, ImageProvider imageProvider) {
