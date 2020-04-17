@@ -1,7 +1,8 @@
-import 'dart:async' show Future;
+import 'dart:async' show Future, StreamController;
 import 'dart:io' show File;
 import 'dart:ui' as ui show instantiateImageCodec, Codec;
 
+import 'package:cached_network_image/src/image_provider/multi_image_stream_completer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -40,8 +41,10 @@ class CachedNetworkImageProvider
   @override
   ImageStreamCompleter load(
       CachedNetworkImageProvider key, DecoderCallback decode) {
-    return MultiFrameImageStreamCompleter(
-      codec: _loadAsync(key),
+    final StreamController<ImageChunkEvent> chunkEvents =
+        StreamController<ImageChunkEvent>();
+    return MultiImageStreamCompleter(
+      codec: _loadAsync(key, chunkEvents, decode),
       scale: key.scale,
       informationCollector: () sync* {
         yield DiagnosticsProperty<ImageProvider>(
@@ -53,14 +56,31 @@ class CachedNetworkImageProvider
     );
   }
 
-  Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
-    var mngr = cacheManager ?? DefaultCacheManager();
-    var file = await mngr.getSingleFile(url, headers: headers);
-    if (file == null) {
-      if (errorListener != null) errorListener();
-      throw Exception('Couldn\'t download or retrieve file: $url');
+  Stream<ui.Codec> _loadAsync(
+    CachedNetworkImageProvider key,
+    StreamController<ImageChunkEvent> chunkEvents,
+    DecoderCallback decode,
+  ) async* {
+    assert(key == this);
+    try {
+      var mngr = cacheManager ?? DefaultCacheManager();
+      await for (var result
+          in mngr.getFileStream(key.url, withProgress: true)) {
+        if (result is DownloadProgress) {
+          chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: result.downloaded,
+            expectedTotalBytes: result.totalSize,
+          ));
+        }
+        if (result is FileInfo) {
+          var file = result.file;
+          var bytes = await file.readAsBytes();
+          yield await decode(bytes);
+        }
+      }
+    } finally {
+      await chunkEvents.close();
     }
-    return _loadAsyncFromFile(key, file);
   }
 
   Future<ui.Codec> _loadAsyncFromFile(
