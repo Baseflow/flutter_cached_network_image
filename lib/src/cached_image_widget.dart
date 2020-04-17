@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-typedef Widget ImageWidgetBuilder(BuildContext context, ImageProvider imageProvider);
+typedef Widget ImageWidgetBuilder(
+    BuildContext context, ImageProvider imageProvider);
 typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
-typedef Widget LoadingErrorWidgetBuilder(BuildContext context, String url, dynamic error);
+typedef Widget ProgressIndicatorBuilder(
+    BuildContext context, String url, DownloadProgress progress);
+typedef Widget LoadingErrorWidgetBuilder(
+    BuildContext context, String url, dynamic error);
 
 class CachedNetworkImage extends StatefulWidget {
   /// Option to use cachemanager with other settings
@@ -20,6 +24,9 @@ class CachedNetworkImage extends StatefulWidget {
 
   /// Widget displayed while the target [imageUrl] is loading.
   final PlaceholderWidgetBuilder placeholder;
+
+  /// Widget displayed while the target [imageUrl] is loading.
+  final ProgressIndicatorBuilder progressIndicatorBuilder;
 
   /// Widget displayed while the target [imageUrl] failed loading.
   final LoadingErrorWidgetBuilder errorWidget;
@@ -140,6 +147,7 @@ class CachedNetworkImage extends StatefulWidget {
     @required this.imageUrl,
     this.imageBuilder,
     this.placeholder,
+    this.progressIndicatorBuilder,
     this.errorWidget,
     this.fadeOutDuration = const Duration(milliseconds: 1000),
     this.fadeOutCurve = Curves.easeOut,
@@ -178,6 +186,7 @@ class CachedNetworkImage extends StatefulWidget {
 
 class _ImageTransitionHolder {
   final FileInfo image;
+  final DownloadProgress progress;
   AnimationController animationController;
   final Object error;
   Curve curve;
@@ -185,6 +194,7 @@ class _ImageTransitionHolder {
 
   _ImageTransitionHolder({
     this.image,
+    this.progress,
     @required this.animationController,
     this.error,
     this.curve = Curves.easeIn,
@@ -198,14 +208,23 @@ class _ImageTransitionHolder {
   }
 }
 
-class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProviderStateMixin {
+class CachedNetworkImageState extends State<CachedNetworkImage>
+    with TickerProviderStateMixin {
   final _imageHolders = <_ImageTransitionHolder>[];
   Key _streamBuilderKey = UniqueKey();
   StreamController<FileInfo> _loadFileStreamController;
+  Stream<FileResponse> _fileResponseStream;
+  FileInfo _fromMemory;
 
   @override
   Widget build(BuildContext context) {
     return _animatedWidget();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _createFileStream();
   }
 
   @override
@@ -216,6 +235,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
         _disposeImageHolders();
         _imageHolders.clear();
       }
+      _createFileStream();
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -226,44 +246,70 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
     super.dispose();
   }
 
+  void _createFileStream() {
+    _fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
+
+    _fileResponseStream = _loadFile()
+        // ignore errors if not mounted
+        .handleError(() {}, test: (_) => !mounted)
+        .where((f) {
+      if (f is FileInfo) {
+        return f?.originalUrl != _fromMemory?.originalUrl ||
+            f?.validTill != _fromMemory?.validTill;
+      }
+      return true;
+    });
+  }
+
   void _disposeImageHolders() {
     for (var imageHolder in _imageHolders) {
       imageHolder.dispose();
     }
   }
 
-  void _addImage({FileInfo image, Object error, Duration duration}) {
+  void _addImage(
+      {FileInfo image,
+      DownloadProgress progress,
+      Object error,
+      Duration duration}) {
     if (_imageHolders.isNotEmpty) {
       var lastHolder = _imageHolders.last;
-      lastHolder.forwardTickerFuture.then((_) {
-        if (lastHolder.animationController == null) {
-          return;
-        }
-        if (widget.fadeOutDuration != null) {
-          lastHolder.animationController.duration = widget.fadeOutDuration;
-        } else {
-          lastHolder.animationController.duration = const Duration(seconds: 1);
-        }
-        if (widget.fadeOutCurve != null) {
-          lastHolder.curve = widget.fadeOutCurve;
-        } else {
-          lastHolder.curve = Curves.easeOut;
-        }
-        lastHolder.animationController.reverse().then((_) {
-          _imageHolders.remove(lastHolder);
-          final isEmpty = _imageHolders.where((holder) => holder.image != null).isEmpty;
-          if (mounted && isEmpty) setState(() {});
-          return null;
+      if (lastHolder.progress != null && progress != null) {
+        _imageHolders.removeLast();
+      } else {
+        lastHolder.forwardTickerFuture.then((_) {
+          if (lastHolder.animationController == null) {
+            return;
+          }
+          if (widget.fadeOutDuration != null) {
+            lastHolder.animationController.duration = widget.fadeOutDuration;
+          } else {
+            lastHolder.animationController.duration =
+                const Duration(seconds: 1);
+          }
+          if (widget.fadeOutCurve != null) {
+            lastHolder.curve = widget.fadeOutCurve;
+          } else {
+            lastHolder.curve = Curves.easeOut;
+          }
+          lastHolder.animationController.reverse().then((_) {
+            _imageHolders.remove(lastHolder);
+            final isEmpty = _imageHolders.where((holder) => holder.image != null).isEmpty;
+            if (mounted && isEmpty) setState(() {});
+            return null;
+          });
         });
-      });
+      }
     }
     _imageHolders.add(
       _ImageTransitionHolder(
         image: image,
         error: error,
+        progress: progress,
         animationController: AnimationController(
           vsync: this,
-          duration: duration ?? (widget.fadeInDuration ?? const Duration(milliseconds: 500)),
+          duration: duration ??
+              (widget.fadeInDuration ?? const Duration(milliseconds: 500)),
         ),
       ),
     );
@@ -349,44 +395,64 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   }
 
   Widget _animatedWidget() {
-    var fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
-    var alreadyBuiltData = false;
-
-    return StreamBuilder<FileInfo>(
+    return StreamBuilder<FileResponse>(
       key: _streamBuilderKey,
-      initialData: fromMemory,
-      stream: _loadFile()
-          // ignore errors if not mounted
-          .handleError(() {}, test: (_) => !mounted)
-          .where((f) => !alreadyBuiltData ||
-            f?.originalUrl != fromMemory?.originalUrl || f?.validTill != fromMemory?.validTill),
-      builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
-        alreadyBuiltData |= snapshot.hasData;
+      initialData: _fromMemory,
+      stream: _fileResponseStream,
+      builder: (BuildContext context, AsyncSnapshot<FileResponse> snapshot) {
         if (snapshot.hasError) {
           // error
           if (_imageHolders.isEmpty || _imageHolders.last.error == null) {
             _addImage(image: null, error: snapshot.error);
           }
         } else {
-          var fileInfo = snapshot.data;
-          if (fileInfo == null) {
+          var fileResponse = snapshot.data;
+          if (fileResponse == null) {
             // placeholder
             if (_imageHolders.isEmpty || _imageHolders.last.image != null) {
-              _addImage(image: null, duration: widget.placeholderFadeInDuration ?? Duration.zero);
+              DownloadProgress progress;
+              if (widget.progressIndicatorBuilder != null) {
+                progress = DownloadProgress(widget.imageUrl, null, 0);
+              }
+              _addImage(
+                  progress: progress,
+                  image: null,
+                  duration: widget.placeholderFadeInDuration ?? Duration.zero);
             }
-          } else if (_imageHolders.isEmpty ||
-              _imageHolders.last.image?.originalUrl != fileInfo.originalUrl ||
-              _imageHolders.last.image?.validTill != fileInfo.validTill) {
-            _addImage(image: fileInfo, duration: _imageHolders.isNotEmpty ? null : Duration.zero);
+          } else {
+            if (fileResponse is FileInfo) {
+              if (_imageHolders.isEmpty ||
+                  _imageHolders.last.image?.originalUrl !=
+                      fileResponse.originalUrl ||
+                  _imageHolders.last.image?.validTill !=
+                      fileResponse.validTill) {
+                _addImage(
+                    image: fileResponse,
+                    duration: _imageHolders.isNotEmpty ? null : Duration.zero);
+              }
+            }
+            if (fileResponse is DownloadProgress) {
+              _addImage(progress: fileResponse, duration: Duration.zero);
+            }
           }
         }
 
         var children = <Widget>[];
         for (var holder in _imageHolders) {
           if (holder.error != null) {
-            children.add(_transitionWidget(holder: holder, child: _errorWidget(context, holder.error)));
+            children.add(_transitionWidget(
+                holder: holder, child: _errorWidget(context, holder.error)));
+          } else if (holder.progress != null) {
+            children.add(_transitionWidget(
+                holder: holder,
+                child: widget.progressIndicatorBuilder(
+                  context,
+                  holder.progress.originalUrl,
+                  holder.progress,
+                )));
           } else if (holder.image == null) {
-            children.add(_transitionWidget(holder: holder, child: _placeholder(context)));
+            children.add(_transitionWidget(
+                holder: holder, child: _placeholder(context)));
           } else {
             children.add(_transitionWidget(
                 holder: holder,
@@ -411,7 +477,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
 
   Widget _transitionWidget({_ImageTransitionHolder holder, Widget child}) {
     return FadeTransition(
-      opacity: CurvedAnimation(curve: holder.curve, parent: holder.animationController),
+      opacity: CurvedAnimation(
+          curve: holder.curve, parent: holder.animationController),
       child: child,
     );
   }
@@ -447,6 +514,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage> with TickerProvi
   }
 
   Widget _errorWidget(BuildContext context, Object error) {
-    return widget.errorWidget != null ? widget.errorWidget(context, widget.imageUrl, error) : _placeholder(context);
+    return widget.errorWidget != null
+        ? widget.errorWidget(context, widget.imageUrl, error)
+        : _placeholder(context);
   }
 }

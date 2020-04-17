@@ -81,6 +81,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             _sizedContainer(
               CachedNetworkImage(
+                progressIndicatorBuilder: (context, url, progress) =>
+                    CircularProgressIndicator(
+                  value: progress.progress,
+                ),
+                imageUrl:
+                    'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
+              ),
+            ),
+            _sizedContainer(
+              CachedNetworkImage(
                 placeholder: (context, url) =>
                     const CircularProgressIndicator(),
                 imageUrl: 'http://via.placeholder.com/200x150',
