@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-
+import 'package:pedantic/pedantic.dart';
 import 'image_transformer.dart';
 
 class ScaledImageCacheManager extends BaseCacheManager {
@@ -32,7 +32,8 @@ class ScaledImageCacheManager extends BaseCacheManager {
   factory ScaledImageCacheManager(
       {ScaledImageCacheConfig cacheConfig, ImageTransformer transformer}) {
     final config = cacheConfig ?? ScaledImageCacheConfig();
-    _instance ??= ScaledImageCacheManager._(config, transformer ?? DefaultImageTransformer(config));
+    _instance ??= ScaledImageCacheManager._(
+        config, transformer ?? DefaultImageTransformer(config));
     return _instance;
   }
 
@@ -40,7 +41,8 @@ class ScaledImageCacheManager extends BaseCacheManager {
   /// This is purely for syntax purposes.
   factory ScaledImageCacheManager.init(
       {ScaledImageCacheConfig cacheConfig, ImageTransformer transformer}) {
-    return ScaledImageCacheManager(cacheConfig: cacheConfig, transformer: transformer);
+    return ScaledImageCacheManager(
+        cacheConfig: cacheConfig, transformer: transformer);
   }
 
   ScaledImageCacheManager._(this.cacheConfig, this.transformer) : super(key);
@@ -49,7 +51,8 @@ class ScaledImageCacheManager extends BaseCacheManager {
   @override
   Future<FileInfo> downloadFile(String url,
       {Map<String, String> authHeaders, bool force = false}) async {
-    var response = await super.downloadFile(url, authHeaders: authHeaders, force: force);
+    var response =
+        await super.downloadFile(url, authHeaders: authHeaders, force: force);
     response = await transformer.transform(response, url);
     return response;
   }
@@ -66,14 +69,25 @@ class ScaledImageCacheManager extends BaseCacheManager {
   /// returned from the cache there will be no progress given, although the file
   /// might be outdated and a new file is being downloaded in the background.
   @override
-  Stream<FileResponse> getFileStream(String url, {Map<String, String> headers, bool withProgress}) {
-    final upStream = super.getFileStream(url, headers: headers, withProgress: withProgress);
+  Stream<FileResponse> getFileStream(String url,
+      {Map<String, String> headers, bool withProgress}) {
+    final upStream =
+        super.getFileStream(url, headers: headers, withProgress: withProgress);
     final downStream = StreamController<FileResponse>();
+    var isUpStreamClosed = false;
     upStream.listen((d) async {
       if (d is FileInfo) {
         d = await transformer.transform(d, url);
       }
       downStream.add(d);
+      if (isUpStreamClosed) {
+        unawaited(downStream.close());
+      }
+    }, onError: (e) {
+      downStream.addError(e);
+      downStream.close();
+    }, onDone: () {
+      isUpStreamClosed = true;
     });
     return downStream.stream;
   }
@@ -90,7 +104,9 @@ class ScaledImageCacheConfig {
   final Future<Directory> storagePath;
 
   ScaledImageCacheConfig(
-      {this.widthKey = DEFAULT_WIDTH_KEY, this.heightKey = DEFAULT_HEIGHT_KEY, this.storagePath});
+      {this.widthKey = DEFAULT_WIDTH_KEY,
+      this.heightKey = DEFAULT_HEIGHT_KEY,
+      this.storagePath});
 
   static const DEFAULT_WIDTH_KEY = 'fcni_width';
   static const DEFAULT_HEIGHT_KEY = 'fcni_height';
@@ -99,12 +115,14 @@ class ScaledImageCacheConfig {
 ///
 /// Helper method to transform image urls
 ///
-String getDimensionSuffixedUrl(ScaledImageCacheConfig config, String url, int width, int height) {
+String getDimensionSuffixedUrl(
+    ScaledImageCacheConfig config, String url, int width, int height) {
   Uri uri;
   try {
     uri = Uri.parse(url);
     if (uri != null) {
-      Map<String, String> queryParams = Map<String, String>.from(uri.queryParameters);
+      Map<String, String> queryParams =
+          Map<String, String>.from(uri.queryParameters);
       if (width != null) {
         queryParams[config.widthKey] = width.toString();
       }

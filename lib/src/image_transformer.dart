@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as p;
@@ -51,11 +50,12 @@ class DefaultImageTransformer extends ImageTransformer {
     if (file.existsSync()) {
       String extension = p.extension(file.path) ?? '';
       final format = _compressionFormats[extension] ?? CompressFormat.png;
-      final destPath = file.path + tmpFileSuffix +_extensionFormats[format];
+      final destPath = file.path + tmpFileSuffix + _extensionFormats[format];
       final tmpFile = File(destPath);
       final srcSize = file.lengthSync();
       final screen = window.physicalSize;
-      File resizedFile = await FlutterImageCompress.compressAndGetFile(file.path, tmpFile.path,
+      File resizedFile = await FlutterImageCompress.compressAndGetFile(
+          file.path, tmpFile.path,
           minWidth: width ?? screen.width.toInt(),
           minHeight: height ?? screen.height.toInt(),
           format: format);

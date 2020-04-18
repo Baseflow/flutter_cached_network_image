@@ -35,7 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    ScaledImageCacheManager.init(cacheConfig: ScaledImageCacheConfig(storagePath: _getCacheDir()));
+    ScaledImageCacheManager.init(
+        cacheConfig: ScaledImageCacheConfig(storagePath: _getCacheDir()));
   }
 
   Future<Directory> _getCacheDir() async {
@@ -115,7 +116,8 @@ class _MyHomePageState extends State<MyHomePage> {
               CachedNetworkImage(
                 useScaleCacheManager: useScaleCache,
                 cacheManager: cacheManager,
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 imageUrl: 'http://via.placeholder.com/200x150',
               ),
             ),
@@ -136,7 +138,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -158,7 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 cacheManager: cacheManager,
                 useScaleCacheManager: useScaleCache,
                 imageUrl: 'http://notAvalid.uri',
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -167,7 +171,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 cacheManager: cacheManager,
                 useScaleCacheManager: useScaleCache,
                 imageUrl: 'not a uri at all',
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -176,7 +181,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 cacheManager: cacheManager,
                 useScaleCacheManager: useScaleCache,
                 imageUrl: 'http://via.placeholder.com/350x200',
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fadeOutDuration: const Duration(seconds: 1),
                 fadeInDuration: const Duration(seconds: 3),
@@ -229,7 +235,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _gridView() {
     return GridView.builder(
       itemCount: 250,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
       itemBuilder: (BuildContext context, int index) => CachedNetworkImage(
         cacheManager: cacheManager,
         useScaleCacheManager: useScaleCache,

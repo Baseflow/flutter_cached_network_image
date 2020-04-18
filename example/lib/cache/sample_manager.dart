@@ -20,6 +20,6 @@ class SampleCacheManager extends BaseCacheManager {
   @override
   Future<String> getFilePath() async {
     var directory = await getExternalCacheDirectories();
-    return  p.join(directory[0].path, key);
+    return p.join(directory[0].path, key);
   }
 }

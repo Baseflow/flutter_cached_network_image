@@ -5,12 +5,13 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'scaled_cache_manager.dart';
 
-typedef Widget ImageWidgetBuilder(
+typedef ImageWidgetBuilder = Widget Function(
     BuildContext context, ImageProvider imageProvider);
-typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
-typedef Widget ProgressIndicatorBuilder(
+typedef PlaceholderWidgetBuilder = Widget Function(
+    BuildContext context, String url);
+typedef ProgressIndicatorBuilder = Widget Function(
     BuildContext context, String url, DownloadProgress progress);
-typedef Widget LoadingErrorWidgetBuilder(
+typedef LoadingErrorWidgetBuilder = Widget Function(
     BuildContext context, String url, dynamic error);
 
 class CachedNetworkImage extends StatefulWidget {
@@ -181,7 +182,6 @@ class CachedNetworkImage extends StatefulWidget {
   CachedNetworkImageState createState() {
     return CachedNetworkImageState();
   }
-
 }
 
 class _ImageTransitionHolder {
@@ -214,6 +214,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   Key _streamBuilderKey = UniqueKey();
   Stream<FileResponse> _fileResponseStream;
   FileInfo _fromMemory;
+  String _modifiedUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -223,15 +224,22 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             maxWidth: widget.width ?? double.minPositive,
             maxHeight: widget.height ?? double.minPositive);
       } else {
-        final ratio =MediaQuery.of(context).devicePixelRatio;
-        constraints =BoxConstraints(
-          maxWidth: constraints.maxWidth != double.infinity? constraints.maxWidth*ratio:constraints.maxWidth,
-          maxHeight: constraints.maxHeight != double.infinity? constraints.maxHeight*ratio:constraints.maxHeight,
-
+        final ratio = MediaQuery.of(context).devicePixelRatio;
+        constraints = BoxConstraints(
+          maxWidth: constraints.maxWidth != double.infinity
+              ? constraints.maxWidth * ratio
+              : constraints.maxWidth,
+          maxHeight: constraints.maxHeight != double.infinity
+              ? constraints.maxHeight * ratio
+              : constraints.maxHeight,
         );
       }
       final url = _transformedUrl(constraints);
-      return _animatedWidget(url);
+      if (url != _modifiedUrl) {
+        _modifiedUrl = url;
+        _createFileStream();
+      }
+      return _animatedWidget();
     });
   }
 
@@ -246,17 +254,11 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
       if (height == double.infinity) {
         height = null;
       }
-      return getDimensionSuffixedUrl(
-          _manager.cacheConfig, widget.imageUrl, width?.toInt(), height?.toInt());
+      return getDimensionSuffixedUrl(_manager.cacheConfig, widget.imageUrl,
+          width?.toInt(), height?.toInt());
     } else {
       return widget.imageUrl;
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _createFileStream();
   }
 
   @override
@@ -279,11 +281,10 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   }
 
   void _createFileStream() {
-    _fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
-
+    _fromMemory = _cacheManager().getFileFromMemory(_modifiedUrl);
     _fileResponseStream = _cacheManager()
         .getFileStream(
-          widget.imageUrl,
+          _modifiedUrl,
           headers: widget.httpHeaders,
           withProgress: widget.progressIndicatorBuilder != null,
         )
@@ -351,7 +352,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
-  Widget _animatedWidget(String url) {
+  Widget _animatedWidget() {
     return StreamBuilder<FileResponse>(
       key: _streamBuilderKey,
       initialData: _fromMemory,
@@ -369,7 +370,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             if (_imageHolders.isEmpty || _imageHolders.last.image != null) {
               DownloadProgress progress;
               if (widget.progressIndicatorBuilder != null) {
-                progress = DownloadProgress(widget.imageUrl, null, 0);
+                progress = DownloadProgress(_modifiedUrl, null, 0);
               }
               _addImage(
                   progress: progress,

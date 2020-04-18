@@ -8,17 +8,20 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'scaled_cache_manager.dart';
 
-typedef void ErrorListener();
+typedef ErrorListener = void Function();
 
 class CachedNetworkImageProvider
     extends ImageProvider<CachedNetworkImageProvider> {
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale = 1.0, this.errorListener, this.headers, this.cacheManager,
-        this.useScaleCacheManager,
-        this.cacheWidth,
-        this.cacheHeight})
+      {this.scale = 1.0,
+      this.errorListener,
+      this.headers,
+      this.cacheManager,
+      this.useScaleCacheManager,
+      this.cacheWidth,
+      this.cacheHeight})
       : assert(url != null),
         assert(scale != null);
 
@@ -52,7 +55,8 @@ class CachedNetworkImageProvider
   }
 
   @override
-  ImageStreamCompleter load(CachedNetworkImageProvider key, DecoderCallback decode) {
+  ImageStreamCompleter load(
+      CachedNetworkImageProvider key, DecoderCallback decode) {
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key),
       scale: key.scale,
@@ -67,10 +71,11 @@ class CachedNetworkImageProvider
   }
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
-    var mngr =
-        useScaleCacheManager ? ScaledImageCacheManager() : (cacheManager ?? DefaultCacheManager());
-    final modifiedUrl = _transformedUrl(mngr, url);
-    var file = await mngr.getSingleFile(modifiedUrl, headers: headers);
+    final manager = useScaleCacheManager
+        ? ScaledImageCacheManager()
+        : (cacheManager ?? DefaultCacheManager());
+    final modifiedUrl = _transformedUrl(manager, url);
+    var file = await manager.getSingleFile(modifiedUrl, headers: headers);
     if (file == null) {
       if (errorListener != null) errorListener();
       throw Exception('Couldn\'t download or retrieve file: $modifiedUrl');
@@ -80,7 +85,8 @@ class CachedNetworkImageProvider
 
   String _transformedUrl(BaseCacheManager manager, String url) {
     if (manager is ScaledImageCacheManager) {
-      return getDimensionSuffixedUrl(manager.cacheConfig, url, cacheWidth, cacheHeight);
+      return getDimensionSuffixedUrl(
+          manager.cacheConfig, url, cacheWidth, cacheHeight);
     } else {
       return url;
     }
