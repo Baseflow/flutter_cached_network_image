@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -212,7 +213,6 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     with TickerProviderStateMixin {
   final _imageHolders = <_ImageTransitionHolder>[];
   Key _streamBuilderKey = UniqueKey();
-  StreamController<FileInfo> _loadFileStreamController;
   Stream<FileResponse> _fileResponseStream;
   FileInfo _fromMemory;
 
@@ -249,7 +249,12 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
   void _createFileStream() {
     _fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
 
-    _fileResponseStream = _loadFile()
+    _fileResponseStream = _cacheManager()
+        .getFileStream(
+          widget.imageUrl,
+          headers: widget.httpHeaders,
+          withProgress: widget.progressIndicatorBuilder != null,
+        )
         // ignore errors if not mounted
         .handleError(() {}, test: (_) => !mounted)
         .where((f) {
@@ -258,7 +263,24 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             f?.validTill != _fromMemory?.validTill;
       }
       return true;
+    }).asyncExpand((f) {
+      if (widget.usePrecache && f is FileInfo) {
+        return _precacheImage(f).asStream();
+      } else {
+        return Stream.value(f);
+      }
     });
+  }
+
+  Future<FileInfo> _precacheImage(FileInfo fileInfo) async {
+    final completer = Completer<FileInfo>();
+    await precacheImage(FileImage(fileInfo.file), context,
+        size: widget.width != null && widget.height != null
+            ? Size(widget.width, widget.height)
+            : null,
+        onError: completer.completeError);
+    if (!completer.isCompleted) completer.complete(fileInfo);
+    return completer.future;
   }
 
   void _disposeImageHolders() {
@@ -294,7 +316,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
           }
           lastHolder.animationController.reverse().then((_) {
             _imageHolders.remove(lastHolder);
-            final isEmpty = _imageHolders.where((holder) => holder.image != null).isEmpty;
+            final isEmpty =
+                _imageHolders.where((holder) => holder.image != null).isEmpty;
             if (mounted && isEmpty) setState(() {});
             return null;
           });
@@ -313,85 +336,6 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
         ),
       ),
     );
-  }
-
-  Stream<FileInfo> _loadFile() {
-    final oldStreamController = _loadFileStreamController;
-    _loadFileStreamController = StreamController<FileInfo>.broadcast();
-    _pushFileToStream(_loadFileStreamController, oldStreamController);
-    return _loadFileStreamController.stream;
-  }
-
-  Future _pushFileToStream(StreamController streamController, oldStreamController) async {
-    final url = widget.imageUrl;
-    final headers = widget.httpHeaders;
-    final size = widget.width != null && widget.height != null
-        ? Size(widget.width, widget.height) : null;
-    if (oldStreamController?.isClosed == false) {
-      await oldStreamController.sink.done;
-    }
-    try {
-      var alreadyAdded = false;
-      FileInfo cacheFile;
-      try {
-        cacheFile = await _cacheManager().getFileFromCache(url);
-      } catch (e) {
-        _print('CachedNetworkImage: Failed to load cached file for $url with error:\n$e');
-      }
-      if (cacheFile != null) {
-        try {
-          await _precacheImage(cacheFile, size);
-          streamController.sink.add(cacheFile);
-          alreadyAdded = true;
-        } catch (e) {
-          _print('CachedNetworkImage: Failed to precache cached file for $url with error:\n$e');
-          if (streamController.hasListener) {
-            streamController.sink.addError(e);
-          }
-        }
-      }
-      if (!alreadyAdded || cacheFile?.validTill?.isBefore(DateTime.now()) == true) {
-        FileInfo webFile;
-        try {
-          webFile = await _cacheManager().downloadFile(url, authHeaders: headers);
-        } catch (e) {
-          _print('CachedNetworkImage: Failed to download file from $url with error:\n$e');
-          if (!alreadyAdded && streamController.hasListener) {
-            streamController.sink.addError(e);
-          }
-        }
-        if (webFile != null) {
-          try {
-            await _precacheImage(webFile, size);
-            streamController.sink.add(webFile);
-            alreadyAdded = true;
-          } catch (e) {
-            _print('CachedNetworkImage: Failed to precache downloaded file from $url with error:\n$e');
-            if (!alreadyAdded && streamController.hasListener) {
-              streamController.sink.addError(e);
-            }
-          }
-        }
-      }
-    } finally {
-      await streamController.sink.close();
-    }
-  }
-
-  Future _precacheImage(FileInfo fileInfo, Size size) async {
-    if (!widget.usePrecache) return;
-    final completer = Completer<void>();
-    await precacheImage(FileImage(fileInfo.file), context, size: size,
-        onError: completer.completeError);
-    if (!completer.isCompleted) completer.complete();
-    await completer.future;
-  }
-
-  void _print(Object object) {
-    assert(() {
-      print(object);
-      return true;
-    }());
   }
 
   Widget _animatedWidget() {
