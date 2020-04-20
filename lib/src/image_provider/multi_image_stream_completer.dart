@@ -11,16 +11,21 @@ double get timeDilation => _timeDilation;
 double _timeDilation = 1.0;
 
 class MultiImageStreamCompleter extends ImageStreamCompleter {
-
   MultiImageStreamCompleter({
     @required Stream<ui.Codec> codec,
     @required double scale,
     Stream<ImageChunkEvent> chunkEvents,
     InformationCollector informationCollector,
-  }) : assert(codec != null),
+  })  : assert(codec != null),
         _informationCollector = informationCollector,
         _scale = scale {
-    codec.listen(_handleCodecReady, onError: (dynamic error, StackTrace stack) {
+    codec.listen((event) {
+      if (_timer != null) {
+        _nextImageCodec = event;
+      } else {
+        _handleCodecReady(event);
+      }
+    }, onError: (dynamic error, StackTrace stack) {
       reportError(
         context: ErrorDescription('resolving an image codec'),
         exception: error,
@@ -56,6 +61,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   }
 
   ui.Codec _codec;
+  ui.Codec _nextImageCodec;
   final double _scale;
   final InformationCollector _informationCollector;
   ui.FrameInfo _nextFrame;
@@ -70,6 +76,12 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   // Used to guard against registering multiple _handleAppFrame callbacks for the same frame.
   bool _frameCallbackScheduled = false;
 
+  void _switchToNewCodec() {
+    _timer = null;
+    _handleCodecReady(_nextImageCodec);
+    _nextImageCodec = null;
+  }
+
   void _handleCodecReady(ui.Codec codec) {
     _codec = codec;
     assert(_codec != null);
@@ -81,16 +93,20 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   void _handleAppFrame(Duration timestamp) {
     _frameCallbackScheduled = false;
-    if (!hasListeners)
-      return;
+    if (!hasListeners) return;
     if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
       _emitFrame(ImageInfo(image: _nextFrame.image, scale: _scale));
       _shownTimestamp = timestamp;
       _frameDuration = _nextFrame.duration;
       _nextFrame = null;
-      final int completedCycles = _framesEmitted ~/ _codec.frameCount;
-      if (_codec.repetitionCount == -1 || completedCycles <= _codec.repetitionCount) {
-        _decodeNextFrameAndSchedule();
+      if (_framesEmitted % _codec.frameCount == 0 && _nextImageCodec != null) {
+        _switchToNewCodec();
+      } else {
+        final int completedCycles = _framesEmitted ~/ _codec.frameCount;
+        if (_codec.repetitionCount == -1 ||
+            completedCycles <= _codec.repetitionCount) {
+          _decodeNextFrameAndSchedule();
+        }
       }
       return;
     }
@@ -110,9 +126,6 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   }
 
   Future<void> _decodeNextFrameAndSchedule() async {
-    _timer?.cancel();
-    _timer = null;
-
     try {
       _nextFrame = await _codec.getNextFrame();
     } catch (exception, stack) {
@@ -149,8 +162,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   @override
   void addListener(ImageStreamListener listener) {
-    if (!hasListeners && _codec != null)
-      _decodeNextFrameAndSchedule();
+    if (!hasListeners && _codec != null) _decodeNextFrameAndSchedule();
     super.addListener(listener);
   }
 
