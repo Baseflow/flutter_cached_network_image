@@ -77,6 +77,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   bool _frameCallbackScheduled = false;
 
   void _switchToNewCodec() {
+    _framesEmitted = 0;
     _timer = null;
     _handleCodecReady(_nextImageCodec);
     _nextImageCodec = null;
@@ -111,9 +112,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       return;
     }
     final Duration delay = _frameDuration - (timestamp - _shownTimestamp);
-    _timer = Timer(delay * timeDilation, () {
-      _scheduleAppFrame();
-    });
+    _timer = Timer(delay * timeDilation, _scheduleAppFrame);
   }
 
   bool _isFirstFrame() {
