@@ -1,35 +1,42 @@
 import 'dart:async' show Future, StreamController;
-import 'dart:io' show File;
-import 'dart:ui' as ui show instantiateImageCodec, Codec;
+import 'dart:ui' as ui show Codec;
 
-import 'package:cached_network_image/src/image_provider/multi_image_stream_completer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
-typedef void ErrorListener();
+import 'cached_network_image_provider.dart' as image_provider;
 
 class CachedNetworkImageProvider
-    extends ImageProvider<CachedNetworkImageProvider> {
+    extends ImageProvider<image_provider.CachedNetworkImageProvider>
+    implements image_provider.CachedNetworkImageProvider {
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
-  const CachedNetworkImageProvider(this.url,
-      {this.scale = 1.0, this.errorListener, this.headers, this.cacheManager})
-      : assert(url != null),
+  const CachedNetworkImageProvider(
+    this.url, {
+    this.scale = 1.0,
+    this.errorListener,
+    this.headers,
+    this.cacheManager,
+  })  : assert(url != null),
         assert(scale != null);
 
+  @override
   final BaseCacheManager cacheManager;
 
   /// Web url of the image to load
+  @override
   final String url;
 
   /// Scale of the image
+  @override
   final double scale;
 
   /// Listener to be called when images fails to load.
-  final ErrorListener errorListener;
+  @override
+  final image_provider.ErrorListener errorListener;
 
   // Set headers for the image provider, for example for authentication
+  @override
   final Map<String, String> headers;
 
   @override
@@ -40,11 +47,12 @@ class CachedNetworkImageProvider
 
   @override
   ImageStreamCompleter load(
-      CachedNetworkImageProvider key, DecoderCallback decode) {
+      image_provider.CachedNetworkImageProvider key, DecoderCallback decode) {
     final StreamController<ImageChunkEvent> chunkEvents =
         StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decode),
+    return MultiFrameImageStreamCompleter(
+      codec: _loadAsync(key, chunkEvents, decode).first,
+      chunkEvents: chunkEvents.stream,
       scale: key.scale,
       informationCollector: () sync* {
         yield DiagnosticsProperty<ImageProvider>(
@@ -75,26 +83,16 @@ class CachedNetworkImageProvider
         if (result is FileInfo) {
           var file = result.file;
           var bytes = await file.readAsBytes();
-          yield await decode(bytes);
+          var decoded = await decode(bytes);
+          yield decoded;
         }
       }
+    } catch (e) {
+      errorListener?.call();
+      rethrow;
     } finally {
       await chunkEvents.close();
     }
-  }
-
-  Future<ui.Codec> _loadAsyncFromFile(
-      CachedNetworkImageProvider key, File file) async {
-    assert(key == this);
-
-    final bytes = await file.readAsBytes();
-
-    if (bytes.lengthInBytes == 0) {
-      if (errorListener != null) errorListener();
-      throw Exception('File was empty');
-    }
-
-    return ui.instantiateImageCodec(bytes);
   }
 
   @override

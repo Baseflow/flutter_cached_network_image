@@ -1,15 +1,17 @@
 import 'dart:async';
+import 'dart:ui' as ui show Codec, FrameInfo;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
-import 'dart:ui' as ui show Image, Codec, FrameInfo;
-
 import 'package:flutter/scheduler.dart';
 
 /// Slows down animations by this factor to help in development.
 double get timeDilation => _timeDilation;
 double _timeDilation = 1.0;
 
+
+/// MultiImageStreamCompleter needs Master channel of 23 April or newer,
+/// or newer than version 1.18.0-6.0.pre
 class MultiImageStreamCompleter extends ImageStreamCompleter {
   MultiImageStreamCompleter({
     @required Stream<ui.Codec> codec,
@@ -34,30 +36,19 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
         silent: true,
       );
     });
-//    if (chunkEvents != null) {
-//      chunkEvents.listen(
-//            (ImageChunkEvent event) {
-//          if (hasListeners) {
-//            // Make a copy to allow for concurrent modification.
-//            final List<ImageChunkListener> localListeners = _listeners
-//                .map<ImageChunkListener>((ImageStreamListener listener) => listener.onChunk)
-//                .where((ImageChunkListener chunkListener) => chunkListener != null)
-//                .toList();
-//            for (final ImageChunkListener listener in localListeners) {
-//              listener(event);
-//            }
-//          }
-//        }, onError: (dynamic error, StackTrace stack) {
-//        reportError(
-//          context: ErrorDescription('loading an image'),
-//          exception: error,
-//          stack: stack,
-//          informationCollector: informationCollector,
-//          silent: true,
-//        );
-//      },
-//      );
-//    }
+    if (chunkEvents != null) {
+      chunkEvents.listen(reportImageChunkEvent,
+        onError: (dynamic error, StackTrace stack) {
+          reportError(
+            context: ErrorDescription('loading an image'),
+            exception: error,
+            stack: stack,
+            informationCollector: informationCollector,
+            silent: true,
+          );
+        },
+      );
+    }
   }
 
   ui.Codec _codec;
