@@ -34,17 +34,17 @@ class _MyHomePageState extends State<MyHomePage> {
         }),
         currentIndex: currentPage,
         items: [
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.image),
-            title: const Text('Basic'),
+            title: Text('Basic'),
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            title: const Text('ListView'),
+            title: Text('ListView'),
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.grid_on),
-            title: const Text('GridView'),
+            title: Text('GridView'),
           ),
         ],
       ),
@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     image: DecorationImage(
                       image: imageProvider,
                       fit: BoxFit.cover,
-                      colorFilter: ColorFilter.mode(
+                      colorFilter: const ColorFilter.mode(
                         Colors.red,
                         BlendMode.colorBurn,
                       ),
@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             CachedNetworkImage(
               imageUrl: 'http://via.placeholder.com/300x300',
-              placeholder: (context, url) => CircleAvatar(
+              placeholder: (context, url) => const CircleAvatar(
                 backgroundColor: Colors.amber,
                 radius: 150,
               ),

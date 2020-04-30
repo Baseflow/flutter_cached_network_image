@@ -1,3 +1,8 @@
+## [2.2.0] - 2020-04-30
+* Upgrades on CachedNetworkImageProvider:
+    * Support for download progress.
+    * Basic web support (no caching).
+
 ## [2.1.0+1] - 2020-04-10
 * Update minimal Dart sdk version
 

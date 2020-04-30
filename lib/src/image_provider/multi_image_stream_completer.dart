@@ -9,7 +9,6 @@ import 'package:flutter/scheduler.dart';
 double get timeDilation => _timeDilation;
 double _timeDilation = 1.0;
 
-
 /// MultiImageStreamCompleter needs Master channel of 23 April or newer,
 /// or newer than version 1.18.0-6.0.pre
 class MultiImageStreamCompleter extends ImageStreamCompleter {
@@ -37,7 +36,8 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       );
     });
     if (chunkEvents != null) {
-      chunkEvents.listen(reportImageChunkEvent,
+      chunkEvents.listen(
+        reportImageChunkEvent,
         onError: (dynamic error, StackTrace stack) {
           reportError(
             context: ErrorDescription('loading an image'),
