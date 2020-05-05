@@ -72,8 +72,8 @@ class CachedNetworkImageProvider
     assert(key == this);
     try {
       var mngr = cacheManager ?? DefaultCacheManager();
-      await for (var result
-          in mngr.getFileStream(key.url, withProgress: true)) {
+      await for (var result in mngr.getFileStream(key.url,
+          withProgress: true, headers: headers)) {
         if (result is DownloadProgress) {
           chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: result.downloaded,
