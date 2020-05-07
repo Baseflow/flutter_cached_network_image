@@ -1,4 +1,4 @@
-Contributing to the Flutter Geolocator plugin
+Contributing to CachedNetworkImage
 =============================================
 
 What you will need
@@ -12,13 +12,13 @@ What you will need
 Setting up your development environment
 ---------------------------------------
 
- * Fork `https://github.com/BaseflowIT/flutter-geolocator` into your own GitHub account. If you already have a fork and moving to a new computer, make sure you update you fork.
+ * Fork `https://github.com/baseflow/flutter_cached_network_image` into your own GitHub account. If you already have a fork and moving to a new computer, make sure you update you fork.
  * If you haven't configured your machine with an SSH key that's known to github, then
    follow [GitHub's directions](https://help.github.com/articles/generating-ssh-keys/)
    to generate an SSH key.
- * Clone your forked repo on your local development machine: `git clone git@github.com:<your_name_here>/flutter-geolocator.git`
+ * Clone your forked repo on your local development machine: `git clone git@github.com:<your_name_here>/flutter_cached_network_image.git`
  * Change into the `flutter-geolocator` directory: `cd flutter-geolocator`
- * Add an upstream to the original repo, so that fetch from the master repository and not your clone: `git remote add upstream git@github.com:BaseflowIT/flutter-geolocator.git`
+ * Add an upstream to the original repo, so that fetch from the master repository and not your clone: `git remote add upstream git@github.com:baseflow/flutter_cached_network_image.git`
 
 Running the example project
 ---------------------------
@@ -44,6 +44,6 @@ We really appreciate contributions via GitHub pull requests. To contribute take 
 
 Send us your pull request:
 
- * Go to `https://github.com/BaseflowIT/flutter-geolocator` and click the "Compare & pull request" button.
+ * Go to `https://github.com/baseflow/flutter_cached_network_image` and click the "Compare & pull request" button.
 
  Please make sure you solved all warnings and errors reported by the static code analyses and that you fill in the full pull request template. Failing to do so will result in us asking you to fix it.
