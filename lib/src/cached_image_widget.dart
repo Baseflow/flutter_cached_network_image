@@ -120,7 +120,7 @@ class CachedNetworkImage extends StatelessWidget {
 
   /// When set to true it will animate from the old image to the new image
   /// if the url changes.
-  final bool useOldImageOnUrlChange; //TODO use this with new OctoImage release.
+  final bool useOldImageOnUrlChange;
 
   /// If non-null, this color is blended with each image pixel using [colorBlendMode].
   final Color color;
@@ -202,6 +202,7 @@ class CachedNetworkImage extends StatelessWidget {
       filterQuality: filterQuality,
       colorBlendMode: colorBlendMode,
       placeholderFadeInDuration: placeholderFadeInDuration,
+      gaplessPlayback: useOldImageOnUrlChange,
     );
   }
 
