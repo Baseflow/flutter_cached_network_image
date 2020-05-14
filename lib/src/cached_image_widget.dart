@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:octo_image/octo_image.dart';
 
 typedef Widget ImageWidgetBuilder(
     BuildContext context, ImageProvider imageProvider);
@@ -11,7 +13,9 @@ typedef Widget ProgressIndicatorBuilder(
 typedef Widget LoadingErrorWidgetBuilder(
     BuildContext context, String url, dynamic error);
 
-class CachedNetworkImage extends StatefulWidget {
+class CachedNetworkImage extends StatelessWidget {
+  final CachedNetworkImageProvider _image;
+
   /// Option to use cachemanager with other settings
   final BaseCacheManager cacheManager;
 
@@ -169,270 +173,61 @@ class CachedNetworkImage extends StatefulWidget {
         assert(filterQuality != null),
         assert(repeat != null),
         assert(matchTextDirection != null),
+        _image = CachedNetworkImageProvider(
+          imageUrl,
+          headers: httpHeaders,
+          cacheManager: cacheManager,
+        ),
         super(key: key);
 
   @override
-  CachedNetworkImageState createState() {
-    return CachedNetworkImageState();
-  }
-}
-
-class _ImageTransitionHolder {
-  final FileInfo image;
-  final DownloadProgress progress;
-  AnimationController animationController;
-  final Object error;
-  Curve curve;
-  final TickerFuture forwardTickerFuture;
-
-  _ImageTransitionHolder({
-    this.image,
-    this.progress,
-    @required this.animationController,
-    this.error,
-    this.curve = Curves.easeIn,
-  }) : forwardTickerFuture = animationController.forward();
-
-  void dispose() {
-    if (animationController != null) {
-      animationController.dispose();
-      animationController = null;
-    }
-  }
-}
-
-class CachedNetworkImageState extends State<CachedNetworkImage>
-    with TickerProviderStateMixin {
-  final _imageHolders = <_ImageTransitionHolder>[];
-  Key _streamBuilderKey = UniqueKey();
-  Stream<FileResponse> _fileResponseStream;
-  FileInfo _fromMemory;
-
-  @override
   Widget build(BuildContext context) {
-    return _animatedWidget();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _createFileStream();
-  }
-
-  @override
-  void didUpdateWidget(CachedNetworkImage oldWidget) {
-    if (oldWidget.imageUrl != widget.imageUrl) {
-      _streamBuilderKey = UniqueKey();
-      if (!widget.useOldImageOnUrlChange) {
-        _disposeImageHolders();
-        _imageHolders.clear();
-      }
-      _createFileStream();
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void dispose() {
-    _disposeImageHolders();
-    super.dispose();
-  }
-
-  void _createFileStream() {
-    _fromMemory = _cacheManager().getFileFromMemory(widget.imageUrl);
-
-    _fileResponseStream = _cacheManager()
-        .getFileStream(
-          widget.imageUrl,
-          headers: widget.httpHeaders,
-          withProgress: widget.progressIndicatorBuilder != null,
-        )
-        // ignore errors if not mounted
-        .handleError(() {}, test: (_) => !mounted)
-        .where((f) {
-      if (f is FileInfo) {
-        return f?.originalUrl != _fromMemory?.originalUrl ||
-            f?.validTill != _fromMemory?.validTill;
-      }
-      return true;
-    });
-  }
-
-  void _disposeImageHolders() {
-    for (var imageHolder in _imageHolders) {
-      imageHolder.dispose();
-    }
-  }
-
-  void _addImage(
-      {FileInfo image,
-      DownloadProgress progress,
-      Object error,
-      Duration duration}) {
-    if (_imageHolders.isNotEmpty) {
-      var lastHolder = _imageHolders.last;
-      if (lastHolder.progress != null && progress != null) {
-        _imageHolders.removeLast();
-      } else {
-        lastHolder.forwardTickerFuture.then((_) {
-          if (lastHolder.animationController == null) {
-            return;
-          }
-          if (widget.fadeOutDuration != null) {
-            lastHolder.animationController.duration = widget.fadeOutDuration;
-          } else {
-            lastHolder.animationController.duration =
-                const Duration(seconds: 1);
-          }
-          if (widget.fadeOutCurve != null) {
-            lastHolder.curve = widget.fadeOutCurve;
-          } else {
-            lastHolder.curve = Curves.easeOut;
-          }
-          lastHolder.animationController.reverse().then((_) {
-            _imageHolders.remove(lastHolder);
-            if (mounted) setState(() {});
-            return null;
-          });
-        });
-      }
-    }
-    _imageHolders.add(
-      _ImageTransitionHolder(
-        image: image,
-        error: error,
-        progress: progress,
-        animationController: AnimationController(
-          vsync: this,
-          duration: duration ??
-              (widget.fadeInDuration ?? const Duration(milliseconds: 500)),
-        ),
-      ),
+    return OctoImage(
+      image: _image,
+      imageBuilder: imageBuilder != null ? _octoImageBuilder : null,
+      placeholderBuilder: placeholder != null ? _octoPlaceholderBuilder : null,
+      progressIndicatorBuilder: progressIndicatorBuilder != null ? _octoProgressIndicatorBuilder : null,
+      errorBuilder: errorWidget != null ? _octoErrorBuilder : null,
+      fadeOutDuration: fadeOutDuration,
+      fadeOutCurve: fadeOutCurve,
+      fadeInDuration: fadeInDuration,
+      fadeInCurve: fadeInCurve,
+      width: width,
+      height: height,
+      fit: fit,
+      alignment: alignment,
+      repeat: repeat,
+      matchTextDirection: matchTextDirection,
+      color: color,
+      filterQuality: filterQuality,
+      colorBlendMode: colorBlendMode,
+      placeholderFadeInDuration: placeholderFadeInDuration,
     );
   }
 
-  Widget _animatedWidget() {
-    return StreamBuilder<FileResponse>(
-      key: _streamBuilderKey,
-      initialData: _fromMemory,
-      stream: _fileResponseStream,
-      builder: (BuildContext context, AsyncSnapshot<FileResponse> snapshot) {
-        if (snapshot.hasError) {
-          // error
-          if (_imageHolders.isEmpty || _imageHolders.last.error == null) {
-            _addImage(image: null, error: snapshot.error);
-          }
-        } else {
-          var fileResponse = snapshot.data;
-          if (fileResponse == null) {
-            // placeholder
-            if (_imageHolders.isEmpty || _imageHolders.last.image != null) {
-              DownloadProgress progress;
-              if (widget.progressIndicatorBuilder != null) {
-                progress = DownloadProgress(widget.imageUrl, null, 0);
-              }
-              _addImage(
-                  progress: progress,
-                  image: null,
-                  duration: widget.placeholderFadeInDuration ?? Duration.zero);
-            }
-          } else {
-            if (fileResponse is FileInfo) {
-              if (_imageHolders.isEmpty ||
-                  _imageHolders.last.image?.originalUrl !=
-                      fileResponse.originalUrl ||
-                  _imageHolders.last.image?.validTill !=
-                      fileResponse.validTill) {
-                _addImage(
-                    image: fileResponse,
-                    duration: _imageHolders.isNotEmpty ? null : Duration.zero);
-              }
-            }
-            if (fileResponse is DownloadProgress) {
-              _addImage(progress: fileResponse, duration: Duration.zero);
-            }
-          }
-        }
-
-        var children = <Widget>[];
-        for (var holder in _imageHolders) {
-          if (holder.error != null) {
-            children.add(_transitionWidget(
-                holder: holder, child: _errorWidget(context, holder.error)));
-          } else if (holder.progress != null) {
-            children.add(_transitionWidget(
-                holder: holder,
-                child: widget.progressIndicatorBuilder(
-                  context,
-                  holder.progress.originalUrl,
-                  holder.progress,
-                )));
-          } else if (holder.image == null) {
-            children.add(_transitionWidget(
-                holder: holder, child: _placeholder(context)));
-          } else {
-            children.add(_transitionWidget(
-                holder: holder,
-                child: KeyedSubtree(
-                  key: Key(holder.image.file.path),
-                  child: _image(
-                    context,
-                    FileImage(holder.image.file),
-                  ),
-                )));
-          }
-        }
-
-        return Stack(
-          fit: StackFit.passthrough,
-          alignment: widget.alignment,
-          children: children.toList(),
-        );
-      },
-    );
+  Widget _octoImageBuilder(BuildContext context, Widget child) {
+    return imageBuilder(context, _image);
   }
-
-  Widget _transitionWidget({_ImageTransitionHolder holder, Widget child}) {
-    return FadeTransition(
-      opacity: CurvedAnimation(
-          curve: holder.curve, parent: holder.animationController),
-      child: child,
-    );
+  Widget _octoPlaceholderBuilder(BuildContext context) {
+    return placeholder(context, imageUrl);
   }
-
-  BaseCacheManager _cacheManager() {
-    return widget.cacheManager ?? DefaultCacheManager();
+  Widget _octoProgressIndicatorBuilder(
+    BuildContext context,
+    ImageChunkEvent progress,
+  ) {
+    int totalSize;
+    int downloaded = 0;
+    if(progress != null){
+      totalSize = progress.expectedTotalBytes;
+      downloaded = progress.cumulativeBytesLoaded;
+    }
+    return progressIndicatorBuilder(context, imageUrl, DownloadProgress(imageUrl, totalSize, downloaded));
   }
-
-  Widget _image(BuildContext context, ImageProvider imageProvider) {
-    return widget.imageBuilder != null
-        ? widget.imageBuilder(context, imageProvider)
-        : Image(
-            image: imageProvider,
-            fit: widget.fit,
-            width: widget.width,
-            height: widget.height,
-            alignment: widget.alignment,
-            repeat: widget.repeat,
-            color: widget.color,
-            colorBlendMode: widget.colorBlendMode,
-            matchTextDirection: widget.matchTextDirection,
-            filterQuality: widget.filterQuality,
-          );
-  }
-
-  Widget _placeholder(BuildContext context) {
-    return widget.placeholder != null
-        ? widget.placeholder(context, widget.imageUrl)
-        : SizedBox(
-            width: widget.width,
-            height: widget.height,
-          );
-  }
-
-  Widget _errorWidget(BuildContext context, Object error) {
-    return widget.errorWidget != null
-        ? widget.errorWidget(context, widget.imageUrl, error)
-        : _placeholder(context);
+  Widget _octoErrorBuilder(
+    BuildContext context,
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    return errorWidget(context, imageUrl, error);
   }
 }
