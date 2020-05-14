@@ -115,12 +115,12 @@ class CachedNetworkImage extends StatelessWidget {
   /// scope.
   final bool matchTextDirection;
 
-  // Optional headers for the http request of the image url
+  /// Optional headers for the http request of the image url
   final Map<String, String> httpHeaders;
 
   /// When set to true it will animate from the old image to the new image
   /// if the url changes.
-  final bool useOldImageOnUrlChange;
+  final bool useOldImageOnUrlChange; //TODO use this with new OctoImage release.
 
   /// If non-null, this color is blended with each image pixel using [colorBlendMode].
   final Color color;
