@@ -97,13 +97,15 @@ class CachedNetworkImageProvider
     final Uri resolved = Uri.base.resolve(key.url);
     // This API only exists in the web engine implementation and is not
     // contained in the analyzer summary for Flutter.
+
     // ignore: undefined_function
     return ui.webOnlyInstantiateImageCodecFromUrl(
-        resolved, // ignore: undefined_function
-        chunkCallback: (int bytes, int total) {
-      chunkEvents.add(ImageChunkEvent(
-          cumulativeBytesLoaded: bytes, expectedTotalBytes: total));
-    }) as Future<ui.Codec>; // ignore: undefined_function
+      resolved,
+      chunkCallback: (int bytes, int total) {
+        chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: bytes, expectedTotalBytes: total));
+      },
+    ) as Future<ui.Codec>; // ignore: undefined_function
   }
 
   @override
