@@ -140,6 +140,12 @@ class CachedNetworkImage extends StatelessWidget {
   /// If not given a value, defaults to FilterQuality.low.
   final FilterQuality filterQuality;
 
+  /// Will resize the image in cache to have a certain width using [ResizeImage]
+  final int memCacheWidth;
+
+  /// Will resize the image in cache to have a certain height using [ResizeImage]
+  final int memCacheHeight;
+
   CachedNetworkImage({
     Key key,
     @required this.imageUrl,
@@ -164,6 +170,8 @@ class CachedNetworkImage extends StatelessWidget {
     this.filterQuality = FilterQuality.low,
     this.colorBlendMode,
     this.placeholderFadeInDuration,
+    this.memCacheWidth,
+    this.memCacheHeight,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -203,6 +211,8 @@ class CachedNetworkImage extends StatelessWidget {
       colorBlendMode: colorBlendMode,
       placeholderFadeInDuration: placeholderFadeInDuration,
       gaplessPlayback: useOldImageOnUrlChange,
+      memCacheWidth: memCacheWidth,
+      memCacheHeight: memCacheHeight,
     );
   }
 
