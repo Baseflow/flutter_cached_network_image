@@ -146,9 +146,14 @@ class CachedNetworkImage extends StatelessWidget {
   /// Will resize the image in cache to have a certain height using [ResizeImage]
   final int memCacheHeight;
 
+  /// CachedNetworkImage shows a network image using a caching mechanism. It also
+  /// provides support for a placeholder, showing an error and fading into the
+  /// loaded image. Next to that it supports most features of a default Image
+  /// widget.
   CachedNetworkImage({
     Key key,
     @required this.imageUrl,
+    this.httpHeaders,
     this.imageBuilder,
     this.placeholder,
     this.progressIndicatorBuilder,
@@ -163,7 +168,6 @@ class CachedNetworkImage extends StatelessWidget {
     this.alignment = Alignment.center,
     this.repeat = ImageRepeat.noRepeat,
     this.matchTextDirection = false,
-    this.httpHeaders,
     this.cacheManager,
     this.useOldImageOnUrlChange = false,
     this.color,
@@ -194,7 +198,9 @@ class CachedNetworkImage extends StatelessWidget {
       image: _image,
       imageBuilder: imageBuilder != null ? _octoImageBuilder : null,
       placeholderBuilder: placeholder != null ? _octoPlaceholderBuilder : null,
-      progressIndicatorBuilder: progressIndicatorBuilder != null ? _octoProgressIndicatorBuilder : null,
+      progressIndicatorBuilder: progressIndicatorBuilder != null
+          ? _octoProgressIndicatorBuilder
+          : null,
       errorBuilder: errorWidget != null ? _octoErrorBuilder : null,
       fadeOutDuration: fadeOutDuration,
       fadeOutCurve: fadeOutCurve,
@@ -219,21 +225,25 @@ class CachedNetworkImage extends StatelessWidget {
   Widget _octoImageBuilder(BuildContext context, Widget child) {
     return imageBuilder(context, _image);
   }
+
   Widget _octoPlaceholderBuilder(BuildContext context) {
     return placeholder(context, imageUrl);
   }
+
   Widget _octoProgressIndicatorBuilder(
     BuildContext context,
     ImageChunkEvent progress,
   ) {
     int totalSize;
     int downloaded = 0;
-    if(progress != null){
+    if (progress != null) {
       totalSize = progress.expectedTotalBytes;
       downloaded = progress.cumulativeBytesLoaded;
     }
-    return progressIndicatorBuilder(context, imageUrl, DownloadProgress(imageUrl, totalSize, downloaded));
+    return progressIndicatorBuilder(
+        context, imageUrl, DownloadProgress(imageUrl, totalSize, downloaded));
   }
+
   Widget _octoErrorBuilder(
     BuildContext context,
     Object error,
