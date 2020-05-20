@@ -9,8 +9,8 @@ import 'package:flutter/scheduler.dart';
 double get timeDilation => _timeDilation;
 double _timeDilation = 1.0;
 
-/// MultiImageStreamCompleter needs Master channel of 23 April or newer,
-/// or newer than version 1.18.0-6.0.pre
+/// MultiImageStreamCompleter needs version ^1.18.0-8.0.pre
+/// Released to dev at 24/04/2020
 class MultiImageStreamCompleter extends ImageStreamCompleter {
   MultiImageStreamCompleter({
     @required Stream<ui.Codec> codec,
