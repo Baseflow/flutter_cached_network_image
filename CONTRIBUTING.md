@@ -17,7 +17,7 @@ Setting up your development environment
    follow [GitHub's directions](https://help.github.com/articles/generating-ssh-keys/)
    to generate an SSH key.
  * Clone your forked repo on your local development machine: `git clone git@github.com:<your_name_here>/flutter_cached_network_image.git`
- * Change into the `flutter-geolocator` directory: `cd flutter-geolocator`
+ * Change into the `flutter_cached_network_image` directory: `cd flutter_cached_network_image`
  * Add an upstream to the original repo, so that fetch from the master repository and not your clone: `git remote add upstream git@github.com:baseflow/flutter_cached_network_image.git`
 
 Running the example project
