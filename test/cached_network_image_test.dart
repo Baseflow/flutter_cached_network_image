@@ -10,8 +10,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' show GestureBinding;
 import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart'
-    show SemanticsBinding;
+import 'package:flutter/rendering.dart' show SemanticsBinding;
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
