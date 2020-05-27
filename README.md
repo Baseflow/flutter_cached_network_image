@@ -52,5 +52,16 @@ CachedNetworkImage(
 ),
 ```
 
+Fetching images from Firebase Storage is supported by passing FirebaseCacheManager to the cacheManager argument. The image URL is replaced with a Firebase Storage path. 
+
+```dart
+CachedNetworkImage(
+        cacheManager: FirebaseCacheManager(),
+        imageUrl: firebaseReference,
+        placeholder: (context, url) => CircularProgressIndicator(),
+        errorWidget: (context, url, error) => Icon(Icons.error),
+     ),
+ ```
+
 ## How it works
 The cached network images stores and retrieves files using the [flutter_cache_manager](https://pub.dartlang.org/packages/flutter_cache_manager). 
