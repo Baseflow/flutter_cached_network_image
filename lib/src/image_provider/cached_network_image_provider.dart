@@ -1,8 +1,7 @@
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import '_image_provider_io.dart'
-    if (dart.library.html) '_image_provider_web.dart' as image_provider;
+import '_image_provider_io.dart' as image_provider;
 
 typedef void ErrorListener();
 
