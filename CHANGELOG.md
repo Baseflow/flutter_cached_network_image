@@ -1,3 +1,6 @@
+## [2.3.0-beta.1] - 2020-05-28
+* Improved web support: support for headers and skia.
+
 ## [2.3.0-beta] - 2020-05-20
 * Rewrote image widget by using OctoImage.
 
