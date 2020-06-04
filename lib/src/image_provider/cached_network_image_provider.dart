@@ -10,14 +10,14 @@ typedef void ErrorListener();
 /// their own pros and cons, using a custom [HttpGet] (the default for this library)
 /// or an HTML Image element mentioned [here on a GitHub issue](https://github.com/flutter/flutter/issues/57187#issuecomment-635637494).
 ///
-/// A custom HttpGet works on Skia and uses the headers when they are provided for
-/// the library. In this package is also uses any url transformations that might
+/// When using HttpGet the image will work on Skia and it will use the [CachedNetworkImageProvider.headers]
+/// when they are provided. In this package it also uses any url transformations that might
 /// be executed by the [CachedNetworkImageProvider.cacheManager]. However, this method does require a CORS
-/// handshake and will not work for just any image from the web.
+/// handshake and will not just work for every image from the web.
 ///
 /// The [HtmlImage] does not need a CORS handshake, but it also does not use your
 /// provided headers and it does not work when using Skia to render the page.
-enum ImageRenderMethodForWeb{
+enum ImageRenderMethodForWeb {
   HttpGet,
   HtmlImage,
 }
