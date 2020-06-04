@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+import '../../cached_network_image.dart' show ImageRenderMethodForWeb;
 import 'cached_network_image_provider.dart' as image_provider;
 
 /// The dart:html implementation of [test_image.TestImage].
@@ -26,7 +27,10 @@ class CachedNetworkImageProvider
     this.errorListener,
     this.headers,
     this.cacheManager,
-  })  : assert(url != null),
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
+  })  : _imageRenderMethodForWeb =
+            imageRenderMethodForWeb ?? ImageRenderMethodForWeb.HttpGet,
+        assert(url != null),
         assert(scale != null);
 
   @override
@@ -46,6 +50,9 @@ class CachedNetworkImageProvider
   final Map<String, String> headers;
 
   @override
+  final ImageRenderMethodForWeb _imageRenderMethodForWeb;
+
+  @override
   Future<CachedNetworkImageProvider> obtainKey(
       ImageConfiguration configuration) {
     return SynchronousFuture<CachedNetworkImageProvider>(this);
@@ -63,7 +70,7 @@ class CachedNetworkImageProvider
     return MultiFrameImageStreamCompleter(
         chunkEvents: chunkEvents.stream,
         codec:
-            _loadAsync(key as CachedNetworkImageProvider, decode, chunkEvents),
+            _loadAsync(key as CachedNetworkImageProvider, chunkEvents, decode),
         scale: key.scale,
         informationCollector: _imageStreamInformationCollector(key));
   }
@@ -84,19 +91,60 @@ class CachedNetworkImageProvider
     return collector;
   }
 
-  // TODO(garyq): We should eventually support custom decoding of network images on Web as
-  // well, see https://github.com/flutter/flutter/issues/42789.
-  //
-  // Web does not support decoding network images to a specified size. The decode parameter
-  // here is ignored and the web-only `ui.webOnlyInstantiateImageCodecFromUrl` will be used
-  // directly in place of the typical `instantiateImageCodec` method.
-  Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key,
-      DecoderCallback decode, StreamController<ImageChunkEvent> chunkEvents) {
+  Future<ui.Codec> _loadAsync(
+    CachedNetworkImageProvider key,
+    StreamController<ImageChunkEvent> chunkEvents,
+    DecoderCallback decode,
+  ) {
+    switch (_imageRenderMethodForWeb) {
+      case ImageRenderMethodForWeb.HttpGet:
+        return _loadAsyncHttpGet(key, chunkEvents, decode).first;
+      case ImageRenderMethodForWeb.HtmlImage:
+        return _loadAsyncHtmlImage(key, chunkEvents, decode);
+    }
+    throw UnsupportedError(
+        'ImageRenderMethod $_imageRenderMethodForWeb is not supported');
+  }
+
+  Stream<ui.Codec> _loadAsyncHttpGet(
+    CachedNetworkImageProvider key,
+    StreamController<ImageChunkEvent> chunkEvents,
+    DecoderCallback decode,
+  ) async* {
+    assert(key == this);
+    try {
+      var mngr = cacheManager ?? DefaultCacheManager();
+      await for (var result in mngr.getFileStream(key.url,
+          withProgress: true, headers: headers)) {
+        if (result is DownloadProgress) {
+          chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: result.downloaded,
+            expectedTotalBytes: result.totalSize,
+          ));
+        }
+        if (result is FileInfo) {
+          var file = result.file;
+          var bytes = await file.readAsBytes();
+          var decoded = await decode(bytes);
+          yield decoded;
+        }
+      }
+    } catch (e) {
+      errorListener?.call();
+      rethrow;
+    } finally {
+      await chunkEvents.close();
+    }
+  }
+
+  Future<ui.Codec> _loadAsyncHtmlImage(
+    CachedNetworkImageProvider key,
+    StreamController<ImageChunkEvent> chunkEvents,
+    DecoderCallback decode,
+  ) {
     assert(key == this);
 
     final Uri resolved = Uri.base.resolve(key.url);
-    // This API only exists in the web engine implementation and is not
-    // contained in the analyzer summary for Flutter.
 
     // ignore: undefined_function
     return ui.webOnlyInstantiateImageCodecFromUrl(

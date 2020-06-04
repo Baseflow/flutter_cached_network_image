@@ -6,11 +6,30 @@ import '_image_provider_io.dart'
 
 typedef void ErrorListener();
 
+/// Currently there are 2 different ways to show an image on the web with both
+/// their own pros and cons, using a custom [HttpGet] (the default for this library)
+/// or an HTML Image element mentioned [here on a GitHub issue](https://github.com/flutter/flutter/issues/57187#issuecomment-635637494).
+///
+/// A custom HttpGet works on Skia and uses the headers when they are provided for
+/// the library. In this package is also uses any url transformations that might
+/// be executed by the [CachedNetworkImageProvider.cacheManager]. However, this method does require a CORS
+/// handshake and will not work for just any image from the web.
+///
+/// The [HtmlImage] does not need a CORS handshake, but it also does not use your
+/// provided headers and it does not work when using Skia to render the page.
+enum ImageRenderMethodForWeb{
+  HttpGet,
+  HtmlImage,
+}
+
 abstract class CachedNetworkImageProvider
     extends ImageProvider<CachedNetworkImageProvider> {
   /// Creates an object that fetches the image at the given URL.
   ///
   /// The arguments [url] and [scale] must not be null.
+  /// The [imageRenderMethodForWeb] defines the behavior of the ImageProvider
+  /// when compiled for web. See the documentation of [ImageRenderMethodForWeb]
+  /// for the benefits of each method.
   const factory CachedNetworkImageProvider(
     String url, {
     double scale,
@@ -18,6 +37,7 @@ abstract class CachedNetworkImageProvider
         ErrorListener errorListener,
     Map<String, String> headers,
     BaseCacheManager cacheManager,
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
   }) = image_provider.CachedNetworkImageProvider;
 
   /// Optional cache manager. If no cache manager is defined DefaultCacheManager()
@@ -35,9 +55,7 @@ abstract class CachedNetworkImageProvider
   /// The scale to place in the [ImageInfo] object of the image.
   double get scale;
 
-  /// The HTTP headers that will be used with [HttpClient.get] to fetch image from network.
-  ///
-  /// When running flutter on the web, headers are not used.
+  /// The HTTP headers that will be used to fetch image from network.
   Map<String, String> get headers;
 
   @override

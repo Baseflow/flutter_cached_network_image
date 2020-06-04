@@ -4,6 +4,8 @@ import 'dart:ui' as ui show Codec;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+import '../../cached_network_image.dart' show ImageRenderMethodForWeb;
 import 'cached_network_image_provider.dart' as image_provider;
 
 class CachedNetworkImageProvider
@@ -17,6 +19,8 @@ class CachedNetworkImageProvider
     this.errorListener,
     this.headers,
     this.cacheManager,
+    //ignore: avoid_unused_constructor_parameters
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : assert(url != null),
         assert(scale != null);
 
@@ -35,7 +39,7 @@ class CachedNetworkImageProvider
   @override
   final image_provider.ErrorListener errorListener;
 
-  // Set headers for the image provider, for example for authentication
+  /// Set headers for the image provider, for example for authentication
   @override
   final Map<String, String> headers;
 
