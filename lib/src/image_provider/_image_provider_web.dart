@@ -49,7 +49,6 @@ class CachedNetworkImageProvider
   @override
   final Map<String, String> headers;
 
-  @override
   final ImageRenderMethodForWeb _imageRenderMethodForWeb;
 
   @override
