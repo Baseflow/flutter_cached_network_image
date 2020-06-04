@@ -10,6 +10,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import '../../cached_network_image.dart' show ImageRenderMethodForWeb;
+import '_load_async_web.dart';
 import 'cached_network_image_provider.dart' as image_provider;
 
 /// The dart:html implementation of [test_image.TestImage].
@@ -99,7 +100,7 @@ class CachedNetworkImageProvider
       case ImageRenderMethodForWeb.HttpGet:
         return _loadAsyncHttpGet(key, chunkEvents, decode).first;
       case ImageRenderMethodForWeb.HtmlImage:
-        return _loadAsyncHtmlImage(key, chunkEvents, decode);
+        return loadAsyncHtmlImage(key, chunkEvents, decode);
     }
     throw UnsupportedError(
         'ImageRenderMethod $_imageRenderMethodForWeb is not supported');
@@ -134,25 +135,6 @@ class CachedNetworkImageProvider
     } finally {
       await chunkEvents.close();
     }
-  }
-
-  Future<ui.Codec> _loadAsyncHtmlImage(
-    CachedNetworkImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-  ) {
-    assert(key == this);
-
-    final Uri resolved = Uri.base.resolve(key.url);
-
-    // ignore: undefined_function
-    return ui.webOnlyInstantiateImageCodecFromUrl(
-      resolved,
-      chunkCallback: (int bytes, int total) {
-        chunkEvents.add(ImageChunkEvent(
-            cumulativeBytesLoaded: bytes, expectedTotalBytes: total));
-      },
-    ) as Future<ui.Codec>; // ignore: undefined_function
   }
 
   @override
