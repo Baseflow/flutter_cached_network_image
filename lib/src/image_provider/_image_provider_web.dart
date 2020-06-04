@@ -9,9 +9,7 @@ import '../../cached_network_image.dart' show ImageRenderMethodForWeb;
 import '_load_async_web.dart';
 import 'cached_network_image_provider.dart' as image_provider;
 
-/// The dart:html implementation of [test_image.TestImage].
-///
-/// TestImage on the web does not support decoding to a specified size.
+/// The dart:html implementation of [image_provider.CachedNetworkImageProvider].
 class CachedNetworkImageProvider
     extends ImageProvider<image_provider.CachedNetworkImageProvider>
     implements image_provider.CachedNetworkImageProvider {
@@ -57,9 +55,6 @@ class CachedNetworkImageProvider
   @override
   ImageStreamCompleter load(
       image_provider.CachedNetworkImageProvider key, DecoderCallback decode) {
-    // Ownership of this controller is handed off to [_loadAsync]; it is that
-    // method's responsibility to close the controller's stream when the image
-    // has been loaded or an error is thrown.
     final StreamController<ImageChunkEvent> chunkEvents =
         StreamController<ImageChunkEvent>();
 
