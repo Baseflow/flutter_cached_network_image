@@ -24,7 +24,7 @@ class CachedNetworkImageProvider
     this.cacheManager,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : _imageRenderMethodForWeb =
-            imageRenderMethodForWeb ?? ImageRenderMethodForWeb.HttpGet,
+            imageRenderMethodForWeb ?? ImageRenderMethodForWeb.HtmlImage,
         assert(url != null),
         assert(scale != null);
 

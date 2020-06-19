@@ -18,8 +18,8 @@ typedef void ErrorListener();
 /// The [HtmlImage] does not need a CORS handshake, but it also does not use your
 /// provided headers and it does not work when using Skia to render the page.
 enum ImageRenderMethodForWeb {
-  HttpGet,
   HtmlImage,
+  HttpGet,
 }
 
 abstract class CachedNetworkImageProvider
