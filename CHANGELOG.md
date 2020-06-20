@@ -1,3 +1,9 @@
+## [2.3.0-rc] - 2020-06-20
+* Added choice for rendering of images on web. Defaults to standard HTML ImageElement, but gives the option to use a
+ custom HTTP Get for headers and skia support.
+* Use a MultiImageStreamCompleter for when an image that is available in the cache is updated. 
+* Increase minimal version of Flutter to 1.19.0-2.0.pre (currently requires Beta) due to an error listener bug.
+
 ## [2.3.0-beta.1] - 2020-05-28
 * Improved web support: support for headers and skia.
 

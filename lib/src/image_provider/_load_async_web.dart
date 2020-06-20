@@ -6,10 +6,10 @@ import 'package:flutter/rendering.dart';
 import '../../cached_network_image.dart';
 
 Future<ui.Codec> loadAsyncHtmlImage(
-    CachedNetworkImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-    ) {
+  CachedNetworkImageProvider key,
+  StreamController<ImageChunkEvent> chunkEvents,
+  DecoderCallback decode,
+) {
   final Uri resolved = Uri.base.resolve(key.url);
 
   // ignore: undefined_function
