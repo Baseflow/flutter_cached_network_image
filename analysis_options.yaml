@@ -5,6 +5,7 @@ analyzer:
     # Ignore generated files
     - '**/*.g.dart'
     - 'lib/src/generated/*.dart'
+    - 'lib/src/image_provider/_load_async_web.dart'
 
   errors:
     unused_import: warning

@@ -176,6 +176,7 @@ class CachedNetworkImage extends StatelessWidget {
     this.placeholderFadeInDuration,
     this.memCacheWidth,
     this.memCacheHeight,
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -189,6 +190,7 @@ class CachedNetworkImage extends StatelessWidget {
           imageUrl,
           headers: httpHeaders,
           cacheManager: cacheManager,
+          imageRenderMethodForWeb: imageRenderMethodForWeb,
         ),
         super(key: key);
 
