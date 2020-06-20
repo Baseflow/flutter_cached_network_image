@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:cached_network_image/src/image_provider/multi_image_stream_completer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -58,7 +59,7 @@ class CachedNetworkImageProvider
     final StreamController<ImageChunkEvent> chunkEvents =
         StreamController<ImageChunkEvent>();
 
-    return MultiFrameImageStreamCompleter(
+    return MultiImageStreamCompleter(
         chunkEvents: chunkEvents.stream,
         codec:
             _loadAsync(key as CachedNetworkImageProvider, chunkEvents, decode),
@@ -82,16 +83,16 @@ class CachedNetworkImageProvider
     return collector;
   }
 
-  Future<ui.Codec> _loadAsync(
+  Stream<ui.Codec> _loadAsync(
     CachedNetworkImageProvider key,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,
   ) {
     switch (_imageRenderMethodForWeb) {
       case ImageRenderMethodForWeb.HttpGet:
-        return _loadAsyncHttpGet(key, chunkEvents, decode).first;
+        return _loadAsyncHttpGet(key, chunkEvents, decode);
       case ImageRenderMethodForWeb.HtmlImage:
-        return loadAsyncHtmlImage(key, chunkEvents, decode);
+        return loadAsyncHtmlImage(key, chunkEvents, decode).asStream();
     }
     throw UnsupportedError(
         'ImageRenderMethod $_imageRenderMethodForWeb is not supported');
