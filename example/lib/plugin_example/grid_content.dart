@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+/// Demonstrates a [GridView] containing [CachedNetworkImage]
 class GridContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'globals.dart';
 
+/// [StatelessWidget] displaying information about Baseflow
 class InfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -12,8 +13,7 @@ class InfoPage extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         child: SingleChildScrollView(
           child: Padding(
-            padding: Globals.defaultHorizontalPadding +
-                Globals.defaultVerticalPadding,
+            padding: defaultHorizontalPadding + defaultVerticalPadding,
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -30,9 +30,12 @@ class InfoPage extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 24),
                 ),
                 Text(
-                  'This app showcases the possibilities of the ${Globals.pluginName} plugin, powered by Baseflow. '
-                  'This plugin is available as open source project on Github. \n\n'
-                  'Need help with integrating functionalities within your own apps? Contact us at hello@baseflow.com',
+                  'This app showcases the possibilities of the $pluginName '
+                  'plugin, powered by Baseflow. '
+                  'This plugin is available as open source project on Github. '
+                  '\n\n'
+                  'Need help with integrating functionalities within your own '
+                  'apps? Contact us at hello@baseflow.com',
                   style: Theme.of(context).textTheme.bodyText1,
                 ),
                 const Padding(
@@ -40,17 +43,17 @@ class InfoPage extends StatelessWidget {
                 ),
                 _launcherRaisedButton(
                   'Find us on Github',
-                  Globals.githubURL,
+                  githubURL,
                   context,
                 ),
                 _launcherRaisedButton(
                   'Find us on pub.dev',
-                  Globals.pubDevURL,
+                  pubDevURL,
                   context,
                 ),
                 _launcherRaisedButton(
                   'Visit baseflow.com',
-                  Globals.baseflowURL,
+                  baseflowURL,
                   context,
                 ),
                 const Padding(

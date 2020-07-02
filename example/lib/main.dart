@@ -1,19 +1,22 @@
-import 'package:example/template/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
+import 'template/globals.dart';
 
 void main() {
   runApp(BaseflowPluginExample());
 }
 
+/// A Flutter application demonstrating the functionality of this plugin
 class BaseflowPluginExample extends StatelessWidget {
+  /// [MaterialColor] to be used in the app [ThemeData]
   final MaterialColor themeMaterialColor =
       createMaterialColor(const Color.fromRGBO(48, 49, 60, 1));
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Baseflow ${Globals.pluginName}',
+      title: 'Baseflow $pluginName',
       theme: ThemeData(
         accentColor: Colors.white60,
         backgroundColor: const Color.fromRGBO(48, 49, 60, 0.8),
@@ -49,43 +52,48 @@ class BaseflowPluginExample extends StatelessWidget {
           filled: true,
         ),
       ),
-      home: MyHomePage(title: 'Baseflow ${Globals.pluginName} example app'),
+      home: AppHome(title: 'Baseflow $pluginName example app'),
     );
   }
 
+  /// Creates a [MaterialColor] based on the supplied [Color]
   static MaterialColor createMaterialColor(Color color) {
     List strengths = <double>[.05];
     Map swatch = <int, Color>{};
-    final int r = color.red, g = color.green, b = color.blue;
+    final r = color.red, g = color.green, b = color.blue;
 
-    for (int i = 1; i < 10; i++) {
+    for (var i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
     }
-    strengths.forEach((strength) {
-      final double ds = 0.5 - strength;
+    for (var strength in strengths) {
+      final ds = 0.5 - strength;
       swatch[(strength * 1000).round()] = Color.fromRGBO(
         r + ((ds < 0 ? r : (255 - r)) * ds).round(),
         g + ((ds < 0 ? g : (255 - g)) * ds).round(),
         b + ((ds < 0 ? b : (255 - b)) * ds).round(),
         1,
       );
-    });
+    }
     return MaterialColor(color.value, swatch);
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+/// A Flutter example demonstrating how the [pluginName] plugin could be used
+class AppHome extends StatefulWidget {
+  /// Constructs the [AppHome] class
+  AppHome({Key key, this.title}) : super(key: key);
 
+  /// The [title] of the application, which is shown in the application's
+  /// title bar.
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _AppHomeState createState() => _AppHomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _AppHomeState extends State<AppHome> {
   static final PageController _pageController = PageController(initialPage: 0);
-  int currentPage = 0;
+  int _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -102,10 +110,10 @@ class _MyHomePageState extends State<MyHomePage> {
       backgroundColor: Theme.of(context).backgroundColor,
       body: PageView(
         controller: _pageController,
-        children: Globals.pages,
+        children: pages,
         onPageChanged: (page) {
           setState(() {
-            currentPage = page;
+            _currentPage = page;
           });
         },
       ),
@@ -121,11 +129,11 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.unmodifiable(() sync* {
-          for (int i = 0; i < Globals.pages.length; i++) {
+          for (var i = 0; i < pages.length; i++) {
             yield Expanded(
               child: IconButton(
                 iconSize: 30,
-                icon: Icon(Globals.icons.elementAt(i)),
+                icon: Icon(icons.elementAt(i)),
                 color: _bottomAppBarIconColor(i),
                 onPressed: () => _animateToPage(i),
               ),
@@ -142,6 +150,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Color _bottomAppBarIconColor(int page) {
-    return currentPage == page ? Colors.white : Theme.of(context).accentColor;
+    return _currentPage == page ? Colors.white : Theme.of(context).accentColor;
   }
 }
