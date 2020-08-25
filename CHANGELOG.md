@@ -1,3 +1,11 @@
+## [2.3.0] - 2020-08-25
+* Improved image loading by using OctoImage. OctoImage uses the native callbacks of the ImageProvider instead of
+ loading the file when the ImageWidget is build the first time.
+* Set minimal Flutter version to 1.20.0; first compatible stable version.
+* Added choice for rendering of images on web. Defaults to standard HTML ImageElement, but gives the option to use a
+ custom HTTP Get for headers and skia support.
+* Use a MultiImageStreamCompleter for when an image that is available in the cache is updated. 
+
 ## [2.3.0-rc] - 2020-06-20
 * Added choice for rendering of images on web. Defaults to standard HTML ImageElement, but gives the option to use a
  custom HTTP Get for headers and skia support.
