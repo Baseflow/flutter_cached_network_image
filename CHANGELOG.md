@@ -1,3 +1,6 @@
+## [2.3.1] - 2020-08-25
+* Fixed fading when the image has no placeholder or progress indicator.
+
 ## [2.3.0] - 2020-08-25
 * Improved image loading by using OctoImage. OctoImage uses the native callbacks of the ImageProvider instead of
  loading the file when the ImageWidget is build the first time.

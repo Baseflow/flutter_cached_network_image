@@ -196,13 +196,24 @@ class CachedNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var octoPlaceholderBuilder =
+        placeholder != null ? _octoPlaceholderBuilder : null;
+    var octoProgressIndicatorBuilder =
+        progressIndicatorBuilder != null ? _octoProgressIndicatorBuilder : null;
+
+    ///If there is no placeholer OctoImage does not fade, so always set an
+    ///(empty) placeholder as this always used to be the behaviour of
+    ///CachedNetworkImage.
+    if (octoPlaceholderBuilder == null &&
+        octoProgressIndicatorBuilder == null) {
+      octoPlaceholderBuilder = (context) => Container();
+    }
+
     return OctoImage(
       image: _image,
       imageBuilder: imageBuilder != null ? _octoImageBuilder : null,
-      placeholderBuilder: placeholder != null ? _octoPlaceholderBuilder : null,
-      progressIndicatorBuilder: progressIndicatorBuilder != null
-          ? _octoProgressIndicatorBuilder
-          : null,
+      placeholderBuilder: octoPlaceholderBuilder,
+      progressIndicatorBuilder: octoProgressIndicatorBuilder,
       errorBuilder: errorWidget != null ? _octoErrorBuilder : null,
       fadeOutDuration: fadeOutDuration,
       fadeOutCurve: fadeOutCurve,
