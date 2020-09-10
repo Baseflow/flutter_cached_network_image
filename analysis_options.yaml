@@ -5,7 +5,6 @@ analyzer:
     # Ignore generated files
     - '**/*.g.dart'
     - 'lib/src/generated/*.dart'
-    - 'lib/src/image_provider/_load_async_web.dart'
   errors:
     dead_code: warning
     invalid_assignment: warning
