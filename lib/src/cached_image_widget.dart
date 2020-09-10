@@ -14,6 +14,17 @@ typedef Widget LoadingErrorWidgetBuilder(
     BuildContext context, String url, dynamic error);
 
 class CachedNetworkImage extends StatelessWidget {
+  /// Evict an image from both the disk file based caching system of the
+  /// [BaseCacheManager] as the in memory [ImageCache] of the [ImageProvider].
+  /// [url] is used by both the disk and memory cache. The scale is only used
+  /// to clear the image from the [ImageCache].
+  static Future evictFromCache(String url,
+      {BaseCacheManager cacheManager, double scale = 1.0,}) async {
+    cacheManager = cacheManager ?? DefaultCacheManager();
+    await cacheManager.removeFile(url);
+    return CachedNetworkImageProvider(url, scale: scale).evict();
+  }
+
   final CachedNetworkImageProvider _image;
 
   /// Option to use cachemanager with other settings
