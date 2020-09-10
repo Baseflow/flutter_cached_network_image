@@ -5,13 +5,25 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:octo_image/octo_image.dart';
 
-typedef Widget ImageWidgetBuilder(
-    BuildContext context, ImageProvider imageProvider);
-typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
-typedef Widget ProgressIndicatorBuilder(
-    BuildContext context, String url, DownloadProgress progress);
-typedef Widget LoadingErrorWidgetBuilder(
-    BuildContext context, String url, dynamic error);
+typedef F = void Function();
+typedef ImageWidgetBuilder = Widget Function(
+  BuildContext context,
+  ImageProvider imageProvider,
+);
+typedef PlaceholderWidgetBuilder = Widget Function(
+  BuildContext context,
+  String url,
+);
+typedef ProgressIndicatorBuilder = Widget Function(
+  BuildContext context,
+  String url,
+  DownloadProgress progress,
+);
+typedef LoadingErrorWidgetBuilder = Widget Function(
+  BuildContext context,
+  String url,
+  dynamic error,
+);
 
 class CachedNetworkImage extends StatelessWidget {
   final CachedNetworkImageProvider _image;
@@ -248,7 +260,7 @@ class CachedNetworkImage extends StatelessWidget {
     ImageChunkEvent progress,
   ) {
     int totalSize;
-    int downloaded = 0;
+    var downloaded = 0;
     if (progress != null) {
       totalSize = progress.expectedTotalBytes;
       downloaded = progress.cumulativeBytesLoaded;

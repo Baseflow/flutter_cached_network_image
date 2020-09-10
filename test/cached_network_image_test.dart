@@ -10,8 +10,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' show GestureBinding;
 import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart'
-    show SemanticsBinding;
+import 'package:flutter/rendering.dart' show SemanticsBinding;
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -41,22 +40,21 @@ void main() {
       });
 
       test('Expect thrown exception with statusCode', () async {
-        final int errorStatusCode = HttpStatus.notFound;
-        const String requestUrl = 'foo-url';
+        final errorStatusCode = HttpStatus.notFound;
+        const requestUrl = 'foo-url';
 
-        final MockHttpClientRequest request = MockHttpClientRequest();
-        final MockHttpClientResponse response = MockHttpClientResponse();
+        final request = MockHttpClientRequest();
+        final response = MockHttpClientResponse();
         when(httpClient.getUrl(any))
             .thenAnswer((_) => Future<HttpClientRequest>.value(request));
         when(request.close())
             .thenAnswer((_) => Future<HttpClientResponse>.value(response));
         when(response.statusCode).thenReturn(errorStatusCode);
 
-        final Completer<dynamic> caughtError = Completer<dynamic>();
+        final caughtError = Completer<dynamic>();
 
         final ImageProvider imageProvider = NetworkImage(nonconst(requestUrl));
-        final ImageStream result =
-            imageProvider.resolve(ImageConfiguration.empty);
+        final result = imageProvider.resolve(ImageConfiguration.empty);
         result.addListener(
             ImageStreamListener((ImageInfo info, bool syncCall) {},
                 onError: (dynamic error, StackTrace stackTrace) {
@@ -85,13 +83,12 @@ void main() {
           'Uses the HttpClient provided by debugNetworkImageHttpClientProvider if set',
           () async {
         when(httpClient.getUrl(any)).thenThrow('client1');
-        final List<dynamic> capturedErrors = <dynamic>[];
+        final capturedErrors = <dynamic>[];
 
         Future<void> loadNetworkImage() async {
           final DecoderCallback callback = null;
-          final NetworkImage networkImage = NetworkImage(nonconst('foo'));
-          final ImageStreamCompleter completer =
-              networkImage.load(networkImage, callback);
+          final networkImage = NetworkImage(nonconst('foo'));
+          final completer = networkImage.load(networkImage, callback);
           completer.addListener(ImageStreamListener(
             (ImageInfo image, bool synchronousCall) {},
             onError: (dynamic error, StackTrace stackTrace) {
@@ -103,7 +100,7 @@ void main() {
 
         await loadNetworkImage();
         expect(capturedErrors, <dynamic>['client1']);
-        final MockHttpClient client2 = MockHttpClient();
+        final client2 = MockHttpClient();
         when(client2.getUrl(any)).thenThrow('client2');
         debugNetworkImageHttpClientProvider = () => client2;
         await loadNetworkImage();
@@ -112,16 +109,15 @@ void main() {
 
       test('Propagates http client errors during resolve()', () async {
         when(httpClient.getUrl(any)).thenThrow(Error());
-        bool uncaught = false;
+        var uncaught = false;
 
         await runZoned(() async {
           const ImageProvider imageProvider = NetworkImage('asdasdasdas');
-          final Completer<bool> caughtError = Completer<bool>();
+          final caughtError = Completer<bool>();
           FlutterError.onError = (FlutterErrorDetails details) {
             throw Error();
           };
-          final ImageStream result =
-              imageProvider.resolve(ImageConfiguration.empty);
+          final result = imageProvider.resolve(ImageConfiguration.empty);
           result.addListener(
               ImageStreamListener((ImageInfo info, bool syncCall) {},
                   onError: (dynamic error, StackTrace stackTrace) {
@@ -138,17 +134,17 @@ void main() {
       });
 
       test('Notifies listeners of chunk events', () async {
-        final List<Uint8List> chunks = <Uint8List>[];
-        const int chunkSize = 8;
-        for (int offset = 0;
+        final chunks = <Uint8List>[];
+        const chunkSize = 8;
+        for (var offset = 0;
             offset < kTransparentImage.length;
             offset += chunkSize) {
           chunks.add(Uint8List.fromList(
               kTransparentImage.skip(offset).take(chunkSize).toList()));
         }
-        final Completer<void> imageAvailable = Completer<void>();
-        final MockHttpClientRequest request = MockHttpClientRequest();
-        final MockHttpClientResponse response = MockHttpClientResponse();
+        final imageAvailable = Completer<void>();
+        final request = MockHttpClientRequest();
+        final response = MockHttpClientResponse();
         when(httpClient.getUrl(any))
             .thenAnswer((_) => Future<HttpClientRequest>.value(request));
         when(request.close())
@@ -177,9 +173,8 @@ void main() {
         });
 
         final ImageProvider imageProvider = NetworkImage(nonconst('foo'));
-        final ImageStream result =
-            imageProvider.resolve(ImageConfiguration.empty);
-        final List<ImageChunkEvent> events = <ImageChunkEvent>[];
+        final result = imageProvider.resolve(ImageConfiguration.empty);
+        final events = <ImageChunkEvent>[];
         result.addListener(ImageStreamListener(
           (ImageInfo image, bool synchronousCall) {
             imageAvailable.complete();
@@ -189,7 +184,7 @@ void main() {
         ));
         await imageAvailable.future;
         expect(events.length, chunks.length);
-        for (int i = 0; i < events.length; i++) {
+        for (var i = 0; i < events.length; i++) {
           expect(events[i].cumulativeBytesLoaded,
               math.min((i + 1) * chunkSize, kTransparentImage.length));
           expect(events[i].expectedTotalBytes, kTransparentImage.length);

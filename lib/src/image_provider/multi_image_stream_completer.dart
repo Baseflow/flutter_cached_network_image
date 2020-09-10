@@ -94,7 +94,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       if (_framesEmitted % _codec.frameCount == 0 && _nextImageCodec != null) {
         _switchToNewCodec();
       } else {
-        final int completedCycles = _framesEmitted ~/ _codec.frameCount;
+        final completedCycles = _framesEmitted ~/ _codec.frameCount;
         if (_codec.repetitionCount == -1 ||
             completedCycles <= _codec.repetitionCount) {
           _decodeNextFrameAndSchedule();
@@ -102,7 +102,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       }
       return;
     }
-    final Duration delay = _frameDuration - (timestamp - _shownTimestamp);
+    final delay = _frameDuration - (timestamp - _shownTimestamp);
     _timer = Timer(delay * timeDilation, _scheduleAppFrame);
   }
 

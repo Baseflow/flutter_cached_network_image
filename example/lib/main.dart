@@ -29,22 +29,22 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(title: const Text('CachedNetworkImage')),
       body: _content(currentPage),
       bottomNavigationBar: BottomNavigationBar(
-        onTap: (value) => setState(() {
+        onTap: (int value) => setState(() {
           currentPage = value;
         }),
         currentIndex: currentPage,
-        items: [
+        items: <BottomNavigationBarItem>[
           const BottomNavigationBarItem(
             icon: Icon(Icons.image),
-            title: Text('Basic'),
+            label: 'Basic',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            title: Text('ListView'),
+            label: 'ListView',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.grid_on),
-            title: Text('GridView'),
+            label: 'GridView',
           ),
         ],
       ),

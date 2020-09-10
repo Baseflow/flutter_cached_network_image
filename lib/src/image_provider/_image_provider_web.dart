@@ -56,8 +56,7 @@ class CachedNetworkImageProvider
   @override
   ImageStreamCompleter load(
       image_provider.CachedNetworkImageProvider key, DecoderCallback decode) {
-    final StreamController<ImageChunkEvent> chunkEvents =
-        StreamController<ImageChunkEvent>();
+    final chunkEvents = StreamController<ImageChunkEvent>();
 
     return MultiImageStreamCompleter(
         chunkEvents: chunkEvents.stream,
