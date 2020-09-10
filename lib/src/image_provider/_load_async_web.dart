@@ -12,8 +12,7 @@ Future<ui.Codec> loadAsyncHtmlImage(
 ) {
   final resolved = Uri.base.resolve(key.url);
 
-  // ignore: undefined_function
-  return ui.webOnlyInstantiateImageCodecFromUrl(
+  return ui.webOnlyInstantiateImageCodecFromUrl( // ignore: undefined_function
     resolved,
     chunkCallback: (int bytes, int total) {
       chunkEvents.add(
