@@ -36,15 +36,15 @@ class _MyHomePageState extends State<MyHomePage> {
         items: <BottomNavigationBarItem>[
           const BottomNavigationBarItem(
             icon: Icon(Icons.image),
-            label: 'Basic',
+            title: Text('Basic'),
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'ListView',
+            title: Text('ListView'),
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.grid_on),
-            label: 'GridView',
+            title: Text('GridView'),
           ),
         ],
       ),
