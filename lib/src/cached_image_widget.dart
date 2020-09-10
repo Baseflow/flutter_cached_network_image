@@ -29,8 +29,11 @@ class CachedNetworkImage extends StatelessWidget {
   /// [BaseCacheManager] as the in memory [ImageCache] of the [ImageProvider].
   /// [url] is used by both the disk and memory cache. The scale is only used
   /// to clear the image from the [ImageCache].
-  static Future evictFromCache(String url,
-      {BaseCacheManager cacheManager, double scale = 1.0,}) async {
+  static Future evictFromCache(
+    String url, {
+    BaseCacheManager cacheManager,
+    double scale = 1.0,
+  }) async {
     cacheManager = cacheManager ?? DefaultCacheManager();
     await cacheManager.removeFile(url);
     return CachedNetworkImageProvider(url, scale: scale).evict();
