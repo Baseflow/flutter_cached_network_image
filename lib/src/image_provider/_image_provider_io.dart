@@ -1,4 +1,4 @@
-import 'dart:async' show Future, StreamController;
+import 'dart:async' show Future, StreamController, scheduleMicrotask;
 import 'dart:ui' as ui show Codec;
 
 import 'package:cached_network_image/src/image_provider/multi_image_stream_completer.dart';
@@ -92,6 +92,13 @@ class CachedNetworkImageProvider
         }
       }
     } catch (e) {
+      // Depending on where the exception was thrown, the image cache may not
+      // have had a chance to track the key in the cache at all.
+      // Schedule a microtask to give the cache a chance to add the key.
+      scheduleMicrotask(() {
+        PaintingBinding.instance.imageCache.evict(key);
+      });
+
       errorListener?.call();
       rethrow;
     } finally {
