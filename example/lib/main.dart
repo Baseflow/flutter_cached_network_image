@@ -1,226 +1,155 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:flutter/widgets.dart';
 
-void main() => runApp(MyApp());
+import 'template/globals.dart';
 
-class MyApp extends StatelessWidget {
+void main() {
+  runApp(BaseflowPluginExample());
+}
+
+/// A Flutter application demonstrating the functionality of this plugin
+class BaseflowPluginExample extends StatelessWidget {
+  /// [MaterialColor] to be used in the app [ThemeData]
+  final MaterialColor themeMaterialColor =
+      createMaterialColor(const Color.fromRGBO(48, 49, 60, 1));
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CachedNetworkImage Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: MyHomePage(),
+      title: 'Baseflow $pluginName',
+      theme: ThemeData(
+        accentColor: Colors.white60,
+        backgroundColor: const Color.fromRGBO(48, 49, 60, 0.8),
+        buttonTheme: ButtonThemeData(
+          buttonColor: themeMaterialColor.shade500,
+          disabledColor: themeMaterialColor.withRed(200),
+          splashColor: themeMaterialColor.shade50,
+          textTheme: ButtonTextTheme.primary,
+        ),
+        bottomAppBarColor: const Color.fromRGBO(57, 58, 71, 1),
+        hintColor: themeMaterialColor.shade500,
+        primarySwatch: createMaterialColor(const Color.fromRGBO(48, 49, 60, 1)),
+        textTheme: TextTheme(
+          bodyText1: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            height: 1.3,
+          ),
+          bodyText2: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            height: 1.2,
+          ),
+          button: TextStyle(color: Colors.white),
+          headline1: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        inputDecorationTheme: const InputDecorationTheme(
+          fillColor: Color.fromRGBO(37, 37, 37, 1),
+          filled: true,
+        ),
+      ),
+      home: AppHome(title: 'Baseflow $pluginName example app'),
     );
+  }
+
+  /// Creates a [MaterialColor] based on the supplied [Color]
+  static MaterialColor createMaterialColor(Color color) {
+    List strengths = <double>[.05];
+    Map swatch = <int, Color>{};
+    final r = color.red, g = color.green, b = color.blue;
+
+    for (var i = 1; i < 10; i++) {
+      strengths.add(0.1 * i);
+    }
+    for (var strength in strengths) {
+      final ds = 0.5 - strength;
+      swatch[(strength * 1000).round()] = Color.fromRGBO(
+        r + ((ds < 0 ? r : (255 - r)) * ds).round(),
+        g + ((ds < 0 ? g : (255 - g)) * ds).round(),
+        b + ((ds < 0 ? b : (255 - b)) * ds).round(),
+        1,
+      );
+    }
+    return MaterialColor(color.value, swatch);
   }
 }
 
-class MyHomePage extends StatefulWidget {
+/// A Flutter example demonstrating how the [pluginName] plugin could be used
+class AppHome extends StatefulWidget {
+  /// Constructs the [AppHome] class
+  AppHome({Key key, this.title}) : super(key: key);
+
+  /// The [title] of the application, which is shown in the application's
+  /// title bar.
+  final String title;
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _AppHomeState createState() => _AppHomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int currentPage = 0;
+class _AppHomeState extends State<AppHome> {
+  static final PageController _pageController = PageController(initialPage: 0);
+  int _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CachedNetworkImage')),
-      body: _content(currentPage),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (value) => setState(() {
-          currentPage = value;
-        }),
-        currentIndex: currentPage,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.image),
-            title: Text('Basic'),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).bottomAppBarColor,
+        title: Center(
+          child: Image.asset(
+            'res/images/baseflow_logo_def_light-02.png',
+            width: 140,
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            title: Text('ListView'),
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.grid_on),
-            title: Text('GridView'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _content(int page) {
-    switch (currentPage) {
-      case 0:
-        return _basicContent();
-      case 1:
-        return _listViewContent();
-      case 2:
-        return _gridView();
-      default:
-        return _basicContent();
-    }
-  }
-
-  Widget _basicContent() {
-    return SingleChildScrollView(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _blurHashImage(),
-            _sizedContainer(
-              const Image(
-                image: CachedNetworkImageProvider(
-                  'http://via.placeholder.com/350x150',
-                ),
-              ),
-            ),
-            _sizedContainer(
-              CachedNetworkImage(
-                progressIndicatorBuilder: (context, url, progress) =>
-                    CircularProgressIndicator(
-                  value: progress.progress,
-                ),
-                imageUrl:
-                    'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
-              ),
-            ),
-            _sizedContainer(
-              CachedNetworkImage(
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
-                imageUrl: 'http://via.placeholder.com/200x150',
-              ),
-            ),
-            _sizedContainer(
-              CachedNetworkImage(
-                imageUrl: 'http://via.placeholder.com/300x150',
-                imageBuilder: (context, imageProvider) => Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                      colorFilter: const ColorFilter.mode(
-                        Colors.red,
-                        BlendMode.colorBurn,
-                      ),
-                    ),
-                  ),
-                ),
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
-            ),
-            CachedNetworkImage(
-              imageUrl: 'http://via.placeholder.com/300x300',
-              placeholder: (context, url) => const CircleAvatar(
-                backgroundColor: Colors.amber,
-                radius: 150,
-              ),
-              imageBuilder: (context, image) => CircleAvatar(
-                backgroundImage: image,
-                radius: 150,
-              ),
-            ),
-            _sizedContainer(
-              CachedNetworkImage(
-                imageUrl: 'http://notAvalid.uri',
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
-            ),
-            _sizedContainer(
-              CachedNetworkImage(
-                imageUrl: 'not a uri at all',
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
-            ),
-            _sizedContainer(
-              CachedNetworkImage(
-                imageUrl: 'http://via.placeholder.com/350x200',
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                fadeOutDuration: const Duration(seconds: 1),
-                fadeInDuration: const Duration(seconds: 3),
-              ),
-            ),
-          ],
         ),
       ),
-    );
-  }
-
-  Widget _blurHashImage() {
-    return SizedBox(
-      width: double.infinity,
-      child: CachedNetworkImage(
-        placeholder: (context, url) => const AspectRatio(
-          aspectRatio: 1.6,
-          child: BlurHash(hash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj'),
-        ),
-        imageUrl: 'https://blurha.sh/assets/images/img1.jpg',
-        fit: BoxFit.cover,
+      backgroundColor: Theme.of(context).backgroundColor,
+      body: PageView(
+        controller: _pageController,
+        children: pages,
+        onPageChanged: (page) {
+          setState(() {
+            _currentPage = page;
+          });
+        },
       ),
+      bottomNavigationBar: _bottomAppBar(),
     );
   }
 
-  Widget _listViewContent() {
-    return ListView.builder(
-      itemBuilder: (BuildContext context, int index) => Card(
-        child: Column(
-          children: <Widget>[
-            CachedNetworkImage(
-              imageUrl: 'https://loremflickr.com/320/240/music?lock=$index',
-              placeholder: (BuildContext context, String url) => Container(
-                width: 320,
-                height: 240,
-                color: Colors.purple,
+  BottomAppBar _bottomAppBar() {
+    return BottomAppBar(
+      elevation: 5,
+      color: Theme.of(context).bottomAppBarColor,
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.unmodifiable(() sync* {
+          for (var i = 0; i < pages.length; i++) {
+            yield Expanded(
+              child: IconButton(
+                iconSize: 30,
+                icon: Icon(icons.elementAt(i)),
+                color: _bottomAppBarIconColor(i),
+                onPressed: () => _animateToPage(i),
               ),
-            ),
-          ],
-        ),
-      ),
-      itemCount: 250,
-    );
-  }
-
-  Widget _gridView() {
-    return GridView.builder(
-      itemCount: 250,
-      gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-      itemBuilder: (BuildContext context, int index) => CachedNetworkImage(
-        imageUrl: 'https://loremflickr.com/100/100/music?lock=$index',
-        placeholder: _loader,
-        errorWidget: _error,
+            );
+          }
+        }()),
       ),
     );
   }
 
-  Widget _loader(BuildContext context, String url) {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+  void _animateToPage(int page) {
+    _pageController.animateToPage(page,
+        duration: const Duration(milliseconds: 200), curve: Curves.linear);
   }
 
-  Widget _error(BuildContext context, String url, dynamic error) {
-    print(error);
-    return const Center(child: Icon(Icons.error));
-  }
-
-  Widget _sizedContainer(Widget child) {
-    return SizedBox(
-      width: 300.0,
-      height: 150.0,
-      child: Center(child: child),
-    );
+  Color _bottomAppBarIconColor(int page) {
+    return _currentPage == page ? Colors.white : Theme.of(context).accentColor;
   }
 }
