@@ -14,7 +14,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito: ^4.1.1
-  pedantic: ^1.9.2
+  pedantic: ^1.9.0
 
 environment:
   flutter: ">=1.20.0 <2.0.0"
