@@ -4,7 +4,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '_image_provider_io.dart'
     if (dart.library.html) '_image_provider_web.dart' as image_provider;
 
-typedef void ErrorListener();
+typedef ErrorListener = void Function();
 
 /// Currently there are 2 different ways to show an image on the web with both
 /// their own pros and cons, using a custom [HttpGet] (the default for this library)

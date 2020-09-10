@@ -10,14 +10,17 @@ Future<ui.Codec> loadAsyncHtmlImage(
   StreamController<ImageChunkEvent> chunkEvents,
   DecoderCallback decode,
 ) {
-  final Uri resolved = Uri.base.resolve(key.url);
+  final resolved = Uri.base.resolve(key.url);
 
-  // ignore: undefined_function
-  return ui.webOnlyInstantiateImageCodecFromUrl(
+  return ui.webOnlyInstantiateImageCodecFromUrl( // ignore: undefined_function
     resolved,
     chunkCallback: (int bytes, int total) {
-      chunkEvents.add(ImageChunkEvent(
-          cumulativeBytesLoaded: bytes, expectedTotalBytes: total));
+      chunkEvents.add(
+        ImageChunkEvent(
+          cumulativeBytesLoaded: bytes,
+          expectedTotalBytes: total,
+        ),
+      );
     },
   ) as Future<ui.Codec>; // ignore: undefined_function
 }
