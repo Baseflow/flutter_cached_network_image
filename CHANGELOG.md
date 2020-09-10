@@ -1,3 +1,8 @@
+## [2.3.2] - 2020-09-10
+* Fixed placeholders and error widgets, those are not always centered anymore.
+* Evict an image from ImageCache if image fails to load.
+* Added method to evict an image from memory and disk cache.
+
 ## [2.3.1] - 2020-08-25
 * Fixed fading when the image has no placeholder or progress indicator.
 
