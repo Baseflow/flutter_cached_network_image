@@ -22,8 +22,10 @@ class BasicContent extends StatelessWidget {
             _sizedContainer(
               CachedNetworkImage(
                 progressIndicatorBuilder: (context, url, progress) =>
-                    CircularProgressIndicator(
+                  Center(
+                    child: CircularProgressIndicator(
                   value: progress.progress,
+                  ),
                 ),
                 imageUrl:
                     'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
