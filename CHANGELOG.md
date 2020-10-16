@@ -1,3 +1,6 @@
+## [2.3.3] - 2020-10-16
+* Support for flutter_cache_manager 2.x.x.
+
 ## [2.3.2] - 2020-09-10
 * Fixed placeholders and error widgets, those are not always centered anymore.
 * Evict an image from ImageCache if image fails to load.
