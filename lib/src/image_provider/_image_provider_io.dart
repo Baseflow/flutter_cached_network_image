@@ -114,7 +114,11 @@ class CachedNetworkImageProvider
   @override
   bool operator ==(dynamic other) {
     if (other is CachedNetworkImageProvider) {
-      return url == other.url && scale == other.scale;
+      if (cacheKey != null && other.cacheKey != null) {
+        return cacheKey == other.cacheKey && scale == other.scale;
+      } else {
+        return url == other.url && scale == other.scale;
+      }
     }
     return false;
   }

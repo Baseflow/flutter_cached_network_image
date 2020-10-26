@@ -144,9 +144,15 @@ class CachedNetworkImageProvider
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is CachedNetworkImageProvider &&
-        other.url == url &&
-        other.scale == scale;
+    if (other is CachedNetworkImageProvider) {
+      if (cacheKey != null && other.cacheKey != null) {
+        return cacheKey == other.cacheKey && scale == other.scale;
+      } else {
+        return url == other.url && scale == other.scale;
+      }
+    } else {
+      return false;
+    }
   }
 
   @override
