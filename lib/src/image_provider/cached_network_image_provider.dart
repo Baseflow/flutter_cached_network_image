@@ -1,6 +1,7 @@
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
 import '_image_provider_io.dart'
     if (dart.library.html) '_image_provider_web.dart' as image_provider;
 
@@ -32,6 +33,7 @@ abstract class CachedNetworkImageProvider
   /// for the benefits of each method.
   const factory CachedNetworkImageProvider(
     String url, {
+    String cacheKey,
     double scale,
     @Deprecated('ErrorListener is deprecated, use listeners on the imagestream')
         ErrorListener errorListener,
@@ -51,6 +53,9 @@ abstract class CachedNetworkImageProvider
 
   /// The URL from which the image will be fetched.
   String get url;
+
+  /// The Key from image for cache
+  String get cacheKey;
 
   /// The scale to place in the [ImageInfo] object of the image.
   double get scale;

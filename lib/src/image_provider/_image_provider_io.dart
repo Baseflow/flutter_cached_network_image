@@ -20,6 +20,7 @@ class CachedNetworkImageProvider
     this.errorListener,
     this.headers,
     this.cacheManager,
+    this.cacheKey,
     //ignore: avoid_unused_constructor_parameters
     ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : assert(url != null),
@@ -31,6 +32,10 @@ class CachedNetworkImageProvider
   /// Web url of the image to load
   @override
   final String url;
+
+  /// Cache key of the image to cache
+  @override
+  final String cacheKey;
 
   /// Scale of the image
   @override

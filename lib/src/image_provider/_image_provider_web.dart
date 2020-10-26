@@ -23,6 +23,7 @@ class CachedNetworkImageProvider
     this.errorListener,
     this.headers,
     this.cacheManager,
+    this.cacheKey,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : _imageRenderMethodForWeb =
             imageRenderMethodForWeb ?? ImageRenderMethodForWeb.HtmlImage,
@@ -34,6 +35,9 @@ class CachedNetworkImageProvider
 
   @override
   final String url;
+
+  @override
+  final String cacheKey;
 
   @override
   final double scale;
