@@ -220,6 +220,7 @@ class CachedNetworkImage extends StatelessWidget {
           imageUrl,
           headers: httpHeaders,
           cacheManager: cacheManager,
+          cacheKey: cacheKey,
           imageRenderMethodForWeb: imageRenderMethodForWeb,
         ),
         super(key: key);
