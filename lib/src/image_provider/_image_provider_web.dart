@@ -23,6 +23,7 @@ class CachedNetworkImageProvider
     this.errorListener,
     this.headers,
     this.cacheManager,
+    this.cacheKey,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : _imageRenderMethodForWeb =
             imageRenderMethodForWeb ?? ImageRenderMethodForWeb.HtmlImage,
@@ -34,6 +35,9 @@ class CachedNetworkImageProvider
 
   @override
   final String url;
+
+  @override
+  final String cacheKey;
 
   @override
   final double scale;
@@ -140,9 +144,12 @@ class CachedNetworkImageProvider
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is CachedNetworkImageProvider &&
-        other.url == url &&
-        other.scale == scale;
+    if (other is CachedNetworkImageProvider) {
+      var sameKey = (cacheKey ?? url) == (other.cacheKey ?? other.url);
+      return sameKey && scale == other.scale;
+    } else {
+      return false;
+    }
   }
 
   @override

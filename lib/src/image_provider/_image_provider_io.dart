@@ -20,6 +20,7 @@ class CachedNetworkImageProvider
     this.errorListener,
     this.headers,
     this.cacheManager,
+    this.cacheKey,
     //ignore: avoid_unused_constructor_parameters
     ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : assert(url != null),
@@ -31,6 +32,10 @@ class CachedNetworkImageProvider
   /// Web url of the image to load
   @override
   final String url;
+
+  /// Cache key of the image to cache
+  @override
+  final String cacheKey;
 
   /// Scale of the image
   @override
@@ -77,7 +82,7 @@ class CachedNetworkImageProvider
     try {
       var mngr = cacheManager ?? DefaultCacheManager();
       await for (var result in mngr.getFileStream(key.url,
-          withProgress: true, headers: headers)) {
+          withProgress: true, headers: headers, key: key.cacheKey)) {
         if (result is DownloadProgress) {
           chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: result.downloaded,
@@ -109,7 +114,8 @@ class CachedNetworkImageProvider
   @override
   bool operator ==(dynamic other) {
     if (other is CachedNetworkImageProvider) {
-      return url == other.url && scale == other.scale;
+      var sameKey = (cacheKey ?? url) == (other.cacheKey ?? other.url);
+      return sameKey && scale == other.scale;
     }
     return false;
   }

@@ -31,11 +31,12 @@ class CachedNetworkImage extends StatelessWidget {
   /// to clear the image from the [ImageCache].
   static Future evictFromCache(
     String url, {
+    String cacheKey,
     BaseCacheManager cacheManager,
     double scale = 1.0,
   }) async {
     cacheManager = cacheManager ?? DefaultCacheManager();
-    await cacheManager.removeFile(url);
+    await cacheManager.removeFile(cacheKey ?? url);
     return CachedNetworkImageProvider(url, scale: scale).evict();
   }
 
@@ -46,6 +47,9 @@ class CachedNetworkImage extends StatelessWidget {
 
   /// The target image that is displayed.
   final String imageUrl;
+
+  /// The target image's cache key.
+  final String cacheKey;
 
   /// Optional builder to further customize the display of the image.
   final ImageWidgetBuilder imageBuilder;
@@ -201,6 +205,7 @@ class CachedNetworkImage extends StatelessWidget {
     this.placeholderFadeInDuration,
     this.memCacheWidth,
     this.memCacheHeight,
+    this.cacheKey,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
@@ -215,6 +220,7 @@ class CachedNetworkImage extends StatelessWidget {
           imageUrl,
           headers: httpHeaders,
           cacheManager: cacheManager,
+          cacheKey: cacheKey,
           imageRenderMethodForWeb: imageRenderMethodForWeb,
         ),
         super(key: key);
