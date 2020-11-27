@@ -15,7 +15,7 @@ class BasicContent extends StatelessWidget {
             _sizedContainer(
               const Image(
                 image: CachedNetworkImageProvider(
-                  'http://via.placeholder.com/350x150',
+                  'https://via.placeholder.com/350x150',
                 ),
               ),
             ),
@@ -35,12 +35,12 @@ class BasicContent extends StatelessWidget {
               CachedNetworkImage(
                 placeholder: (context, url) =>
                     const CircularProgressIndicator(),
-                imageUrl: 'http://via.placeholder.com/200x150',
+                imageUrl: 'https://via.placeholder.com/200x150',
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
-                imageUrl: 'http://via.placeholder.com/300x150',
+                imageUrl: 'https://via.placeholder.com/300x150',
                 imageBuilder: (context, imageProvider) => Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
@@ -59,7 +59,7 @@ class BasicContent extends StatelessWidget {
               ),
             ),
             CachedNetworkImage(
-              imageUrl: 'http://via.placeholder.com/300x300',
+              imageUrl: 'https://via.placeholder.com/300x300',
               placeholder: (context, url) => const CircleAvatar(
                 backgroundColor: Colors.amber,
                 radius: 150,
@@ -71,7 +71,7 @@ class BasicContent extends StatelessWidget {
             ),
             _sizedContainer(
               CachedNetworkImage(
-                imageUrl: 'http://notAvalid.uri',
+                imageUrl: 'https://notAvalid.uri',
                 placeholder: (context, url) =>
                     const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -87,7 +87,8 @@ class BasicContent extends StatelessWidget {
             ),
             _sizedContainer(
               CachedNetworkImage(
-                imageUrl: 'http://via.placeholder.com/350x200',
+                maxHeightDiskCache: 10,
+                imageUrl: 'https://via.placeholder.com/350x200',
                 placeholder: (context, url) =>
                     const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),

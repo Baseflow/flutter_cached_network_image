@@ -7,7 +7,7 @@ version: 2.4.1
 dependencies:
   flutter:
     sdk: flutter
-  flutter_cache_manager: ">=2.0.0 <3.0.0"
+  flutter_cache_manager: ^2.1.0
   octo_image: ^0.3.0
 
 dev_dependencies:

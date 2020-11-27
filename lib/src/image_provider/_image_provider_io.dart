@@ -18,6 +18,8 @@ class CachedNetworkImageProvider
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(
     this.url, {
+    this.maxHeight,
+    this.maxWidth,
     this.scale = 1.0,
     this.errorListener,
     this.headers,
@@ -52,6 +54,12 @@ class CachedNetworkImageProvider
   final Map<String, String> headers;
 
   @override
+  final int maxHeight;
+
+  @override
+  final int maxWidth;
+
+  @override
   Future<CachedNetworkImageProvider> obtainKey(
       ImageConfiguration configuration) {
     return SynchronousFuture<CachedNetworkImageProvider>(this);
@@ -83,8 +91,23 @@ class CachedNetworkImageProvider
     assert(key == this);
     try {
       var mngr = cacheManager ?? DefaultCacheManager();
-      await for (var result in mngr.getFileStream(key.url,
-          withProgress: true, headers: headers, key: key.cacheKey)) {
+      assert(
+          mngr is ImageCacheManager || (maxWidth == null && maxHeight == null),
+          'To resize the image with a CacheManager the '
+          'CacheManager needs to be an ImageCacheManager. maxWidth and '
+          'maxHeight will be ignored when a normal CacheManager is used.');
+
+      var stream = mngr is ImageCacheManager
+          ? mngr.getImageFile(key.url,
+              maxHeight: maxHeight,
+              maxWidth: maxWidth,
+              withProgress: true,
+              headers: headers,
+              key: key.cacheKey)
+          : mngr.getFileStream(key.url,
+              withProgress: true, headers: headers, key: key.cacheKey);
+
+      await for (var result in stream) {
         if (result is DownloadProgress) {
           chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: result.downloaded,
@@ -116,14 +139,16 @@ class CachedNetworkImageProvider
   @override
   bool operator ==(dynamic other) {
     if (other is CachedNetworkImageProvider) {
-      var sameKey = (cacheKey ?? url) == (other.cacheKey ?? other.url);
-      return sameKey && scale == other.scale;
+      return ((cacheKey ?? url) == (other.cacheKey ?? other.url)) &&
+          scale == other.scale &&
+          maxHeight == other.maxHeight &&
+          maxWidth == other.maxWidth;
     }
     return false;
   }
 
   @override
-  int get hashCode => hashValues(url, scale);
+  int get hashCode => hashValues(cacheKey ?? url, scale, maxHeight, maxWidth);
 
   @override
   String toString() => '$runtimeType("$url", scale: $scale)';
