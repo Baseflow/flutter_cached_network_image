@@ -129,9 +129,18 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       return;
     }
     if (_codec.frameCount == 1) {
+      // ImageStreamCompleter listeners removed while waiting for next frame to
+      // be decoded.
+      // There's no reason to emit the frame without active listeners.
+      if (!hasListeners) {
+        return;
+      }
+
       // This is not an animated image, just return it and don't schedule more
       // frames.
       _emitFrame(ImageInfo(image: _nextFrame.image, scale: _scale));
+      _nextFrame.image.dispose();
+      _nextFrame = null;
       return;
     }
     _scheduleAppFrame();
