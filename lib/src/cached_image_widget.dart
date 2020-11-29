@@ -5,25 +5,38 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:octo_image/octo_image.dart';
 
+/// Builder function to create an image widget. The function is called after
+/// the ImageProvider completes the image loading.
 typedef ImageWidgetBuilder = Widget Function(
   BuildContext context,
   ImageProvider imageProvider,
 );
+
+/// Builder function to create a placeholder widget. The function is called
+/// once while the ImageProvider is loading the image.
 typedef PlaceholderWidgetBuilder = Widget Function(
   BuildContext context,
   String url,
 );
+
+/// Builder function to create a progress indicator widget. The function is
+/// called every time a chuck of the image is downloaded from the web, but at
+/// least once during image loading.
 typedef ProgressIndicatorBuilder = Widget Function(
   BuildContext context,
   String url,
   DownloadProgress progress,
 );
+
+/// Builder function to create an error widget. This builder is called when
+/// the image failed loading, for example due to a 404 NotFound exception.
 typedef LoadingErrorWidgetBuilder = Widget Function(
   BuildContext context,
   String url,
   dynamic error,
 );
 
+/// Image widget to show NetworkImage with caching functionality.
 class CachedNetworkImage extends StatelessWidget {
   /// Evict an image from both the disk file based caching system of the
   /// [BaseCacheManager] as the in memory [ImageCache] of the [ImageProvider].

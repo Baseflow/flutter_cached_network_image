@@ -5,10 +5,11 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '_image_provider_io.dart'
     if (dart.library.html) '_image_provider_web.dart' as image_provider;
 
+/// Function which is called after loading the image failed.
 typedef ErrorListener = void Function();
 
 /// Currently there are 2 different ways to show an image on the web with both
-/// their own pros and cons, using a custom [HttpGet] (the default for this library)
+/// their own pros and cons, using a custom [HttpGet]
 /// or an HTML Image element mentioned [here on a GitHub issue](https://github.com/flutter/flutter/issues/57187#issuecomment-635637494).
 ///
 /// When using HttpGet the image will work on Skia and it will use the [CachedNetworkImageProvider.headers]
@@ -19,10 +20,15 @@ typedef ErrorListener = void Function();
 /// The [HtmlImage] does not need a CORS handshake, but it also does not use your
 /// provided headers and it does not work when using Skia to render the page.
 enum ImageRenderMethodForWeb {
+  /// HtmlImage uses a default web image including default browser caching.
+  /// This is the recommended and default choice.
   HtmlImage,
+  /// HttpGet uses an http client to fetch an image. It enables the use of
+  /// headers, but loses some default web functionality.
   HttpGet,
 }
 
+/// An ImageProvider to load images from the network with caching functionality.
 abstract class CachedNetworkImageProvider
     extends ImageProvider<CachedNetworkImageProvider> {
   /// Creates an object that fetches the image at the given URL.
@@ -49,6 +55,8 @@ abstract class CachedNetworkImageProvider
   BaseCacheManager get cacheManager;
 
   @deprecated
+  /// The errorListener is called when the ImageProvider failed loading the
+  /// image. Deprecated in favor of [ImageStreamListener.onError].
   ErrorListener get errorListener;
 
   /// The URL from which the image will be fetched.

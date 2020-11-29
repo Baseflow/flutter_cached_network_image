@@ -5,6 +5,8 @@ import 'package:flutter/rendering.dart';
 
 import '../../cached_network_image.dart';
 
+/// Method to load html images using the webOnlyInstantiateImageCodecFromUrl.
+/// This method is not recognized by the flutter analyzer.
 Future<ui.Codec> loadAsyncHtmlImage(
   CachedNetworkImageProvider key,
   StreamController<ImageChunkEvent> chunkEvents,

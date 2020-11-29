@@ -9,9 +9,13 @@ import 'package:flutter/scheduler.dart';
 double get timeDilation => _timeDilation;
 double _timeDilation = 1.0;
 
-/// MultiImageStreamCompleter needs version ^1.18.0-8.0.pre
-/// Released to dev at 24/04/2020
+/// An ImageStreamCompleter with support for loading multiple images.
 class MultiImageStreamCompleter extends ImageStreamCompleter {
+
+  /// The constructor to create an MultiImageStreamCompleter. The [codec]
+  /// should be a stream with the images that should be shown. The
+  /// [chunkEvents] should indicate the [ImageChunkEvent]s of the first image
+  /// to show.
   MultiImageStreamCompleter({
     @required Stream<ui.Codec> codec,
     @required double scale,

@@ -9,6 +9,8 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../../cached_network_image.dart' show ImageRenderMethodForWeb;
 import 'cached_network_image_provider.dart' as image_provider;
 
+/// IO implementation of the CachedNetworkImageProvider; the ImageProvider to
+/// load network images using a cache.
 class CachedNetworkImageProvider
     extends ImageProvider<image_provider.CachedNetworkImageProvider>
     implements image_provider.CachedNetworkImageProvider {
