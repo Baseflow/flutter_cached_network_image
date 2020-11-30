@@ -20,7 +20,11 @@ class FakeCacheManager extends Mock implements CacheManager {
         uri: Uri.parse(url)));
   }
 
-  ExpectedData returns(String url, List<int> imageData) {
+  ExpectedData returns(
+    String url,
+    List<int> imageData, {
+    Duration delayBetweenChunks,
+  }) {
     const chunkSize = 8;
     final chunks = <Uint8List>[
       for (int offset = 0; offset < imageData.length; offset += chunkSize)
@@ -36,6 +40,7 @@ class FakeCacheManager extends Mock implements CacheManager {
           url,
           chunks,
           imageData,
+          delayBetweenChunks,
         ));
 
     return ExpectedData(
@@ -46,11 +51,18 @@ class FakeCacheManager extends Mock implements CacheManager {
   }
 
   Stream<FileResponse> _createResultStream(
-      String url, List<Uint8List> chunks, List<int> imageData) async* {
+    String url,
+    List<Uint8List> chunks,
+    List<int> imageData,
+    Duration delayBetweenChunks,
+  ) async* {
     var totalSize = imageData.length;
     var downloaded = 0;
     for (var chunk in chunks) {
       downloaded += chunk.length;
+      if (delayBetweenChunks != null) {
+        await Future.delayed(delayBetweenChunks);
+      }
       yield DownloadProgress(url, totalSize, downloaded);
     }
     var file = MemoryFileSystem().systemTempDirectory.childFile('test.jpg');

@@ -95,7 +95,9 @@ void main() {
 
     testWidgets('progressIndicator called several times', (tester) async {
       // Create the widget by telling the tester to build it.
-      var expectedResult = cacheManager.returns(imageUrl, kTransparentImage);
+      var delay = Duration(milliseconds: 1);
+      var expectedResult = cacheManager.returns(imageUrl, kTransparentImage,
+          delayBetweenChunks: delay,);
       var progressIndicatorCalled = 0;
       var thrown = false;
       await tester.pumpWidget(MyImageWidget(
@@ -103,13 +105,12 @@ void main() {
         onProgress: () => progressIndicatorCalled++,
         onError: () => thrown = true,
       ));
-      print(expectedResult.chunks);
       for(var i=0;i<expectedResult.chunks; i++){
-        await tester.pump();
+        await tester.pump(delay);
         await tester.idle();
       }
       expect(thrown, isFalse);
-      expect(progressIndicatorCalled, expectedResult.chunks);
+      expect(progressIndicatorCalled, expectedResult.chunks + 1);
     });
   });
 }
