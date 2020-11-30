@@ -1,11 +1,9 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_cache_manager.dart';
 import 'image_data.dart';
-
 
 void main() {
   FakeCacheManager cacheManager;
@@ -70,7 +68,7 @@ void main() {
 
     testWidgets("errorBuilder doesn't call when image doesn't fail",
         (tester) async {
-          var imageUrl = '123456';
+      var imageUrl = '123456';
       // Create the widget by telling the tester to build it.
       cacheManager.returns(imageUrl, kTransparentImage);
       var thrown = false;
@@ -82,7 +80,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(thrown, isFalse);
     });
-
 
     testWidgets('placeholder called when success', (tester) async {
       var imageUrl = '789';
@@ -105,8 +102,11 @@ void main() {
       var imageUrl = '7891';
       // Create the widget by telling the tester to build it.
       var delay = Duration(milliseconds: 1);
-      var expectedResult = cacheManager.returns(imageUrl, kTransparentImage,
-          delayBetweenChunks: delay,);
+      var expectedResult = cacheManager.returns(
+        imageUrl,
+        kTransparentImage,
+        delayBetweenChunks: delay,
+      );
       var progressIndicatorCalled = 0;
       var thrown = false;
       await tester.pumpWidget(MyImageWidget(
@@ -115,7 +115,7 @@ void main() {
         onProgress: () => progressIndicatorCalled++,
         onError: () => thrown = true,
       ));
-      for(var i=0;i<expectedResult.chunks; i++){
+      for (var i = 0; i < expectedResult.chunks; i++) {
         await tester.pump(delay);
         await tester.idle();
       }

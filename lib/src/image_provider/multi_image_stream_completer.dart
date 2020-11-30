@@ -11,7 +11,6 @@ double _timeDilation = 1.0;
 
 /// An ImageStreamCompleter with support for loading multiple images.
 class MultiImageStreamCompleter extends ImageStreamCompleter {
-
   /// The constructor to create an MultiImageStreamCompleter. The [codec]
   /// should be a stream with the images that should be shown. The
   /// [chunkEvents] should indicate the [ImageChunkEvent]s of the first image
