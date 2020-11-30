@@ -1,3 +1,6 @@
+## [2.4.0] - 2020-11-30
+* Added support for a cache key which is different from the image url.
+
 ## [2.3.3] - 2020-10-16
 * Support for flutter_cache_manager 2.x.x.
 
