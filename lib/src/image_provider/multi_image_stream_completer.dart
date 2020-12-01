@@ -142,8 +142,6 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       // This is not an animated image, just return it and don't schedule more
       // frames.
       _emitFrame(ImageInfo(image: _nextFrame.image, scale: _scale));
-      _nextFrame.image.dispose();
-      _nextFrame = null;
       return;
     }
     _scheduleAppFrame();

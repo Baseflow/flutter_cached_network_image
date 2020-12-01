@@ -1,3 +1,6 @@
+## [2.4.1] - 2020-12-01
+* Fix a bug that an image is disposed when it shouldn't.
+
 ## [2.4.0] - 2020-11-30
 * Added support for a cache key which is different from the image url.
 
