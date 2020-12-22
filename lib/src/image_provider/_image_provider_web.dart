@@ -19,6 +19,8 @@ class CachedNetworkImageProvider
   /// The arguments [url] and [scale] must not be null.
   const CachedNetworkImageProvider(
     this.url, {
+    this.maxHeight,
+    this.maxWidth,
     this.scale = 1.0,
     this.errorListener,
     this.headers,
@@ -48,6 +50,12 @@ class CachedNetworkImageProvider
 
   @override
   final Map<String, String> headers;
+
+  @override
+  final int maxHeight;
+
+  @override
+  final int maxWidth;
 
   final ImageRenderMethodForWeb _imageRenderMethodForWeb;
 
@@ -153,7 +161,7 @@ class CachedNetworkImageProvider
   }
 
   @override
-  int get hashCode => ui.hashValues(url, scale);
+  int get hashCode => ui.hashValues(url, scale, cacheKey);
 
   @override
   String toString() => '$runtimeType("$url", scale: $scale)';

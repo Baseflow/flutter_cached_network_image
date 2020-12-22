@@ -40,6 +40,8 @@ abstract class CachedNetworkImageProvider
   /// for the benefits of each method.
   const factory CachedNetworkImageProvider(
     String url, {
+      int maxHeight,
+        int maxWidth,
     String cacheKey,
     double scale,
     @Deprecated('ErrorListener is deprecated, use listeners on the imagestream')
@@ -56,7 +58,6 @@ abstract class CachedNetworkImageProvider
   BaseCacheManager get cacheManager;
 
   @deprecated
-
   /// The errorListener is called when the ImageProvider failed loading the
   /// image. Deprecated in favor of [ImageStreamListener.onError].
   ErrorListener get errorListener;
@@ -72,6 +73,14 @@ abstract class CachedNetworkImageProvider
 
   /// The HTTP headers that will be used to fetch image from network.
   Map<String, String> get headers;
+
+  /// Max height in pixels for the image. When set the resized image is
+  /// stored in the cache.
+  int get maxHeight;
+
+  /// Max width in pixels for the image. When set the resized image is
+  /// stored in the cache.
+  int get maxWidth;
 
   @override
   ImageStreamCompleter load(

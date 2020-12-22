@@ -182,11 +182,17 @@ class CachedNetworkImage extends StatelessWidget {
   /// If not given a value, defaults to FilterQuality.low.
   final FilterQuality filterQuality;
 
-  /// Will resize the image in cache to have a certain width using [ResizeImage]
+  /// Will resize the image in memory to have a certain width using [ResizeImage]
   final int memCacheWidth;
 
-  /// Will resize the image in cache to have a certain height using [ResizeImage]
+  /// Will resize the image in memory to have a certain height using [ResizeImage]
   final int memCacheHeight;
+
+  /// Will resize the image and store the resized image in the disk cache.
+  final int maxWidthDiskCache;
+
+  /// Will resize the image and store the resized image in the disk cache.
+  final int maxHeightDiskCache;
 
   /// CachedNetworkImage shows a network image using a caching mechanism. It also
   /// provides support for a placeholder, showing an error and fading into the
@@ -219,6 +225,8 @@ class CachedNetworkImage extends StatelessWidget {
     this.memCacheWidth,
     this.memCacheHeight,
     this.cacheKey,
+    this.maxWidthDiskCache,
+    this.maxHeightDiskCache,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
@@ -235,6 +243,8 @@ class CachedNetworkImage extends StatelessWidget {
           cacheManager: cacheManager,
           cacheKey: cacheKey,
           imageRenderMethodForWeb: imageRenderMethodForWeb,
+          maxWidth: maxWidthDiskCache,
+          maxHeight: maxHeightDiskCache,
         ),
         super(key: key);
 
