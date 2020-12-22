@@ -40,8 +40,8 @@ abstract class CachedNetworkImageProvider
   /// for the benefits of each method.
   const factory CachedNetworkImageProvider(
     String url, {
-      int maxHeight,
-        int maxWidth,
+    int maxHeight,
+    int maxWidth,
     String cacheKey,
     double scale,
     @Deprecated('ErrorListener is deprecated, use listeners on the imagestream')
@@ -57,9 +57,9 @@ abstract class CachedNetworkImageProvider
   /// When running flutter on the web, the cacheManager is not used.
   BaseCacheManager get cacheManager;
 
-  @deprecated
   /// The errorListener is called when the ImageProvider failed loading the
   /// image. Deprecated in favor of [ImageStreamListener.onError].
+  @deprecated
   ErrorListener get errorListener;
 
   /// The URL from which the image will be fetched.

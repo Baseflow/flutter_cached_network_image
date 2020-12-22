@@ -1,3 +1,12 @@
+## [2.5.0] - 2020-12-22
+* Add support for resizing images in disk cache.
+```dart
+CachedNetworkImage(
+  maxHeightDiskCache: 200,
+  imageUrl: 'https://via.placeholder.com/3000x2000',
+);
+```
+
 ## [2.4.1] - 2020-12-01
 * Fix a bug that an image is disposed when it shouldn't.
 
