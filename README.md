@@ -53,3 +53,9 @@ CachedNetworkImage(
 
 ## How it works
 The cached network images stores and retrieves files using the [flutter_cache_manager](https://pub.dartlang.org/packages/flutter_cache_manager). 
+
+## FAQ
+### My app crashes when the image loading failed. (I know, this is not really a question.)
+Does it really crash though? The debugger might pause, as the Dart VM doesn't recognize it as a caught exception; the console might print errors; even your crash reporting tool might report it (I know, that really sucks). However, does it really crash? Probably everything is just running fine. If you really get an app crashes you are fine to report an issue, but do that with a small example so we can reproduce that crash.
+
+See for example [this](https://github.com/Baseflow/flutter_cached_network_image/issues/336#issuecomment-760769361) or [this](https://github.com/Baseflow/flutter_cached_network_image/issues/536#issuecomment-760857495) answer on previous posted issues.
