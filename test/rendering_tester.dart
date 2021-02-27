@@ -34,7 +34,7 @@ class TestRenderingFlutterBinding extends BindingBase
   TestRenderingFlutterBinding({this.onErrors}) {
     FlutterError.onError = (FlutterErrorDetails details) {
       FlutterError.dumpErrorToConsole(details);
-      Zone.current.parent.handleUncaughtError(details.exception, details.stack);
+      Zone.current.parent?.handleUncaughtError(details.exception, details.stack!);
     };
   }
 
@@ -45,14 +45,14 @@ class TestRenderingFlutterBinding extends BindingBase
   /// This function is expected to inspect these errors and decide whether they
   /// are expected or not. Use [takeFlutterErrorDetails] to take one error at a
   /// time, or [takeAllFlutterErrorDetails] to iterate over all errors.
-  VoidCallback onErrors;
+  VoidCallback? onErrors;
 
   /// Returns the error least recently caught by [FlutterError] and removes it
   /// from the list of captured errors.
   ///
   /// Returns null if no errors were captures, or if the list was exhausted by
   /// calling this method repeatedly.
-  FlutterErrorDetails takeFlutterErrorDetails() {
+  FlutterErrorDetails? takeFlutterErrorDetails() {
     if (_errors.isEmpty) {
       return null;
     }
@@ -114,7 +114,7 @@ class TestRenderingFlutterBinding extends BindingBase
       FlutterError.onError = oldErrorHandler;
       if (_errors.isNotEmpty) {
         if (onErrors != null) {
-          onErrors();
+          onErrors?.call();
           if (_errors.isNotEmpty) {
             _errors.forEach(FlutterError.dumpErrorToConsole);
             fail(
@@ -150,15 +150,12 @@ TestRenderingFlutterBinding get renderer => _renderer;
 /// If `onErrors` is not null, it is set as [TestRenderingFlutterBinding.onError].
 void layout(
   RenderBox box, {
-  BoxConstraints constraints,
+  BoxConstraints? constraints,
   Alignment alignment = Alignment.center,
   EnginePhase phase = EnginePhase.layout,
-  VoidCallback onErrors,
+  VoidCallback? onErrors,
 }) {
-  assert(box !=
-      null); // If you want to just repump the last box, call pumpFrame().
-  assert(box.parent ==
-      null); // We stick the box in another, so you can't reuse it easily, sorry.
+  assert(box.parent == null); // We stick the box in another, so you can't reuse it easily, sorry.
 
   renderer.renderView.child = null;
   if (constraints != null) {
@@ -179,9 +176,7 @@ void layout(
 ///
 /// If `onErrors` is not null, it is set as [TestRenderingFlutterBinding.onError].
 void pumpFrame(
-    {EnginePhase phase = EnginePhase.layout, VoidCallback onErrors}) {
-  assert(renderer != null);
-  assert(renderer.renderView != null);
+    {EnginePhase phase = EnginePhase.layout, VoidCallback? onErrors}) {
   assert(renderer.renderView.child != null); // call layout() first!
 
   if (onErrors != null) {
@@ -193,7 +188,7 @@ void pumpFrame(
 }
 
 class TestCallbackPainter extends CustomPainter {
-  const TestCallbackPainter({@required this.onPaint});
+  const TestCallbackPainter({required this.onPaint});
 
   final VoidCallback onPaint;
 
@@ -261,7 +256,7 @@ class FakeTicker implements Ticker {
   void absorbTicker(Ticker originalTicker) {}
 
   @override
-  String get debugLabel => null;
+  String? get debugLabel => null;
 
   @override
   bool get isActive => throw UnimplementedError();
@@ -306,13 +301,13 @@ class TestClipPaintingContext extends PaintingContext {
   TestClipPaintingContext() : super(ContainerLayer(), Rect.zero);
 
   @override
-  ClipRectLayer pushClipRect(
+  ClipRectLayer? pushClipRect(
     bool needsCompositing,
     Offset offset,
     Rect clipRect,
     PaintingContextCallback painter, {
     Clip clipBehavior = Clip.hardEdge,
-    ClipRectLayer oldLayer,
+    ClipRectLayer? oldLayer,
   }) {
     this.clipBehavior = clipBehavior;
     return null;
@@ -324,7 +319,7 @@ class TestClipPaintingContext extends PaintingContext {
 void expectOverflowedErrors() {
   final errorDetails = renderer.takeFlutterErrorDetails();
   final overflowed = errorDetails.toString().contains('overflowed');
-  if (!overflowed) {
+  if (!overflowed && errorDetails != null) {
     FlutterError.reportError(errorDetails);
   }
 }
