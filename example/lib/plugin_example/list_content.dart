@@ -16,6 +16,7 @@ class ListContent extends StatelessWidget {
                 height: 240,
                 color: Colors.purple,
               ),
+              autoDetectCacheSize: true,
             ),
           ],
         ),

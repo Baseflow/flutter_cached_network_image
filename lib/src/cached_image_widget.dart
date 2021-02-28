@@ -188,6 +188,10 @@ class CachedNetworkImage extends StatelessWidget {
   /// Will resize the image in memory to have a certain height using [ResizeImage]
   final int memCacheHeight;
 
+  /// Will auto detect size and cache accordingly. Enabling this makes
+  /// [memCacheWidth], [memCacheHeight] flags redundant.
+  final bool autoDetectCacheSize;
+
   /// Will resize the image and store the resized image in the disk cache.
   final int maxWidthDiskCache;
 
@@ -227,6 +231,7 @@ class CachedNetworkImage extends StatelessWidget {
     this.cacheKey,
     this.maxWidthDiskCache,
     this.maxHeightDiskCache,
+    this.autoDetectCacheSize = false,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
@@ -263,30 +268,44 @@ class CachedNetworkImage extends StatelessWidget {
       octoPlaceholderBuilder = (context) => Container();
     }
 
-    return OctoImage(
-      image: _image,
-      imageBuilder: imageBuilder != null ? _octoImageBuilder : null,
-      placeholderBuilder: octoPlaceholderBuilder,
-      progressIndicatorBuilder: octoProgressIndicatorBuilder,
-      errorBuilder: errorWidget != null ? _octoErrorBuilder : null,
-      fadeOutDuration: fadeOutDuration,
-      fadeOutCurve: fadeOutCurve,
-      fadeInDuration: fadeInDuration,
-      fadeInCurve: fadeInCurve,
-      width: width,
-      height: height,
-      fit: fit,
-      alignment: alignment,
-      repeat: repeat,
-      matchTextDirection: matchTextDirection,
-      color: color,
-      filterQuality: filterQuality,
-      colorBlendMode: colorBlendMode,
-      placeholderFadeInDuration: placeholderFadeInDuration,
-      gaplessPlayback: useOldImageOnUrlChange,
-      memCacheWidth: memCacheWidth,
-      memCacheHeight: memCacheHeight,
-    );
+    return LayoutBuilder(builder: (ctx, constraints) {
+      var _constrainWidth = memCacheWidth;
+      var _constrainHeight = memCacheHeight;
+
+      if (autoDetectCacheSize) {
+        final ratio = MediaQuery.of(context).devicePixelRatio;
+        _constrainWidth = constraints.maxWidth != double.infinity
+            ? (constraints.maxWidth * ratio).toInt()
+            : null;
+        _constrainHeight = constraints.maxHeight != double.infinity
+            ? (constraints.maxHeight * ratio).toInt()
+            : null;
+      }
+      return OctoImage(
+        image: _image,
+        imageBuilder: imageBuilder != null ? _octoImageBuilder : null,
+        placeholderBuilder: octoPlaceholderBuilder,
+        progressIndicatorBuilder: octoProgressIndicatorBuilder,
+        errorBuilder: errorWidget != null ? _octoErrorBuilder : null,
+        fadeOutDuration: fadeOutDuration,
+        fadeOutCurve: fadeOutCurve,
+        fadeInDuration: fadeInDuration,
+        fadeInCurve: fadeInCurve,
+        width: width,
+        height: height,
+        fit: fit,
+        alignment: alignment,
+        repeat: repeat,
+        matchTextDirection: matchTextDirection,
+        color: color,
+        filterQuality: filterQuality,
+        colorBlendMode: colorBlendMode,
+        placeholderFadeInDuration: placeholderFadeInDuration,
+        gaplessPlayback: useOldImageOnUrlChange,
+        memCacheWidth: _constrainWidth,
+        memCacheHeight: _constrainHeight,
+      );
+    });
   }
 
   Widget _octoImageBuilder(BuildContext context, Widget child) {
