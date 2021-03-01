@@ -13,7 +13,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^4.1.1
+  mocktail:
+    git:
+      url: https://github.com/daohoangson/mocktail.git
+      ref: fix/any_matcher_without_value
+      path: packages/mocktail
   pedantic: ^1.9.0
   file: ^5.2.1
 
