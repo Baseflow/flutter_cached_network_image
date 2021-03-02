@@ -27,7 +27,7 @@ class CachedNetworkImageProvider
     this.cacheManager,
     this.cacheKey,
     ImageRenderMethodForWeb? imageRenderMethodForWeb,
-  })  : _imageRenderMethodForWeb =
+  }) : _imageRenderMethodForWeb =
             imageRenderMethodForWeb ?? ImageRenderMethodForWeb.HtmlImage;
 
   @override

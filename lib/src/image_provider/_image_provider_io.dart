@@ -83,7 +83,7 @@ class CachedNetworkImageProvider
   }
 
   Stream<ui.Codec> _loadAsync(
-      image_provider.CachedNetworkImageProvider key,
+    image_provider.CachedNetworkImageProvider key,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,
   ) async* {
