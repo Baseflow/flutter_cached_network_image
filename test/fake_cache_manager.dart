@@ -25,7 +25,7 @@ class FakeCacheManager extends Mock implements CacheManager {
   ExpectedData returns(
     String url,
     List<int> imageData, {
-    Duration delayBetweenChunks,
+    Duration? delayBetweenChunks,
   }) {
     const chunkSize = 8;
     final chunks = <Uint8List>[
@@ -58,7 +58,7 @@ class FakeCacheManager extends Mock implements CacheManager {
     String url,
     List<Uint8List> chunks,
     List<int> imageData,
-    Duration delayBetweenChunks,
+    Duration? delayBetweenChunks,
   ) async* {
     var totalSize = imageData.length;
     var downloaded = 0;
@@ -80,7 +80,7 @@ class FakeImageCacheManager extends Mock implements ImageCacheManager {
   ExpectedData returns(
     String url,
     List<int> imageData, {
-    Duration delayBetweenChunks,
+    Duration? delayBetweenChunks,
   }) {
     const chunkSize = 8;
     final chunks = <Uint8List>[
@@ -115,7 +115,7 @@ class FakeImageCacheManager extends Mock implements ImageCacheManager {
     String url,
     List<Uint8List> chunks,
     List<int> imageData,
-    Duration delayBetweenChunks,
+    Duration? delayBetweenChunks,
   ) async* {
     var totalSize = imageData.length;
     var downloaded = 0;
@@ -138,5 +138,7 @@ class ExpectedData {
   final int totalSize;
   final int chunkSize;
 
-  const ExpectedData({this.chunks, this.totalSize, this.chunkSize});
+  const ExpectedData({required this.chunks, required this.totalSize, required
+  this
+      .chunkSize,});
 }
