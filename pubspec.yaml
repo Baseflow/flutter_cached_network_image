@@ -13,8 +13,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^5.0.0
-  build_runner: ^1.10.0
+  mocktail: ^0.0.1-0
   pedantic: ^1.10.0
   file: ^6.1.0
 
