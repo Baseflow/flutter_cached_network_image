@@ -11,11 +11,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'fake_cache_manager.dart';
 import 'image_data.dart';
 import 'rendering_tester.dart';
-import 'package:mockito/mockito.dart';
 
 void main() {
   TestRenderingFlutterBinding();
@@ -45,19 +45,25 @@ void main() {
     ));
     await imageAvailable.future;
 
-    verify(cacheManager.getImageFile(
-      url,
-      withProgress: anyNamed('withProgress'),
-      headers: anyNamed('headers'),
-      key: anyNamed('key'),
-    )).called(1);
+    verify(cacheManager).called(#getImageFile).withArgs(
+      positional: [url],
+      named: {
+        #key: any,
+        #headers: any,
+        #withProgress: any,
+        #maxHeight: any,
+        #maxWidth: any,
+      },
+    ).times(1);
 
-    verifyNever(cacheManager.getFileStream(
-      url,
-      withProgress: anyNamed('withProgress'),
-      headers: anyNamed('headers'),
-      key: anyNamed('key'),
-    ));
+    verify(cacheManager).called(#getFileStream).withArgs(
+      positional: [url],
+      named: {
+        #key: any,
+        #headers: any,
+        #withProgress: any,
+      },
+    ).never();
   }, skip: isBrowser);
 
   test('Supplying an CacheManager should call getFileStream', () async {
@@ -78,12 +84,14 @@ void main() {
     ));
     await imageAvailable.future;
 
-    verify(cacheManager.getFileStream(
-      url,
-      withProgress: anyNamed('withProgress'),
-      headers: anyNamed('headers'),
-      key: anyNamed('key'),
-    )).called(1);
+    verify(cacheManager).called(#getFileStream).withArgs(
+      positional: [url],
+      named: {
+        #key: any,
+        #headers: any,
+        #withProgress: any,
+      },
+    ).times(1);
   }, skip: isBrowser);
 
   test('Supplying an CacheManager with maxHeight throws assertion', () async {
