@@ -18,5 +18,5 @@ dev_dependencies:
   file: ^5.2.1
 
 environment:
-  flutter: ">=1.20.0 <2.0.0"
+  flutter: ">=1.20.0 <3.0.0"
   sdk: ">=2.10.0 <3.0.0"
