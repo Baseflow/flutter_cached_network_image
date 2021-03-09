@@ -1,3 +1,6 @@
+## [2.5.1] - 2021-03-09
+* Update dependencies
+
 ## [2.5.0] - 2020-12-22
 * Add support for resizing images in disk cache.
 ```dart
