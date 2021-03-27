@@ -34,8 +34,8 @@ class TestRenderingFlutterBinding extends BindingBase
   TestRenderingFlutterBinding({this.onErrors}) {
     FlutterError.onError = (FlutterErrorDetails details) {
       FlutterError.dumpErrorToConsole(details);
-      Zone.current.parent!.handleUncaughtError(details.exception,
-          details.stack!);
+      Zone.current.parent!
+          .handleUncaughtError(details.exception, details.stack!);
     };
   }
 

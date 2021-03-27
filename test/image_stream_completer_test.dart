@@ -735,8 +735,7 @@ void main() {
     );
 
     var onImageCount = 0;
-    final activeListener =
-        (ImageInfo image, bool synchronousCall) {
+    final activeListener = (ImageInfo image, bool synchronousCall) {
       onImageCount += 1;
     };
     var lastListenerDropped = false;
