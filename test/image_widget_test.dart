@@ -6,16 +6,15 @@ import 'fake_cache_manager.dart';
 import 'image_data.dart';
 
 void main() {
-  FakeCacheManager cacheManager;
+  late FakeCacheManager cacheManager;
 
   setUp(() {
     cacheManager = FakeCacheManager();
   });
 
   tearDown(() {
-    cacheManager = null;
-    PaintingBinding.instance.imageCache.clear();
-    PaintingBinding.instance.imageCache.clearLiveImages();
+    PaintingBinding.instance?.imageCache?.clear();
+    PaintingBinding.instance?.imageCache?.clearLiveImages();
   });
 
   group('widget tests', () {
@@ -127,24 +126,24 @@ void main() {
 
 class MyImageWidget extends StatelessWidget {
   final FakeCacheManager cacheManager;
-  final ProgressIndicatorBuilder progressBuilder;
-  final PlaceholderWidgetBuilder placeholderBuilder;
-  final LoadingErrorWidgetBuilder errorBuilder;
+  final ProgressIndicatorBuilder? progressBuilder;
+  final PlaceholderWidgetBuilder? placeholderBuilder;
+  final LoadingErrorWidgetBuilder? errorBuilder;
   final String imageUrl;
 
   MyImageWidget({
-    Key key,
-    @required this.imageUrl,
-    @required this.cacheManager,
-    VoidCallback onProgress,
-    VoidCallback onPlaceHolder,
-    VoidCallback onError,
+    Key? key,
+    required this.imageUrl,
+    required this.cacheManager,
+    VoidCallback? onProgress,
+    VoidCallback? onPlaceHolder,
+    VoidCallback? onError,
   })  : progressBuilder = getProgress(onProgress),
         placeholderBuilder = getPlaceholder(onPlaceHolder),
         errorBuilder = getErrorBuilder(onError),
         super(key: key);
 
-  static ProgressIndicatorBuilder getProgress(VoidCallback onProgress) {
+  static ProgressIndicatorBuilder? getProgress(VoidCallback? onProgress) {
     if (onProgress == null) return null;
     return (context, url, progress) {
       onProgress();
@@ -152,7 +151,7 @@ class MyImageWidget extends StatelessWidget {
     };
   }
 
-  static PlaceholderWidgetBuilder getPlaceholder(VoidCallback onPlaceHolder) {
+  static PlaceholderWidgetBuilder? getPlaceholder(VoidCallback? onPlaceHolder) {
     if (onPlaceHolder == null) return null;
     return (context, url) {
       onPlaceHolder();
@@ -160,7 +159,7 @@ class MyImageWidget extends StatelessWidget {
     };
   }
 
-  static LoadingErrorWidgetBuilder getErrorBuilder(VoidCallback onError) {
+  static LoadingErrorWidgetBuilder? getErrorBuilder(VoidCallback? onError) {
     if (onError == null) return null;
     return (context, error, stacktrace) {
       onError();

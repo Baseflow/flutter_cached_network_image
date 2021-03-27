@@ -1,3 +1,6 @@
+## [3.0.0-nullsafety] -2020-01-02
+* Migrate to null safety
+ 
 ## [2.5.0] - 2020-12-22
 * Add support for resizing images in disk cache.
 ```dart

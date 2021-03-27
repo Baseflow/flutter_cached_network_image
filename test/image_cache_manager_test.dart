@@ -23,8 +23,8 @@ void main() {
   setUp(() {});
 
   tearDown(() {
-    PaintingBinding.instance.imageCache.clear();
-    PaintingBinding.instance.imageCache.clearLiveImages();
+    PaintingBinding.instance?.imageCache?.clear();
+    PaintingBinding.instance?.imageCache?.clearLiveImages();
   });
 
   test('Supplying an ImageCacheManager should call getImageFile', () async {
@@ -109,7 +109,7 @@ void main() {
     result.addListener(
         ImageStreamListener((ImageInfo image, bool synchronousCall) {
       imageAvailable.complete();
-    }, onError: (dynamic error, StackTrace stackTrace) {
+    }, onError: (dynamic error, StackTrace? stackTrace) {
       caughtError.complete(error);
     }));
     final dynamic err = await caughtError.future;
@@ -132,7 +132,7 @@ void main() {
     result.addListener(
         ImageStreamListener((ImageInfo image, bool synchronousCall) {
       imageAvailable.complete();
-    }, onError: (dynamic error, StackTrace stackTrace) {
+    }, onError: (dynamic error, StackTrace? stackTrace) {
       caughtError.complete(error);
     }));
     final dynamic err = await caughtError.future;

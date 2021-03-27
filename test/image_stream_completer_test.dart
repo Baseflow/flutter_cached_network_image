@@ -22,7 +22,7 @@ class FakeFrameInfo implements FrameInfo {
   @override
   Image get image => _image;
 
-  int get imageHandleCount => image.debugGetOpenHandleStackTraces().length;
+  int get imageHandleCount => image.debugGetOpenHandleStackTraces()!.length;
 
   FakeFrameInfo clone() {
     return FakeFrameInfo(
@@ -34,10 +34,10 @@ class FakeFrameInfo implements FrameInfo {
 
 class MockCodec implements Codec {
   @override
-  int frameCount;
+  int frameCount = 1;
 
   @override
-  int repetitionCount;
+  int repetitionCount = 1;
 
   int numFramesAsked = 0;
 
@@ -64,7 +64,7 @@ class MockCodec implements Codec {
 
 class FakeEventReportingImageStreamCompleter extends ImageStreamCompleter {
   FakeEventReportingImageStreamCompleter(
-      {Stream<ImageChunkEvent> chunkEvents}) {
+      {Stream<ImageChunkEvent>? chunkEvents}) {
     if (chunkEvents != null) {
       chunkEvents.listen(
         (ImageChunkEvent event) {
@@ -76,9 +76,9 @@ class FakeEventReportingImageStreamCompleter extends ImageStreamCompleter {
 }
 
 void main() {
-  Image image20x10;
-  Image image200x100;
-  Image image300x100;
+  late Image image20x10;
+  late Image image200x100;
+  late Image image300x100;
   setUp(() async {
     image20x10 = await createTestImage(width: 20, height: 10);
     image200x100 = await createTestImage(width: 200, height: 100);
@@ -110,7 +110,7 @@ void main() {
     await tester.idle();
     expect(mockCodec.numFramesAsked, 0);
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     imageStream.addListener(ImageStreamListener(listener));
     await tester.idle();
     expect(mockCodec.numFramesAsked, 1);
@@ -126,7 +126,7 @@ void main() {
       scale: 1.0,
     );
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     imageStream.addListener(ImageStreamListener(listener));
     await tester.idle();
     expect(mockCodec.numFramesAsked, 0);
@@ -147,7 +147,7 @@ void main() {
       scale: 1.0,
     );
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     imageStream.addListener(ImageStreamListener(listener));
     await tester.idle();
     expect(firstCodec.numFramesAsked, 0);
@@ -177,7 +177,7 @@ void main() {
     await tester.idle();
     expect(mockCodec.numFramesAsked, 0);
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     final streamListener = ImageStreamListener(listener);
     imageStream.addListener(streamListener);
     await tester.idle();
@@ -343,7 +343,7 @@ void main() {
       scale: 1.0,
     );
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     imageStream.addListener(ImageStreamListener(listener));
     codecStream.add(mockCodec);
     // MultiImageStreamCompleter only sets an error handler for the next
@@ -536,7 +536,7 @@ void main() {
       scale: 1.0,
     );
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     imageStream.addListener(ImageStreamListener(listener));
     final handle = imageStream.keepAlive();
 
@@ -579,11 +579,11 @@ void main() {
     );
 
     final emittedImages1 = <ImageInfo>[];
-    final ImageListener listener1 = (ImageInfo image, bool synchronousCall) {
+    final listener1 = (ImageInfo image, bool synchronousCall) {
       emittedImages1.add(image);
     };
     final emittedImages2 = <ImageInfo>[];
-    final ImageListener listener2 = (ImageInfo image, bool synchronousCall) {
+    final listener2 = (ImageInfo image, bool synchronousCall) {
       emittedImages2.add(image);
     };
     imageStream.addListener(ImageStreamListener(listener1));
@@ -627,7 +627,7 @@ void main() {
       scale: 1.0,
     );
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     imageStream.addListener(ImageStreamListener(listener));
 
     codecStream.add(mockCodec);
@@ -664,7 +664,7 @@ void main() {
 
     dynamic capturedException;
     final ImageErrorListener errorListener =
-        (dynamic exception, StackTrace stackTrace) {
+        (dynamic exception, StackTrace? stackTrace) {
       capturedException = exception;
     };
 
@@ -699,7 +699,7 @@ void main() {
       scale: 1.0,
     );
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     imageStream.addListener(ImageStreamListener(listener));
 
     codecStream.add(mockCodec);
@@ -735,7 +735,7 @@ void main() {
     );
 
     var onImageCount = 0;
-    final ImageListener activeListener =
+    final activeListener =
         (ImageInfo image, bool synchronousCall) {
       onImageCount += 1;
     };
@@ -747,7 +747,7 @@ void main() {
     expect(lastListenerDropped, false);
     final handle = imageStream.keepAlive();
     expect(lastListenerDropped, false);
-    SchedulerBinding.instance
+    SchedulerBinding.instance!
         .debugAssertNoTransientCallbacks('Only passive listeners');
 
     codecStream.add(mockCodec);
@@ -758,17 +758,17 @@ void main() {
     final frame1 = FakeFrameInfo(Duration.zero, image20x10);
     mockCodec.completeNextFrame(frame1);
     await tester.idle();
-    SchedulerBinding.instance
+    SchedulerBinding.instance!
         .debugAssertNoTransientCallbacks('Only passive listeners');
     await tester.pump();
     expect(onImageCount, 0);
 
     imageStream.addListener(ImageStreamListener(activeListener));
 
-    final frame2 = FakeFrameInfo(Duration.zero, image10x10);
+    final frame2 = FakeFrameInfo(Duration.zero, image10x10!);
     mockCodec.completeNextFrame(frame2);
     await tester.idle();
-    expect(SchedulerBinding.instance.transientCallbackCount, 1);
+    expect(SchedulerBinding.instance!.transientCallbackCount, 1);
     await tester.pump();
 
     expect(onImageCount, 1);
@@ -778,17 +778,17 @@ void main() {
 
     mockCodec.completeNextFrame(frame1);
     await tester.idle();
-    expect(SchedulerBinding.instance.transientCallbackCount, 1);
+    expect(SchedulerBinding.instance!.transientCallbackCount, 1);
     await tester.pump();
 
     expect(onImageCount, 1);
 
-    SchedulerBinding.instance
+    SchedulerBinding.instance!
         .debugAssertNoTransientCallbacks('Only passive listeners');
 
     mockCodec.completeNextFrame(frame2);
     await tester.idle();
-    SchedulerBinding.instance
+    SchedulerBinding.instance!
         .debugAssertNoTransientCallbacks('Only passive listeners');
     await tester.pump();
 
@@ -811,7 +811,7 @@ void main() {
       scale: 1.0,
     );
 
-    final ImageListener listener = (ImageInfo image, bool synchronousCall) {};
+    final listener = (ImageInfo image, bool synchronousCall) {};
     imageStream.addListener(ImageStreamListener(listener));
 
     codecStream.add(firstCodec);
@@ -849,10 +849,5 @@ void main() {
     // Decoding of the 3rd frame should not start as we switched images
     expect(firstCodec.numFramesAsked, 3);
     expect(secondCodec.numFramesAsked, 1);
-  });
-
-  test('Expect assertion error when codec stream is null', () {
-    expect(() => MultiImageStreamCompleter(codec: null, scale: 1.0),
-        throwsAssertionError);
   });
 }

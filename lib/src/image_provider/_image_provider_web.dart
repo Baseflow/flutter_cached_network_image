@@ -26,36 +26,34 @@ class CachedNetworkImageProvider
     this.headers,
     this.cacheManager,
     this.cacheKey,
-    ImageRenderMethodForWeb imageRenderMethodForWeb,
-  })  : _imageRenderMethodForWeb =
-            imageRenderMethodForWeb ?? ImageRenderMethodForWeb.HtmlImage,
-        assert(url != null),
-        assert(scale != null);
+    ImageRenderMethodForWeb? imageRenderMethodForWeb,
+  }) : _imageRenderMethodForWeb =
+            imageRenderMethodForWeb ?? ImageRenderMethodForWeb.HtmlImage;
 
   @override
-  final BaseCacheManager cacheManager;
+  final BaseCacheManager? cacheManager;
 
   @override
   final String url;
 
   @override
-  final String cacheKey;
+  final String? cacheKey;
 
   @override
   final double scale;
 
   /// Listener to be called when images fails to load.
   @override
-  final image_provider.ErrorListener errorListener;
+  final image_provider.ErrorListener? errorListener;
 
   @override
-  final Map<String, String> headers;
+  final Map<String, String>? headers;
 
   @override
-  final int maxHeight;
+  final int? maxHeight;
 
   @override
-  final int maxWidth;
+  final int? maxWidth;
 
   final ImageRenderMethodForWeb _imageRenderMethodForWeb;
 
@@ -78,9 +76,9 @@ class CachedNetworkImageProvider
         informationCollector: _imageStreamInformationCollector(key));
   }
 
-  InformationCollector _imageStreamInformationCollector(
+  InformationCollector? _imageStreamInformationCollector(
       image_provider.CachedNetworkImageProvider key) {
-    InformationCollector collector;
+    InformationCollector? collector;
     assert(() {
       collector = () {
         return <DiagnosticsNode>[
@@ -105,8 +103,6 @@ class CachedNetworkImageProvider
       case ImageRenderMethodForWeb.HtmlImage:
         return loadAsyncHtmlImage(key, chunkEvents, decode).asStream();
     }
-    throw UnsupportedError(
-        'ImageRenderMethod $_imageRenderMethodForWeb is not supported');
   }
 
   Stream<ui.Codec> _loadAsyncHttpGet(
@@ -137,7 +133,7 @@ class CachedNetworkImageProvider
       // have had a chance to track the key in the cache at all.
       // Schedule a microtask to give the cache a chance to add the key.
       scheduleMicrotask(() {
-        PaintingBinding.instance.imageCache.evict(key);
+        PaintingBinding.instance?.imageCache?.evict(key);
       });
 
       errorListener?.call();
