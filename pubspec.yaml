@@ -7,14 +7,14 @@ version: 3.0.0-nullsafety
 dependencies:
   flutter:
     sdk: flutter
-  flutter_cache_manager: ^3.0.0-nullsafety
-  octo_image: ^1.0.0-nullsafety
+  flutter_cache_manager: ^3.0.0
+  octo_image: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^0.0.1-0
-  pedantic: ^1.10.0
+  mocktail: ^0.1.1
+  pedantic: ^1.11.0
   file: ^6.1.0
 
 environment:

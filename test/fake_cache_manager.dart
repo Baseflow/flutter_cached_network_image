@@ -11,15 +11,14 @@ import 'dart:async';
 
 class FakeCacheManager extends Mock implements CacheManager {
   void throwsNotFound(String url) {
-    when(this).calls(#getFileStream).withArgs(
-      positional: [url],
-      named: {
-        #key: any,
-        #headers: any,
-        #withProgress: any,
-      },
-    ).thenThrow(HttpExceptionWithStatus(404, 'Invalid statusCode: 404',
-        uri: Uri.parse(url)));
+    when(() => getFileStream(
+              url,
+              key: any(named: 'key'),
+              headers: any(named: 'headers'),
+              withProgress: any(named: 'withProgress'),
+            ))
+        .thenThrow(HttpExceptionWithStatus(404, 'Invalid statusCode: 404',
+            uri: Uri.parse(url)));
   }
 
   ExpectedData returns(
@@ -33,14 +32,12 @@ class FakeCacheManager extends Mock implements CacheManager {
         Uint8List.fromList(imageData.skip(offset).take(chunkSize).toList()),
     ];
 
-    when(this).calls(#getFileStream).withArgs(
-      positional: [url],
-      named: {
-        #key: any,
-        #headers: any,
-        #withProgress: any,
-      },
-    ).thenAnswer((_) => _createResultStream(
+    when(() => getFileStream(
+          url,
+          key: any(named: 'key'),
+          headers: any(named: 'headers'),
+          withProgress: any(named: 'withProgress'),
+        )).thenAnswer((_) => _createResultStream(
           url,
           chunks,
           imageData,
@@ -88,16 +85,14 @@ class FakeImageCacheManager extends Mock implements ImageCacheManager {
         Uint8List.fromList(imageData.skip(offset).take(chunkSize).toList()),
     ];
 
-    when(this).calls(#getImageFile).withArgs(
-      positional: [url],
-      named: {
-        #key: any,
-        #headers: any,
-        #withProgress: any,
-        #maxHeight: any,
-        #maxWidth: any,
-      },
-    ).thenAnswer((_) => _createResultStream(
+    when(() => getImageFile(
+          url,
+          key: any(named: 'key'),
+          headers: any(named: 'headers'),
+          withProgress: any(named: 'withProgress'),
+          maxHeight: any(named: 'maxHeight'),
+          maxWidth: any(named: 'maxWidth'),
+        )).thenAnswer((_) => _createResultStream(
           url,
           chunks,
           imageData,
@@ -138,7 +133,9 @@ class ExpectedData {
   final int totalSize;
   final int chunkSize;
 
-  const ExpectedData({required this.chunks, required this.totalSize, required
-  this
-      .chunkSize,});
+  const ExpectedData({
+    required this.chunks,
+    required this.totalSize,
+    required this.chunkSize,
+  });
 }

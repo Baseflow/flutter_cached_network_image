@@ -45,25 +45,21 @@ void main() {
     ));
     await imageAvailable.future;
 
-    verify(cacheManager).called(#getImageFile).withArgs(
-      positional: [url],
-      named: {
-        #key: any,
-        #headers: any,
-        #withProgress: any,
-        #maxHeight: any,
-        #maxWidth: any,
-      },
-    ).times(1);
+    verify(() => cacheManager.getImageFile(
+          url,
+          key: any(named: 'key'),
+          headers: any(named: 'headers'),
+          withProgress: any(named: 'withProgress'),
+          maxHeight: any(named: 'maxHeight'),
+          maxWidth: any(named: 'maxWidth'),
+        )).called(1);
 
-    verify(cacheManager).called(#getFileStream).withArgs(
-      positional: [url],
-      named: {
-        #key: any,
-        #headers: any,
-        #withProgress: any,
-      },
-    ).never();
+    verifyNever(() => cacheManager.getFileStream(
+          url,
+          key: any(named: 'key'),
+          headers: any(named: 'headers'),
+          withProgress: any(named: 'withProgress'),
+        ));
   }, skip: isBrowser);
 
   test('Supplying an CacheManager should call getFileStream', () async {
@@ -84,14 +80,12 @@ void main() {
     ));
     await imageAvailable.future;
 
-    verify(cacheManager).called(#getFileStream).withArgs(
-      positional: [url],
-      named: {
-        #key: any,
-        #headers: any,
-        #withProgress: any,
-      },
-    ).times(1);
+    verify(() => cacheManager.getFileStream(
+          url,
+          key: any(named: 'key'),
+          headers: any(named: 'headers'),
+          withProgress: any(named: 'withProgress'),
+        )).called(1);
   }, skip: isBrowser);
 
   test('Supplying an CacheManager with maxHeight throws assertion', () async {
