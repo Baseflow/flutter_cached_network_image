@@ -19,16 +19,15 @@ import 'rendering_tester.dart';
 void main() {
   TestRenderingFlutterBinding();
 
-  FakeCacheManager cacheManager;
+  late FakeCacheManager cacheManager;
 
   setUp(() {
     cacheManager = FakeCacheManager();
   });
 
   tearDown(() {
-    cacheManager = null;
-    PaintingBinding.instance.imageCache.clear();
-    PaintingBinding.instance.imageCache.clearLiveImages();
+    PaintingBinding.instance?.imageCache?.clear();
+    PaintingBinding.instance?.imageCache?.clearLiveImages();
   });
 
   test('Expect thrown exception with statusCode - evicts from cache', () async {
@@ -40,23 +39,23 @@ void main() {
     final ImageProvider imageProvider = CachedNetworkImageProvider(
         nonconst(requestUrl),
         cacheManager: cacheManager);
-    expect(imageCache.pendingImageCount, 0);
-    expect(imageCache.statusForKey(imageProvider).untracked, true);
+    expect(imageCache?.pendingImageCount, 0);
+    expect(imageCache?.statusForKey(imageProvider).untracked, true);
 
     final result = imageProvider.resolve(ImageConfiguration.empty);
 
-    expect(imageCache.pendingImageCount, 1);
-    expect(imageCache.statusForKey(imageProvider).pending, true);
+    expect(imageCache?.pendingImageCount, 1);
+    expect(imageCache?.statusForKey(imageProvider).pending, true);
 
     result.addListener(ImageStreamListener((ImageInfo info, bool syncCall) {},
-        onError: (dynamic error, StackTrace stackTrace) {
+        onError: (dynamic error, StackTrace? stackTrace) {
       caughtError.complete(error);
     }));
 
     final dynamic err = await caughtError.future;
 
-    expect(imageCache.pendingImageCount, 0);
-    expect(imageCache.statusForKey(imageProvider).untracked, true);
+    expect(imageCache?.pendingImageCount, 0);
+    expect(imageCache?.statusForKey(imageProvider).untracked, true);
 
     expect(
       err,
@@ -90,7 +89,7 @@ void main() {
       };
       final result = imageProvider.resolve(ImageConfiguration.empty);
       result.addListener(ImageStreamListener((ImageInfo info, bool syncCall) {},
-          onError: (dynamic error, StackTrace stackTrace) {
+          onError: (dynamic error, StackTrace? stackTrace) {
         caughtError.complete(true);
       }));
       expect(await caughtError.future, true);
@@ -119,7 +118,7 @@ void main() {
       onChunk: (ImageChunkEvent event) {
         events.add(event);
       },
-      onError: (dynamic error, StackTrace stackTrace) {
+      onError: (dynamic error, StackTrace? stackTrace) {
         imageAvailable.completeError(error as Object, stackTrace);
       },
     ));
@@ -133,18 +132,6 @@ void main() {
       expect(events[i].expectedTotalBytes, kTransparentImage.length);
     }
   }, skip: isBrowser); // Browser loads images through <img> not Http.
-
-  test('Expect assertionError when url is null', () {
-    expect(() => CachedNetworkImageProvider(null, cacheManager: cacheManager),
-        throwsAssertionError);
-  });
-
-  test('Expect assertionError when scale is null', () {
-    expect(
-        () => CachedNetworkImageProvider('foo',
-            scale: null, cacheManager: cacheManager),
-        throwsAssertionError);
-  });
 }
 
 class FakeCodec implements Codec {

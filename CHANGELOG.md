@@ -1,3 +1,11 @@
+## [3.0.0] - 2020-03-27
+* Migrate to null safety
+* Fix "Cannot clone a disposed image" error
+* Update dependencies.
+
+## [3.0.0-nullsafety] - 2020-01-02
+* Migrate to null safety
+ 
 ## [2.5.1] - 2021-03-09
 * Update dependencies
 

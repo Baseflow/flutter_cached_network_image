@@ -40,47 +40,47 @@ abstract class CachedNetworkImageProvider
   /// for the benefits of each method.
   const factory CachedNetworkImageProvider(
     String url, {
-    int maxHeight,
-    int maxWidth,
-    String cacheKey,
+    int? maxHeight,
+    int? maxWidth,
+    String? cacheKey,
     double scale,
     @Deprecated('ErrorListener is deprecated, use listeners on the imagestream')
         ErrorListener errorListener,
-    Map<String, String> headers,
-    BaseCacheManager cacheManager,
-    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    Map<String, String>? headers,
+    BaseCacheManager? cacheManager,
+    ImageRenderMethodForWeb? imageRenderMethodForWeb,
   }) = image_provider.CachedNetworkImageProvider;
 
   /// Optional cache manager. If no cache manager is defined DefaultCacheManager()
   /// will be used.
   ///
   /// When running flutter on the web, the cacheManager is not used.
-  BaseCacheManager get cacheManager;
+  BaseCacheManager? get cacheManager;
 
   /// The errorListener is called when the ImageProvider failed loading the
   /// image. Deprecated in favor of [ImageStreamListener.onError].
   @deprecated
-  ErrorListener get errorListener;
+  ErrorListener? get errorListener;
 
   /// The URL from which the image will be fetched.
   String get url;
 
   /// The Key from image for cache
-  String get cacheKey;
+  String? get cacheKey;
 
   /// The scale to place in the [ImageInfo] object of the image.
   double get scale;
 
   /// The HTTP headers that will be used to fetch image from network.
-  Map<String, String> get headers;
+  Map<String, String>? get headers;
 
   /// Max height in pixels for the image. When set the resized image is
   /// stored in the cache.
-  int get maxHeight;
+  int? get maxHeight;
 
   /// Max width in pixels for the image. When set the resized image is
   /// stored in the cache.
-  int get maxWidth;
+  int? get maxWidth;
 
   @override
   ImageStreamCompleter load(
