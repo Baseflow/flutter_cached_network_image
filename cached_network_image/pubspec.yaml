@@ -9,6 +9,11 @@ dependencies:
     sdk: flutter
   flutter_cache_manager: ^3.0.0
   octo_image: ^1.0.0
+  cached_network_image_platform_interface:
+    path: ../cached_network_image_platform_interface
+  cached_network_image_web:
+    path: ../cached_network_image_web
+
 
 dev_dependencies:
   flutter_test:

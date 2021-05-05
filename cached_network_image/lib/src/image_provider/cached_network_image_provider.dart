@@ -1,88 +1,123 @@
-import 'package:flutter/painting.dart';
-import 'package:flutter/widgets.dart';
+import 'dart:async' show Future, StreamController, scheduleMicrotask;
+import 'dart:ui' as ui show Codec;
+
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
+    show ImageRenderMethodForWeb;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-import '_image_provider_io.dart'
-    if (dart.library.html) '_image_provider_web.dart' as image_provider;
+import 'cached_network_image_provider.dart' as image_provider;
+import 'multi_image_stream_completer.dart';
+
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
+    if (dart.library.io) '_image_loader.dart'
+    if (dart.library.html) 'package:cached_network_image_web/cached_network_image_web.dart'
+    show ImageLoader;
 
 /// Function which is called after loading the image failed.
 typedef ErrorListener = void Function();
 
-/// Currently there are 2 different ways to show an image on the web with both
-/// their own pros and cons, using a custom [HttpGet]
-/// or an HTML Image element mentioned [here on a GitHub issue](https://github.com/flutter/flutter/issues/57187#issuecomment-635637494).
-///
-/// When using HttpGet the image will work on Skia and it will use the [CachedNetworkImageProvider.headers]
-/// when they are provided. In this package it also uses any url transformations that might
-/// be executed by the [CachedNetworkImageProvider.cacheManager]. However, this method does require a CORS
-/// handshake and will not just work for every image from the web.
-///
-/// The [HtmlImage] does not need a CORS handshake, but it also does not use your
-/// provided headers and it does not work when using Skia to render the page.
-enum ImageRenderMethodForWeb {
-  /// HtmlImage uses a default web image including default browser caching.
-  /// This is the recommended and default choice.
-  HtmlImage,
+/// IO implementation of the CachedNetworkImageProvider; the ImageProvider to
+/// load network images using a cache.
+class CachedNetworkImageProvider
+    extends ImageProvider<image_provider.CachedNetworkImageProvider> {
+  /// Creates an ImageProvider which loads an image from the [url], using the [scale].
+  /// When the image fails to load [errorListener] is called.
+  const CachedNetworkImageProvider(
+    this.url, {
+    this.maxHeight,
+    this.maxWidth,
+    this.scale = 1.0,
+    this.errorListener,
+    this.headers,
+    this.cacheManager,
+    this.cacheKey,
+    this.imageRenderMethodForWeb = ImageRenderMethodForWeb.HtmlImage,
+  });
 
-  /// HttpGet uses an http client to fetch an image. It enables the use of
-  /// headers, but loses some default web functionality.
-  HttpGet,
-}
+  final BaseCacheManager? cacheManager;
 
-/// An ImageProvider to load images from the network with caching functionality.
-abstract class CachedNetworkImageProvider
-    extends ImageProvider<CachedNetworkImageProvider> {
-  /// Creates an object that fetches the image at the given URL.
-  ///
-  /// The arguments [url] and [scale] must not be null.
-  /// The [imageRenderMethodForWeb] defines the behavior of the ImageProvider
-  /// when compiled for web. See the documentation of [ImageRenderMethodForWeb]
-  /// for the benefits of each method.
-  const factory CachedNetworkImageProvider(
-    String url, {
-    int? maxHeight,
-    int? maxWidth,
-    String? cacheKey,
-    double scale,
-    @Deprecated('ErrorListener is deprecated, use listeners on the imagestream')
-        ErrorListener errorListener,
-    Map<String, String>? headers,
-    BaseCacheManager? cacheManager,
-    ImageRenderMethodForWeb? imageRenderMethodForWeb,
-  }) = image_provider.CachedNetworkImageProvider;
+  /// Web url of the image to load
+  final String url;
 
-  /// Optional cache manager. If no cache manager is defined DefaultCacheManager()
-  /// will be used.
-  ///
-  /// When running flutter on the web, the cacheManager is not used.
-  BaseCacheManager? get cacheManager;
+  /// Cache key of the image to cache
+  final String? cacheKey;
 
-  /// The errorListener is called when the ImageProvider failed loading the
-  /// image. Deprecated in favor of [ImageStreamListener.onError].
-  @deprecated
-  ErrorListener? get errorListener;
+  /// Scale of the image
+  final double scale;
 
-  /// The URL from which the image will be fetched.
-  String get url;
+  /// Listener to be called when images fails to load.
+  final image_provider.ErrorListener? errorListener;
 
-  /// The Key from image for cache
-  String? get cacheKey;
+  /// Set headers for the image provider, for example for authentication
+  final Map<String, String>? headers;
 
-  /// The scale to place in the [ImageInfo] object of the image.
-  double get scale;
+  final int? maxHeight;
 
-  /// The HTTP headers that will be used to fetch image from network.
-  Map<String, String>? get headers;
+  final int? maxWidth;
 
-  /// Max height in pixels for the image. When set the resized image is
-  /// stored in the cache.
-  int? get maxHeight;
+  final ImageRenderMethodForWeb imageRenderMethodForWeb;
 
-  /// Max width in pixels for the image. When set the resized image is
-  /// stored in the cache.
-  int? get maxWidth;
+  @override
+  Future<CachedNetworkImageProvider> obtainKey(
+      ImageConfiguration configuration) {
+    return SynchronousFuture<CachedNetworkImageProvider>(this);
+  }
 
   @override
   ImageStreamCompleter load(
-      CachedNetworkImageProvider key, DecoderCallback decode);
+      image_provider.CachedNetworkImageProvider key, DecoderCallback decode) {
+    final chunkEvents = StreamController<ImageChunkEvent>();
+    return MultiImageStreamCompleter(
+      codec: _loadAsync(key, chunkEvents, decode),
+      chunkEvents: chunkEvents.stream,
+      scale: key.scale,
+      informationCollector: () sync* {
+        yield DiagnosticsProperty<ImageProvider>(
+          'Image provider: $this \n Image key: $key',
+          this,
+          style: DiagnosticsTreeStyle.errorProperty,
+        );
+      },
+    );
+  }
+
+  Stream<ui.Codec> _loadAsync(
+    image_provider.CachedNetworkImageProvider key,
+    StreamController<ImageChunkEvent> chunkEvents,
+    DecoderCallback decode,
+  ) {
+    assert(key == this);
+    return ImageLoader().loadAsync(
+      url,
+      cacheKey,
+      chunkEvents,
+      decode,
+      cacheManager ?? DefaultCacheManager(),
+      maxHeight,
+      maxWidth,
+      headers,
+      errorListener,
+      imageRenderMethodForWeb,
+      () => PaintingBinding.instance?.imageCache?.evict(key),
+    );
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    if (other is CachedNetworkImageProvider) {
+      return ((cacheKey ?? url) == (other.cacheKey ?? other.url)) &&
+          scale == other.scale &&
+          maxHeight == other.maxHeight &&
+          maxWidth == other.maxWidth;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => hashValues(cacheKey ?? url, scale, maxHeight, maxWidth);
+
+  @override
+  String toString() => '$runtimeType("$url", scale: $scale)';
 }
