@@ -7,13 +7,13 @@ version: 3.0.0
 dependencies:
   flutter:
     sdk: flutter
-  flutter_cache_manager: ^3.0.0
-  octo_image: ^1.0.0
+  flutter_cache_manager: ^3.0.1
+  octo_image: ^1.0.0+1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^0.1.1
+  mocktail: ^0.1.2
   pedantic: ^1.11.0
   file: ^6.1.0
 

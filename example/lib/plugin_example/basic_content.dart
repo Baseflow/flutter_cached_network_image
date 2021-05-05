@@ -21,10 +21,9 @@ class BasicContent extends StatelessWidget {
             ),
             _sizedContainer(
               CachedNetworkImage(
-                progressIndicatorBuilder: (context, url, progress) =>
-                  Center(
-                    child: CircularProgressIndicator(
-                  value: progress.progress,
+                progressIndicatorBuilder: (context, url, progress) => Center(
+                  child: CircularProgressIndicator(
+                    value: progress.progress,
                   ),
                 ),
                 imageUrl:
