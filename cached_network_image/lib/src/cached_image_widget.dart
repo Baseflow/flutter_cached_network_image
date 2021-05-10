@@ -228,7 +228,8 @@ class CachedNetworkImage extends StatelessWidget {
     this.cacheKey,
     this.maxWidthDiskCache,
     this.maxHeightDiskCache,
-    ImageRenderMethodForWeb imageRenderMethodForWeb = ImageRenderMethodForWeb.HtmlImage,
+    ImageRenderMethodForWeb imageRenderMethodForWeb =
+        ImageRenderMethodForWeb.HtmlImage,
   })  : _image = CachedNetworkImageProvider(
           imageUrl,
           headers: httpHeaders,

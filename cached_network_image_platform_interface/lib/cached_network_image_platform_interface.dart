@@ -16,21 +16,20 @@ enum ImageRenderMethodForWeb {
   HttpGet,
 }
 
-
 class ImageLoader {
   Stream<ui.Codec> loadAsync(
-      String url,
-      String? cacheKey,
-      StreamController<ImageChunkEvent> chunkEvents,
-      DecoderCallback decode,
-      BaseCacheManager cacheManager,
-      int? maxHeight,
-      int? maxWidth,
-      Map<String, String>? headers,
-      Function()? errorListener,
-      ImageRenderMethodForWeb imageRenderMethodForWeb,
-      Function() evictImage,
-      ) {
+    String url,
+    String? cacheKey,
+    StreamController<ImageChunkEvent> chunkEvents,
+    DecoderCallback decode,
+    BaseCacheManager cacheManager,
+    int? maxHeight,
+    int? maxWidth,
+    Map<String, String>? headers,
+    Function()? errorListener,
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    Function() evictImage,
+  ) {
     throw UnimplementedError();
   }
 }

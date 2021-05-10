@@ -25,7 +25,7 @@ class ImageLoader implements platform.ImageLoader {
     Map<String, String>? headers,
     Function()? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
-      Function() evictImage,
+    Function() evictImage,
   ) async* {
     try {
       assert(
