@@ -1,4 +1,4 @@
-## [3.1.0-alpha.0] - 2021-05-10
+## [3.1.0-alpha.1] - 2021-05-10
 * Separate Web and IO implementations
 
 ## [3.0.0] - 2021-03-27
