@@ -12,6 +12,7 @@ import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart'
     show ImageRenderMethodForWeb;
 
+/// ImageLoader class to load images on IO platforms.
 class ImageLoader implements platform.ImageLoader {
   @override
   Stream<ui.Codec> loadAsync(

@@ -68,8 +68,8 @@ class FakeCacheManager extends Mock implements CacheManager {
     }
     var file = MemoryFileSystem().systemTempDirectory.childFile('test.jpg');
     await file.writeAsBytes(imageData);
-    yield FileInfo(
-        file, FileSource.Online, DateTime.now().add(Duration(days: 1)), url);
+    yield FileInfo(file, FileSource.Online,
+        DateTime.now().add(const Duration(days: 1)), url);
   }
 }
 
@@ -123,8 +123,8 @@ class FakeImageCacheManager extends Mock implements ImageCacheManager {
     }
     var file = MemoryFileSystem().systemTempDirectory.childFile('test.jpg');
     await file.writeAsBytes(imageData);
-    yield FileInfo(
-        file, FileSource.Online, DateTime.now().add(Duration(days: 1)), url);
+    yield FileInfo(file, FileSource.Online,
+        DateTime.now().add(const Duration(days: 1)), url);
   }
 }
 

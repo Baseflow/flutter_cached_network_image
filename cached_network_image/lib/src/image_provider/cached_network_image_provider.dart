@@ -36,6 +36,7 @@ class CachedNetworkImageProvider
     this.imageRenderMethodForWeb = ImageRenderMethodForWeb.HtmlImage,
   });
 
+  /// CacheManager from which the image files are loaded.
   final BaseCacheManager? cacheManager;
 
   /// Web url of the image to load
@@ -53,10 +54,15 @@ class CachedNetworkImageProvider
   /// Set headers for the image provider, for example for authentication
   final Map<String, String>? headers;
 
+  /// Maximum height of the loaded image. If not null and using an
+  /// [ImageCacheManager] the image is resized on disk to fit the height.
   final int? maxHeight;
 
+  /// Maximum width of the loaded image. If not null and using an
+  /// [ImageCacheManager] the image is resized on disk to fit the width.
   final int? maxWidth;
 
+  /// Render option for images on the web platform.
   final ImageRenderMethodForWeb imageRenderMethodForWeb;
 
   @override

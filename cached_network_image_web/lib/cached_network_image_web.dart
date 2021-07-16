@@ -12,12 +12,16 @@ import 'package:cached_network_image_platform_interface'
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:js_util' as js_util;
 import 'dart:typed_data';
 import 'dart:ui' as skia;
 
+/// ImageLoader class to load images on the web platform.
 class ImageLoader implements platform.ImageLoader {
+  @override
   Stream<ui.Codec> loadAsync(
     String url,
     String? cacheKey,
@@ -46,7 +50,7 @@ class ImageLoader implements platform.ImageLoader {
           evictImage,
         );
       case ImageRenderMethodForWeb.HtmlImage:
-        return loadAsyncHtmlImage(url, chunkEvents, decode).asStream();
+        return _loadAsyncHtmlImage(url, chunkEvents, decode).asStream();
     }
   }
 
@@ -93,7 +97,7 @@ class ImageLoader implements platform.ImageLoader {
     }
   }
 
-  Future<ui.Codec> loadAsyncHtmlImage(
+  Future<ui.Codec> _loadAsyncHtmlImage(
     String url,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,
