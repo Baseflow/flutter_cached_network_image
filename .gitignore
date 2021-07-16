@@ -93,3 +93,5 @@ flutter_export_environment.sh
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 example/.flutter-plugins-dependencies
+cached_network_image/example/.flutter-plugins-dependencies
+cached_network_image/example/lib/generated_plugin_registrant.dart
