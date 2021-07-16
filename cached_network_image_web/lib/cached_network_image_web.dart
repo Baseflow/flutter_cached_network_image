@@ -46,7 +46,7 @@ class ImageLoader implements platform.ImageLoader {
           evictImage,
         );
       case ImageRenderMethodForWeb.HtmlImage:
-        return loadAsyncHtmlImage(url, chunkEvents, decode).asStream();
+        return _loadAsyncHtmlImage(url, chunkEvents, decode).asStream();
     }
   }
 
@@ -93,7 +93,7 @@ class ImageLoader implements platform.ImageLoader {
     }
   }
 
-  Future<ui.Codec> loadAsyncHtmlImage(
+  Future<ui.Codec> _loadAsyncHtmlImage(
     String url,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,

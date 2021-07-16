@@ -4,7 +4,7 @@ name: app_facing_package
 # events but only for the develop branch
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, master ]
     paths:
       - 'cached_network_image/**'
   pull_request:
