@@ -1,0 +1,25 @@
+name: cached_network_image
+description: Flutter library to load and cache network images.
+  Can also be used with placeholder and error widgets.
+homepage: https://github.com/Baseflow/flutter_cached_network_image
+version: 3.1.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_cache_manager: ^3.0.0
+  octo_image: ^1.0.0
+  cached_network_image_platform_interface: ^1.0.0
+  cached_network_image_web: ^1.0.0
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^0.1.1
+  pedantic: ^1.11.0
+  file: ^6.1.0
+
+environment:
+  flutter: ">=1.24.0-10.2.pre"
+  sdk: ">=2.12.0 <3.0.0"

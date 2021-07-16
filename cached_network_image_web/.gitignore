@@ -1,6 +1,5 @@
 # Miscellaneous
 *.class
-*.lock
 *.log
 *.pyc
 *.swp
@@ -8,9 +7,7 @@
 .atom/
 .buildlog/
 .history
-.project
 .svn/
-bin/
 
 # IntelliJ related
 *.iml
@@ -18,38 +15,20 @@ bin/
 *.iws
 .idea/
 
-# Android Studio related
-android/.classpath
-android/.settings/
-
-# Visual Studio Code related
-.vscode/
-
-# Flutter repo-specific
-/bin/cache/
-/bin/mingit/
-/dev/benchmarks/mega_gallery/
-/dev/bots/.recipe_deps
-/dev/bots/android_tools/
-/dev/docs/doc/
-/dev/docs/lib/
-/dev/docs/pubspec.yaml
-/packages/flutter/coverage/
-version
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
 .dart_tool/
 .flutter-plugins
+.flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
 build/
-flutter_*.png
-linked_*.ds
-unlinked.ds
-unlinked_spec.ds
-flutter_export_environment.sh
 
 # Android related
 **/android/**/gradle-wrapper.jar
@@ -79,10 +58,12 @@ flutter_export_environment.sh
 **/ios/.generated/
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
 **/ios/Flutter/Generated.xcconfig
 **/ios/Flutter/app.flx
 **/ios/Flutter/app.zip
 **/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 
@@ -91,7 +72,3 @@ flutter_export_environment.sh
 !**/ios/**/default.mode2v3
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
-!/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-example/.flutter-plugins-dependencies
-cached_network_image/example/.flutter-plugins-dependencies
-cached_network_image/example/lib/generated_plugin_registrant.dart
