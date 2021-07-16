@@ -157,12 +157,17 @@ jobs:
         with:
           channel: 'stable'
 
+      # Enable platform support
+      - name: Enable macOS
+        run: flutter config --enable-macos-desktop
+        working-directory: ${{env.source-directory}}
+
       # Download all Flutter packages
       - name: Download dependencies
         run: flutter pub get
         working-directory: ${{env.source-directory}}
 
-      # Build iOS version of the example App
+      # Build macOS version of the example App
       - name: Run macOS build
         run: flutter build macos --release
         working-directory: ${{env.example-directory}}
@@ -187,13 +192,18 @@ jobs:
         with:
           channel: 'stable'
 
+      # Enable platform support
+      - name: Enable Windows
+        run: flutter config --enable-windows-desktop
+        working-directory: ${{env.source-directory}}
+
       # Download all Flutter packages
       - name: Download dependencies
         run: flutter pub get
         working-directory: ${{env.source-directory}}
 
       # Build iOS version of the example App
-      - name: Run macOS build
+      - name: Run Windows build
         run: flutter build windows --release
         working-directory: ${{env.example-directory}}
 
@@ -217,13 +227,18 @@ jobs:
         with:
           channel: 'stable'
 
+      # Enable platform support
+      - name: Enable Linux
+        run: flutter config --enable-linux-desktop
+        working-directory: ${{env.source-directory}}
+
       # Download all Flutter packages
       - name: Download dependencies
         run: flutter pub get
         working-directory: ${{env.source-directory}}
 
       # Build iOS version of the example App
-      - name: Run macOS build
+      - name: Run Linux build
         run: flutter build linux --release
         working-directory: ${{env.example-directory}}
 
