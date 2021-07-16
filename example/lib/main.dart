@@ -52,14 +52,14 @@ class BaseflowPluginExample extends StatelessWidget {
           filled: true,
         ),
       ),
-      home: AppHome(title: 'Baseflow $pluginName example app'),
+      home: AppHome(),
     );
   }
 
   /// Creates a [MaterialColor] based on the supplied [Color]
   static MaterialColor createMaterialColor(Color color) {
     List strengths = <double>[.05];
-    Map swatch = <int, Color>{};
+    final swatch = <int, Color>{};
     final r = color.red, g = color.green, b = color.blue;
 
     for (var i = 1; i < 10; i++) {
@@ -81,11 +81,7 @@ class BaseflowPluginExample extends StatelessWidget {
 /// A Flutter example demonstrating how the [pluginName] plugin could be used
 class AppHome extends StatefulWidget {
   /// Constructs the [AppHome] class
-  AppHome({Key key, this.title}) : super(key: key);
-
-  /// The [title] of the application, which is shown in the application's
-  /// title bar.
-  final String title;
+  AppHome({Key? key}) : super(key: key);
 
   @override
   _AppHomeState createState() => _AppHomeState();

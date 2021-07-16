@@ -156,8 +156,6 @@ void layout(
   EnginePhase phase = EnginePhase.layout,
   VoidCallback? onErrors,
 }) {
-  assert(box !=
-      null); // If you want to just repump the last box, call pumpFrame().
   assert(box.parent ==
       null); // We stick the box in another, so you can't reuse it easily, sorry.
 
@@ -181,8 +179,6 @@ void layout(
 /// If `onErrors` is not null, it is set as [TestRenderingFlutterBinding.onError].
 void pumpFrame(
     {EnginePhase phase = EnginePhase.layout, VoidCallback? onErrors}) {
-  assert(renderer != null);
-  assert(renderer.renderView != null);
   assert(renderer.renderView.child != null); // call layout() first!
 
   if (onErrors != null) {
