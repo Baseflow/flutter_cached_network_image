@@ -137,6 +137,96 @@ jobs:
         run: flutter build ios --release --no-codesign
         working-directory: ${{env.example-directory}}
 
+  build_macOS:
+    name: Build macOS App
+
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    env:
+      source-directory: ./cached_network_image
+      example-directory: ./cached_network_image/example
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Make sure the stable version of Flutter is available
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+
+      # Download all Flutter packages
+      - name: Download dependencies
+        run: flutter pub get
+        working-directory: ${{env.source-directory}}
+
+      # Build iOS version of the example App
+      - name: Run macOS build
+        run: flutter build macos --release
+        working-directory: ${{env.example-directory}}
+
+  build_windows:
+    name: Build Windows App
+
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    env:
+      source-directory: ./cached_network_image
+      example-directory: ./cached_network_image/example
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Make sure the stable version of Flutter is available
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+
+      # Download all Flutter packages
+      - name: Download dependencies
+        run: flutter pub get
+        working-directory: ${{env.source-directory}}
+
+      # Build iOS version of the example App
+      - name: Run macOS build
+        run: flutter build windows --release
+        working-directory: ${{env.example-directory}}
+
+  build_linux:
+    name: Build Linux App
+
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    env:
+      source-directory: ./cached_network_image
+      example-directory: ./cached_network_image/example
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Make sure the stable version of Flutter is available
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+
+      # Download all Flutter packages
+      - name: Download dependencies
+        run: flutter pub get
+        working-directory: ${{env.source-directory}}
+
+      # Build iOS version of the example App
+      - name: Run macOS build
+        run: flutter build linux --release
+        working-directory: ${{env.example-directory}}
+
   build_web:
     name: Build Web App
 
