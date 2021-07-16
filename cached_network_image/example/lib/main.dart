@@ -19,8 +19,10 @@ void main() {
 
 /// Demonstrates a [StatelessWidget] containing [CachedNetworkImage]
 class BasicContent extends StatelessWidget {
+  const BasicContent({Key? key}) : super(key: key);
+
   static ExamplePage createPage() {
-    return ExamplePage(Icons.image, (context) => BasicContent());
+    return ExamplePage(Icons.image, (context) => const BasicContent());
   }
 
   @override
@@ -145,8 +147,10 @@ class BasicContent extends StatelessWidget {
 
 /// Demonstrates a [ListView] containing [CachedNetworkImage]
 class ListContent extends StatelessWidget {
+  const ListContent({Key? key}) : super(key: key);
+
   static ExamplePage createPage() {
-    return ExamplePage(Icons.list, (context) => ListContent());
+    return ExamplePage(Icons.list, (context) => const ListContent());
   }
 
   @override
@@ -173,8 +177,10 @@ class ListContent extends StatelessWidget {
 
 /// Demonstrates a [GridView] containing [CachedNetworkImage]
 class GridContent extends StatelessWidget {
+  const GridContent({Key? key}) : super(key: key);
+
   static ExamplePage createPage() {
-    return ExamplePage(Icons.grid_on, (context) => GridContent());
+    return ExamplePage(Icons.grid_on, (context) => const GridContent());
   }
 
   @override
@@ -198,7 +204,6 @@ class GridContent extends StatelessWidget {
   }
 
   Widget _error(BuildContext context, String url, dynamic error) {
-    print(error);
     return const Center(child: Icon(Icons.error));
   }
 }

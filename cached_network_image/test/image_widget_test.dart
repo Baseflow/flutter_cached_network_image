@@ -100,7 +100,7 @@ void main() {
     testWidgets('progressIndicator called several times', (tester) async {
       var imageUrl = '7891';
       // Create the widget by telling the tester to build it.
-      var delay = Duration(milliseconds: 1);
+      var delay = const Duration(milliseconds: 1);
       var expectedResult = cacheManager.returns(
         imageUrl,
         kTransparentImage,
@@ -147,7 +147,7 @@ class MyImageWidget extends StatelessWidget {
     if (onProgress == null) return null;
     return (context, url, progress) {
       onProgress();
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     };
   }
 
@@ -155,7 +155,7 @@ class MyImageWidget extends StatelessWidget {
     if (onPlaceHolder == null) return null;
     return (context, url) {
       onPlaceHolder();
-      return Placeholder();
+      return const Placeholder();
     };
   }
 
@@ -163,7 +163,7 @@ class MyImageWidget extends StatelessWidget {
     if (onError == null) return null;
     return (context, error, stacktrace) {
       onError();
-      return Icon(Icons.error);
+      return const Icon(Icons.error);
     };
   }
 
