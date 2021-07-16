@@ -69,6 +69,7 @@ class CachedNetworkImageProvider
   ImageStreamCompleter load(
       image_provider.CachedNetworkImageProvider key, DecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
+    print('test');
     return MultiImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
