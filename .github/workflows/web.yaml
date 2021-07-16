@@ -97,7 +97,7 @@ jobs:
 
       # Run all unit-tests with code coverage
       - name: Run unit tests
-        run: flutter test --coverage
+        run: flutter test --coverage --platform chrome
         working-directory: ${{env.source-directory}}
 
       # Upload code coverage information
