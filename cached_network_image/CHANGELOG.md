@@ -1,9 +1,12 @@
-## [3.0.0] - 2020-03-27
+## [3.1.0] - 2021-07-16
+* Separate Web and IO implementations
+
+## [3.0.0] - 2021-03-27
 * Migrate to null safety
 * Fix "Cannot clone a disposed image" error
 * Update dependencies.
 
-## [3.0.0-nullsafety] - 2020-01-02
+## [3.0.0-nullsafety] - 2021-01-02
 * Migrate to null safety
  
 ## [2.5.0] - 2020-12-22
