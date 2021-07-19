@@ -227,9 +227,16 @@ jobs:
         with:
           channel: 'stable'
 
+      - uses: seanmiddleditch/gha-setup-ninja@master
+
       # Enable platform support
       - name: Enable Linux
         run: flutter config --enable-linux-desktop
+        working-directory: ${{env.source-directory}}
+
+      # Enable platform support
+      - name: Flutter Doctor
+        run: flutter doctor
         working-directory: ${{env.source-directory}}
 
       # Download all Flutter packages
