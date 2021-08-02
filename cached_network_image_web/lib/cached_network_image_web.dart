@@ -12,13 +12,6 @@ import 'package:cached_network_image_platform_interface'
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js_util' as js_util;
-import 'dart:typed_data';
-import 'dart:ui' as skia;
-
 /// ImageLoader class to load images on the web platform.
 class ImageLoader implements platform.ImageLoader {
   @override
@@ -102,36 +95,19 @@ class ImageLoader implements platform.ImageLoader {
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,
   ) {
-    return _getImage(url);
-  }
+    final resolved = Uri.base.resolve(url);
 
-  Future<skia.Codec> _getImage(String url) {
-    final completer = Completer<skia.Codec>();
-
-    final imgElement = html.ImageElement()
-      ..src = url
-      ..crossOrigin = 'anonymous';
-    js_util.setProperty(imgElement, 'decoding', 'async');
-    imgElement.decode().then((_) async {
-      final canvas = html.CanvasElement(
-          width: imgElement.naturalWidth, height: imgElement.naturalHeight);
-      canvas.context2D.drawImage(imgElement, 0, 0);
-      final blob = await canvas.toBlob('image/png');
-      final data = await _getBlobData(blob);
-      final codec = await skia.instantiateImageCodec(data);
-      completer.complete(codec);
-    }).catchError((err) {
-      completer.completeError(err);
-    });
-
-    return completer.future;
-  }
-
-  Future<Uint8List> _getBlobData(html.Blob blob) {
-    final completer = Completer<Uint8List>();
-    final reader = html.FileReader();
-    reader.readAsArrayBuffer(blob);
-    reader.onLoad.listen((_) => completer.complete(reader.result as Uint8List));
-    return completer.future;
+    // ignore: undefined_function
+    return ui.webOnlyInstantiateImageCodecFromUrl(
+      resolved,
+      chunkCallback: (int bytes, int total) {
+        chunkEvents.add(
+          ImageChunkEvent(
+            cumulativeBytesLoaded: bytes,
+            expectedTotalBytes: total,
+          ),
+        );
+      },
+    ) as Future<ui.Codec>;
   }
 }
