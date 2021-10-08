@@ -5,7 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart' as platform
-    show ImageLoader;
+    show ImageBytesBeforeDecoding, ImageLoader;
 import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart'
     show ImageRenderMethodForWeb;
@@ -27,6 +27,7 @@ class ImageLoader implements platform.ImageLoader {
     Function()? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
+    platform.ImageBytesBeforeDecoding? beforeDecoding,
   ) {
     switch (imageRenderMethodForWeb) {
       case ImageRenderMethodForWeb.HttpGet:
@@ -41,6 +42,7 @@ class ImageLoader implements platform.ImageLoader {
           headers,
           errorListener,
           evictImage,
+          beforeDecoding,
         );
       case ImageRenderMethodForWeb.HtmlImage:
         return _loadAsyncHtmlImage(url, chunkEvents, decode).asStream();
@@ -58,6 +60,7 @@ class ImageLoader implements platform.ImageLoader {
     Map<String, String>? headers,
     Function()? errorListener,
     Function() evictImage,
+    platform.ImageBytesBeforeDecoding? beforeDecoding,
   ) async* {
     try {
       await for (var result in cacheManager.getFileStream(url,
@@ -71,6 +74,9 @@ class ImageLoader implements platform.ImageLoader {
         if (result is FileInfo) {
           var file = result.file;
           var bytes = await file.readAsBytes();
+          if (beforeDecoding != null) {
+            bytes = await beforeDecoding(bytes, url);
+          }
           var decoded = await decode(bytes);
           yield decoded;
         }

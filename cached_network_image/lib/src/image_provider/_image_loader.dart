@@ -10,7 +10,7 @@ import 'package:cached_network_image_platform_interface'
     show ImageLoader;
 import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart'
-    show ImageRenderMethodForWeb;
+    show ImageRenderMethodForWeb, ImageBytesBeforeDecoding;
 
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader implements platform.ImageLoader {
@@ -27,6 +27,7 @@ class ImageLoader implements platform.ImageLoader {
     Function()? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
+    ImageBytesBeforeDecoding? beforeDecoding,
   ) async* {
     try {
       assert(
@@ -56,6 +57,9 @@ class ImageLoader implements platform.ImageLoader {
         if (result is FileInfo) {
           var file = result.file;
           var bytes = await file.readAsBytes();
+          if (beforeDecoding != null) {
+            bytes = await beforeDecoding(bytes, url);
+          }
           var decoded = await decode(bytes);
           yield decoded;
         }

@@ -2,7 +2,7 @@ import 'dart:async' show Future, StreamController;
 import 'dart:ui' as ui show Codec;
 
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
-    show ImageRenderMethodForWeb;
+    show ImageBytesBeforeDecoding, ImageRenderMethodForWeb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -34,6 +34,7 @@ class CachedNetworkImageProvider
     this.cacheManager,
     this.cacheKey,
     this.imageRenderMethodForWeb = ImageRenderMethodForWeb.HtmlImage,
+    this.beforeDecoding,
   });
 
   /// CacheManager from which the image files are loaded.
@@ -64,6 +65,8 @@ class CachedNetworkImageProvider
 
   /// Render option for images on the web platform.
   final ImageRenderMethodForWeb imageRenderMethodForWeb;
+
+  final ImageBytesBeforeDecoding? beforeDecoding;
 
   @override
   Future<CachedNetworkImageProvider> obtainKey(
@@ -107,6 +110,7 @@ class CachedNetworkImageProvider
       errorListener,
       imageRenderMethodForWeb,
       () => PaintingBinding.instance?.imageCache?.evict(key),
+      beforeDecoding,
     );
   }
 
