@@ -6,6 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:octo_image/octo_image.dart';
 
+import 'image_provider/cached_resize_image.dart';
+
 /// Builder function to create an image widget. The function is called after
 /// the ImageProvider completes the image loading.
 typedef ImageWidgetBuilder = Widget Function(
@@ -230,15 +232,15 @@ class CachedNetworkImage extends StatelessWidget {
     this.maxHeightDiskCache,
     ImageRenderMethodForWeb imageRenderMethodForWeb =
         ImageRenderMethodForWeb.HtmlImage,
-  })  : _image = CachedNetworkImageProvider(
-          imageUrl,
-          headers: httpHeaders,
-          cacheManager: cacheManager,
-          cacheKey: cacheKey,
-          imageRenderMethodForWeb: imageRenderMethodForWeb,
-          maxWidth: maxWidthDiskCache,
-          maxHeight: maxHeightDiskCache,
-        ),
+  })  : _image = CachedNetworkImageProvider(imageUrl,
+            headers: httpHeaders,
+            cacheManager: cacheManager,
+            cacheKey: cacheKey,
+            imageRenderMethodForWeb: imageRenderMethodForWeb,
+            maxWidth: maxWidthDiskCache,
+            maxHeight: maxHeightDiskCache,
+            memCacheHeight: memCacheHeight,
+            memCacheWidth: memCacheWidth),
         super(key: key);
 
   @override
@@ -257,7 +259,8 @@ class CachedNetworkImage extends StatelessWidget {
     }
 
     return OctoImage(
-      image: _image,
+      image: CachedResizeImage.resizeIfNeeded(
+          memCacheWidth, memCacheHeight, _image),
       imageBuilder: imageBuilder != null ? _octoImageBuilder : null,
       placeholderBuilder: octoPlaceholderBuilder,
       progressIndicatorBuilder: octoProgressIndicatorBuilder,
@@ -277,8 +280,6 @@ class CachedNetworkImage extends StatelessWidget {
       colorBlendMode: colorBlendMode,
       placeholderFadeInDuration: placeholderFadeInDuration,
       gaplessPlayback: useOldImageOnUrlChange,
-      memCacheWidth: memCacheWidth,
-      memCacheHeight: memCacheHeight,
     );
   }
 
