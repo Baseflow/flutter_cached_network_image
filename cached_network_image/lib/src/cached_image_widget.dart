@@ -39,6 +39,13 @@ typedef LoadingErrorWidgetBuilder = Widget Function(
 
 /// Image widget to show NetworkImage with caching functionality.
 class CachedNetworkImage extends StatelessWidget {
+  /// Get the current log level of the cache manager.
+  static CacheManagerLogLevel get logLevel => CacheManager.logLevel;
+
+  /// Set the log level of the cache manager to a [CacheManagerLogLevel].
+  static set logLevel(CacheManagerLogLevel level) =>
+      CacheManager.logLevel = level;
+
   /// Evict an image from both the disk file based caching system of the
   /// [BaseCacheManager] as the in memory [ImageCache] of the [ImageProvider].
   /// [url] is used by both the disk and memory cache. The scale is only used

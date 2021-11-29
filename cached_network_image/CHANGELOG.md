@@ -1,3 +1,10 @@
+## [3.2.0] - 2021-11-29
+* Add option to set the log level of the cache manager, for example:
+```dart
+CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
+```
+* Update cache manager dependency.
+
 ## [3.1.0+1] - 2021-11-04
 * Update Readme
 
