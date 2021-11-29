@@ -17,6 +17,22 @@ void main() {
     PaintingBinding.instance?.imageCache?.clearLiveImages();
   });
 
+  group('test logger', () {
+    test('set log level', () {
+      CachedNetworkImage.logLevel = CacheManagerLogLevel.verbose;
+      expect(CachedNetworkImage.logLevel, CacheManagerLogLevel.verbose);
+
+      CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
+      expect(CachedNetworkImage.logLevel, CacheManagerLogLevel.debug);
+
+      CachedNetworkImage.logLevel = CacheManagerLogLevel.warning;
+      expect(CachedNetworkImage.logLevel, CacheManagerLogLevel.warning);
+
+      CachedNetworkImage.logLevel = CacheManagerLogLevel.none;
+      expect(CachedNetworkImage.logLevel, CacheManagerLogLevel.none);
+    });
+  });
+
   group('widget tests', () {
     testWidgets('progress indicator called when success', (tester) async {
       var imageUrl = '123';
