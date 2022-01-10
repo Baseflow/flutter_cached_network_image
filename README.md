@@ -8,7 +8,7 @@ A flutter library to show images from the internet and keep them in the cache di
 
 
 ## Sponsors 
- <a href="https://getstream.io/chat/flutter/tutorial/?utm_source=github&utm_medium=github_rep[%E2%80%A6]&utm_content=Developer&utm_campaign=Github_Oct2021_FlutterChat" target="_blank"><img width="250px" src="https://stream-blog.s3.amazonaws.com/blog/wp-content/uploads/fc148f0fc75d02841d017bb36e14e388/Stream-logo-with-background-.png"/></a><br/><span><a href="https://getstream.io/chat/flutter/tutorial/?utm_source=github&utm_medium=github_rep[%E2%80%A6]&utm_content=Developer&utm_campaign=Github_Oct2021_FlutterChat" target="_blank">Try the Flutter Chat Tutorial 💬</a></span>
+ <a href="https://getstream.io/chat/flutter/tutorial/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_FlutterChat&utm_term=renefloor" target="_blank"><img width="250px" src="https://stream-blog.s3.amazonaws.com/blog/wp-content/uploads/fc148f0fc75d02841d017bb36e14e388/Stream-logo-with-background-.png"/></a><br/><span><a href="https://getstream.io/chat/flutter/tutorial/?utm_source=Github&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=Github_Jan2022_FlutterChat&utm_term=renefloor" target="_blank">Try the Flutter Chat Tutorial 💬</a></span>
         
         
 
