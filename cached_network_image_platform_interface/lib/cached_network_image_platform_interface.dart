@@ -1,6 +1,7 @@
 library cached_network_image_platform_interface;
 
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -16,6 +17,12 @@ enum ImageRenderMethodForWeb {
   /// headers, but loses some default web functionality.
   HttpGet, // ignore: constant_identifier_names
 }
+
+///
+typedef ImageBytesBeforeDecoding = Future<Uint8List> Function(
+  Uint8List bytes,
+  String url,
+);
 
 /// ImageLoader class to load images differently on various platforms.
 class ImageLoader {
@@ -33,6 +40,7 @@ class ImageLoader {
     Function()? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
+    ImageBytesBeforeDecoding? beforeDecoding,
   ) {
     throw UnimplementedError();
   }

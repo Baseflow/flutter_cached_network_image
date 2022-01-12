@@ -24,7 +24,8 @@ void main() {
         null,
         null,
         ImageRenderMethodForWeb.HttpGet,
-        () => {});
+        () => {},
+        null);
     expect(stream, isNotNull);
   });
 }
