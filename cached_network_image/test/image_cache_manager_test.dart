@@ -15,8 +15,8 @@ void main() {
   setUp(() {});
 
   tearDown(() {
-    PaintingBinding.instance?.imageCache?.clear();
-    PaintingBinding.instance?.imageCache?.clearLiveImages();
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
   });
 
   test('Supplying an ImageCacheManager should call getImageFile', () async {
