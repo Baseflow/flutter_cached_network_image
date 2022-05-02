@@ -748,8 +748,7 @@ void main() {
     expect(lastListenerDropped, false);
     final handle = imageStream.keepAlive();
     expect(lastListenerDropped, false);
-    SchedulerBinding.instance!
-        .debugAssertNoTransientCallbacks('Only passive listeners');
+    SchedulerBinding.instance.debugAssertNoTransientCallbacks('Only passive listeners');
 
     codecStream.add(mockCodec);
     await tester.idle();
@@ -759,8 +758,7 @@ void main() {
     final frame1 = FakeFrameInfo(Duration.zero, image20x10);
     mockCodec.completeNextFrame(frame1);
     await tester.idle();
-    SchedulerBinding.instance!
-        .debugAssertNoTransientCallbacks('Only passive listeners');
+    SchedulerBinding.instance.debugAssertNoTransientCallbacks('Only passive listeners');
     await tester.pump();
     expect(onImageCount, 0);
 
@@ -769,7 +767,7 @@ void main() {
     final frame2 = FakeFrameInfo(Duration.zero, image10x10!);
     mockCodec.completeNextFrame(frame2);
     await tester.idle();
-    expect(SchedulerBinding.instance!.transientCallbackCount, 1);
+    expect(SchedulerBinding.instance.transientCallbackCount, 1);
     await tester.pump();
 
     expect(onImageCount, 1);
@@ -779,18 +777,16 @@ void main() {
 
     mockCodec.completeNextFrame(frame1);
     await tester.idle();
-    expect(SchedulerBinding.instance!.transientCallbackCount, 1);
+    expect(SchedulerBinding.instance.transientCallbackCount, 1);
     await tester.pump();
 
     expect(onImageCount, 1);
 
-    SchedulerBinding.instance!
-        .debugAssertNoTransientCallbacks('Only passive listeners');
+    SchedulerBinding.instance.debugAssertNoTransientCallbacks('Only passive listeners');
 
     mockCodec.completeNextFrame(frame2);
     await tester.idle();
-    SchedulerBinding.instance!
-        .debugAssertNoTransientCallbacks('Only passive listeners');
+    SchedulerBinding.instance.debugAssertNoTransientCallbacks('Only passive listeners');
     await tester.pump();
 
     expect(onImageCount, 1);
