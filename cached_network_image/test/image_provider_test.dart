@@ -26,8 +26,8 @@ void main() {
   });
 
   tearDown(() {
-    PaintingBinding.instance?.imageCache?.clear();
-    PaintingBinding.instance?.imageCache?.clearLiveImages();
+    PaintingBinding.instance.imageCache?.clear();
+    PaintingBinding.instance.imageCache?.clearLiveImages();
   });
 
   test('Expect thrown exception with statusCode - evicts from cache', () async {
