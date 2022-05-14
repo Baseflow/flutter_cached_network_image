@@ -21,5 +21,6 @@ dev_dependencies:
   file: ^6.1.0
 
 environment:
-  flutter: ">=1.24.0-10.2.pre"
-  sdk: ">=3.0.0"
+  flutter: ">=3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
+  
