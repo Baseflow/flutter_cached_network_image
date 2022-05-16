@@ -2,7 +2,7 @@ name: example
 description: A new Flutter project.
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -11,7 +11,7 @@ dependencies:
     path: ../
   baseflow_plugin_template:
     git:
-      url: git://github.com/Baseflow/baseflow_plugin_template.git
+      url: https://github.com/Baseflow/baseflow_plugin_template.git
       ref: v2.1.0
 
   # The following adds the Cupertino Icons font to your application.
