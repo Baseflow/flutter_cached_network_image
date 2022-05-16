@@ -7,7 +7,6 @@ import 'dart:math' as math;
 import 'dart:ui' show Codec, FrameInfo;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,8 +25,8 @@ void main() {
   });
 
   tearDown(() {
-    PaintingBinding.instance?.imageCache?.clear();
-    PaintingBinding.instance?.imageCache?.clearLiveImages();
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
   });
 
   test('Expect thrown exception with statusCode - evicts from cache', () async {
@@ -39,13 +38,13 @@ void main() {
     final ImageProvider imageProvider = CachedNetworkImageProvider(
         nonconst(requestUrl),
         cacheManager: cacheManager);
-    expect(imageCache?.pendingImageCount, 0);
-    expect(imageCache?.statusForKey(imageProvider).untracked, true);
+    expect(imageCache.pendingImageCount, 0);
+    expect(imageCache.statusForKey(imageProvider).untracked, true);
 
     final result = imageProvider.resolve(ImageConfiguration.empty);
 
-    expect(imageCache?.pendingImageCount, 1);
-    expect(imageCache?.statusForKey(imageProvider).pending, true);
+    expect(imageCache.pendingImageCount, 1);
+    expect(imageCache.statusForKey(imageProvider).pending, true);
 
     result.addListener(ImageStreamListener((ImageInfo info, bool syncCall) {},
         onError: (dynamic error, StackTrace? stackTrace) {
@@ -54,8 +53,8 @@ void main() {
 
     final dynamic err = await caughtError.future;
 
-    expect(imageCache?.pendingImageCount, 0);
-    expect(imageCache?.statusForKey(imageProvider).untracked, true);
+    expect(imageCache.pendingImageCount, 0);
+    expect(imageCache.statusForKey(imageProvider).untracked, true);
 
     expect(
       err,
