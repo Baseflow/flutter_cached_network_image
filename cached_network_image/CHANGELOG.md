@@ -1,3 +1,6 @@
+## [3.2.1] - 2022-05-16
+* Update to Flutter 3
+
 ## [3.2.0] - 2021-11-29
 * Add option to set the log level of the cache manager, for example:
 ```dart
