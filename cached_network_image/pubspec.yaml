@@ -8,7 +8,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_cache_manager: ^3.3.0
-  octo_image: ^1.0.0
+  octo_image: ^1.0.2
   cached_network_image_platform_interface: ^1.0.0
   cached_network_image_web: ^1.0.0
 
@@ -16,8 +16,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^0.1.1
-  flutter_lints: ^1.0.4
+  mocktail: ^0.3.0
+  flutter_lints: ^2.0.1
   file: ^6.1.0
 
 environment:
