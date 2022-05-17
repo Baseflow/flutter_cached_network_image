@@ -254,7 +254,7 @@ class CachedNetworkImage extends StatelessWidget {
     var octoProgressIndicatorBuilder =
         progressIndicatorBuilder != null ? _octoProgressIndicatorBuilder : null;
 
-    ///If there is no placeholer OctoImage does not fade, so always set an
+    ///If there is no placeholder OctoImage does not fade, so always set an
     ///(empty) placeholder as this always used to be the behaviour of
     ///CachedNetworkImage.
     if (octoPlaceholderBuilder == null &&
