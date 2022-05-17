@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:baseflow_plugin_template/baseflow_plugin_template.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 
 void main() {
