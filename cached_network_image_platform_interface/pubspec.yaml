@@ -1,6 +1,6 @@
 name: cached_network_image_platform_interface
 description: Platform interface for CachedNetworkImage
-version: 1.0.0
+version: 2.0.0
 homepage: https://github.com/Baseflow/flutter_cached_network_image
 
 environment:

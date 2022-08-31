@@ -9,16 +9,8 @@ dependencies:
     sdk: flutter
   flutter_cache_manager: ^3.3.0
   octo_image: ^1.0.0
-  cached_network_image_platform_interface:
-    git:
-      url: https://github.com/Baseflow/flutter_cached_network_image.git
-      ref: 97fbb84e4149e0fce8d8641c57d742531371407d
-      path: cached_network_image_platform_interface
-  cached_network_image_web:
-    git:
-      url: https://github.com/Baseflow/flutter_cached_network_image.git
-      ref: 66e18eb5c9b89dd457a776e656bb6663cb9a784d
-      path: cached_network_image_web
+  cached_network_image_platform_interface: ^2.0.0
+  cached_network_image_web: ^1.0.2
 
 
 dev_dependencies:

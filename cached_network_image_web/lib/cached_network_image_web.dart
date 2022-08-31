@@ -31,23 +31,19 @@ class ImageLoader implements platform.ImageLoader {
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
   ) {
-    switch (imageRenderMethodForWeb) {
-      case ImageRenderMethodForWeb.HttpGet:
-        return _loadAsyncHttpGet(
-          url,
-          cacheKey,
-          chunkEvents,
-          decode,
-          cacheManager,
-          maxHeight,
-          maxWidth,
-          headers,
-          errorListener,
-          evictImage,
-        );
-      case ImageRenderMethodForWeb.HtmlImage:
-        return _loadAsyncHtmlImage(url, chunkEvents).asStream();
-    }
+    return _load(
+      url,
+      cacheKey,
+      chunkEvents,
+      decode,
+      cacheManager,
+      maxHeight,
+      maxWidth,
+      headers,
+      errorListener,
+      imageRenderMethodForWeb,
+      evictImage,
+    );
   }
 
   @override
@@ -64,7 +60,7 @@ class ImageLoader implements platform.ImageLoader {
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
   ) {
-    _load(
+    return _load(
       url,
       cacheKey,
       chunkEvents,
