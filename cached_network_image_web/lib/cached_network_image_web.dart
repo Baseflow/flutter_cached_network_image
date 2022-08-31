@@ -1,7 +1,9 @@
 library cached_network_image_web;
 
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart' as platform
@@ -14,12 +16,73 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// ImageLoader class to load images on the web platform.
 class ImageLoader implements platform.ImageLoader {
+  @Deprecated('use loadBufferAsync instead')
   @override
   Stream<ui.Codec> loadAsync(
     String url,
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderCallback decode,
+    BaseCacheManager cacheManager,
+    int? maxHeight,
+    int? maxWidth,
+    Map<String, String>? headers,
+    Function()? errorListener,
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    Function() evictImage,
+  ) {
+    return _load(
+      url,
+      cacheKey,
+      chunkEvents,
+      decode,
+      cacheManager,
+      maxHeight,
+      maxWidth,
+      headers,
+      errorListener,
+      imageRenderMethodForWeb,
+      evictImage,
+    );
+  }
+
+  @override
+  Stream<ui.Codec> loadBufferAsync(
+    String url,
+    String? cacheKey,
+    StreamController<ImageChunkEvent> chunkEvents,
+    DecoderBufferCallback decode,
+    BaseCacheManager cacheManager,
+    int? maxHeight,
+    int? maxWidth,
+    Map<String, String>? headers,
+    Function()? errorListener,
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    Function() evictImage,
+  ) {
+    return _load(
+      url,
+      cacheKey,
+      chunkEvents,
+      (bytes) async {
+        final buffer = await ImmutableBuffer.fromUint8List(bytes);
+        return decode(buffer);
+      },
+      cacheManager,
+      maxHeight,
+      maxWidth,
+      headers,
+      errorListener,
+      imageRenderMethodForWeb,
+      evictImage,
+    );
+  }
+
+  Stream<ui.Codec> _load(
+    String url,
+    String? cacheKey,
+    StreamController<ImageChunkEvent> chunkEvents,
+    _FileDecoderCallback decode,
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
@@ -43,7 +106,7 @@ class ImageLoader implements platform.ImageLoader {
           evictImage,
         );
       case ImageRenderMethodForWeb.HtmlImage:
-        return _loadAsyncHtmlImage(url, chunkEvents, decode).asStream();
+        return _loadAsyncHtmlImage(url, chunkEvents).asStream();
     }
   }
 
@@ -51,7 +114,7 @@ class ImageLoader implements platform.ImageLoader {
     String url,
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
+    _FileDecoderCallback decode,
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
@@ -93,7 +156,6 @@ class ImageLoader implements platform.ImageLoader {
   Future<ui.Codec> _loadAsyncHtmlImage(
     String url,
     StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
   ) {
     final resolved = Uri.base.resolve(url);
 
@@ -111,3 +173,5 @@ class ImageLoader implements platform.ImageLoader {
     ) as Future<ui.Codec>;
   }
 }
+
+typedef _FileDecoderCallback = Future<ui.Codec> Function(Uint8List);

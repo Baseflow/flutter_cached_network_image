@@ -71,6 +71,8 @@ class CachedNetworkImageProvider
     return SynchronousFuture<CachedNetworkImageProvider>(this);
   }
 
+  @Deprecated(
+      'load is deprecated, use loadBuffer instead, see https://docs.flutter.dev/release/breaking-changes/image-provider-load-buffer')
   @override
   ImageStreamCompleter load(
       image_provider.CachedNetworkImageProvider key, DecoderCallback decode) {
@@ -89,6 +91,8 @@ class CachedNetworkImageProvider
     );
   }
 
+  @Deprecated(
+      '_loadAsync is deprecated, use loadBuffer instead, see https://docs.flutter.dev/release/breaking-changes/image-provider-load-buffer')
   Stream<ui.Codec> _loadAsync(
     image_provider.CachedNetworkImageProvider key,
     StreamController<ImageChunkEvent> chunkEvents,
@@ -96,6 +100,45 @@ class CachedNetworkImageProvider
   ) {
     assert(key == this);
     return ImageLoader().loadAsync(
+      url,
+      cacheKey,
+      chunkEvents,
+      decode,
+      cacheManager ?? DefaultCacheManager(),
+      maxHeight,
+      maxWidth,
+      headers,
+      errorListener,
+      imageRenderMethodForWeb,
+      () => PaintingBinding.instance.imageCache.evict(key),
+    );
+  }
+
+  @override
+  ImageStreamCompleter loadBuffer(image_provider.CachedNetworkImageProvider key,
+      DecoderBufferCallback decode) {
+    final chunkEvents = StreamController<ImageChunkEvent>();
+    return MultiImageStreamCompleter(
+      codec: _loadBufferAsync(key, chunkEvents, decode),
+      chunkEvents: chunkEvents.stream,
+      scale: key.scale,
+      informationCollector: () sync* {
+        yield DiagnosticsProperty<ImageProvider>(
+          'Image provider: $this \n Image key: $key',
+          this,
+          style: DiagnosticsTreeStyle.errorProperty,
+        );
+      },
+    );
+  }
+
+  Stream<ui.Codec> _loadBufferAsync(
+    image_provider.CachedNetworkImageProvider key,
+    StreamController<ImageChunkEvent> chunkEvents,
+    DecoderBufferCallback decode,
+  ) {
+    assert(key == this);
+    return ImageLoader().loadBufferAsync(
       url,
       cacheKey,
       chunkEvents,
@@ -122,7 +165,7 @@ class CachedNetworkImageProvider
   }
 
   @override
-  int get hashCode => hashValues(cacheKey ?? url, scale, maxHeight, maxWidth);
+  int get hashCode => Object.hash(cacheKey ?? url, scale, maxHeight, maxWidth);
 
   @override
   String toString() => '$runtimeType("$url", scale: $scale)';
