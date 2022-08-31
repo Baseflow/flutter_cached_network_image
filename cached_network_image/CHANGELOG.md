@@ -1,3 +1,6 @@
+## [3.2.2] - 2022-08-31
+* loadBuffer is added and used instead of load
+
 ## [3.2.1] - 2022-05-16
 * Update to Flutter 3
 
