@@ -12,7 +12,10 @@ dependencies:
     sdk: flutter
   flutter_cache_manager: ^3.0.0
   cached_network_image_platform_interface:
-    path: ../cached_network_image_platform_interface
+    git:
+      url: https://github.com/Baseflow/flutter_cached_network_image.git
+      ref: 97fbb84e4149e0fce8d8641c57d742531371407d
+      path: cached_network_image_platform_interface
 
 dev_dependencies:
   flutter_test:
