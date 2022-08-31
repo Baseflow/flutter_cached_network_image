@@ -4,14 +4,15 @@ version: 1.0.1
 homepage: https://github.com/Baseflow/flutter_cached_network_image
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=2.18.0 <3.0.0"
+  flutter: ">=3.3.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_cache_manager: ^3.0.0
-  cached_network_image_platform_interface: ^1.0.0
+  cached_network_image_platform_interface:
+    path: ../cached_network_image_platform_interface
 
 dev_dependencies:
   flutter_test:
