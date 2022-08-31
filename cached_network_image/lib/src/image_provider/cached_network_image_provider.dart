@@ -91,6 +91,8 @@ class CachedNetworkImageProvider
     );
   }
 
+  @Deprecated(
+      '_loadAsync is deprecated, use loadBuffer instead, see https://docs.flutter.dev/release/breaking-changes/image-provider-load-buffer')
   Stream<ui.Codec> _loadAsync(
     image_provider.CachedNetworkImageProvider key,
     StreamController<ImageChunkEvent> chunkEvents,
@@ -163,7 +165,7 @@ class CachedNetworkImageProvider
   }
 
   @override
-  int get hashCode => hashValues(cacheKey ?? url, scale, maxHeight, maxWidth);
+  int get hashCode => Object.hash(cacheKey ?? url, scale, maxHeight, maxWidth);
 
   @override
   String toString() => '$runtimeType("$url", scale: $scale)';
