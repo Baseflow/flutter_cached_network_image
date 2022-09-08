@@ -11,9 +11,11 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_cache_manager: ^3.0.0
-  # cached_network_image_platform_interface: ^2.0.0
   cached_network_image_platform_interface:
-    path: ../cached_network_image_platform_interface
+    git:
+      url: https://github.com/SuaMusica/flutter_cached_network_image.git
+      ref: feature/errorListener
+      path: cached_network_image_platform_interface
 
 dev_dependencies:
   flutter_test:
