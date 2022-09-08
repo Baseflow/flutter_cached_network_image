@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
+import 'package:cached_network_image/src/image_provider/types.dart';
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -27,7 +28,7 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    Function()? errorListener,
+    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
   ) {
@@ -56,7 +57,7 @@ class ImageLoader implements platform.ImageLoader {
       int? maxHeight,
       int? maxWidth,
       Map<String, String>? headers,
-      Function()? errorListener,
+      ErrorListener? errorListener,
       ImageRenderMethodForWeb imageRenderMethodForWeb,
       Function() evictImage) {
     return _load(
@@ -86,7 +87,7 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    Function()? errorListener,
+    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
   ) async* {
@@ -130,8 +131,11 @@ class ImageLoader implements platform.ImageLoader {
         evictImage();
       });
 
-      errorListener?.call();
-      rethrow;
+      if (errorListener != null) {
+        errorListener.call(e);
+      } else {
+        rethrow;
+      }
     } finally {
       await chunkEvents.close();
     }
