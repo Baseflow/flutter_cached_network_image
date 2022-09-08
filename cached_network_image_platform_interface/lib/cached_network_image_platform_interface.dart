@@ -3,6 +3,7 @@ library cached_network_image_platform_interface;
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:cached_network_image_platform_interface/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
@@ -31,7 +32,7 @@ class ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    Function()? errorListener,
+    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
   ) {
@@ -49,7 +50,7 @@ class ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    Function()? errorListener,
+    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     Function() evictImage,
   ) {
