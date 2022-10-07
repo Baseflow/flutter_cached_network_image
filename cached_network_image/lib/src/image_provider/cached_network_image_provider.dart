@@ -8,8 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-import 'multi_image_stream_completer.dart';
-
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
     if (dart.library.io) '_image_loader.dart'
     if (dart.library.html) 'package:cached_network_image_web/cached_network_image_web.dart'
@@ -74,8 +72,8 @@ class CachedNetworkImageProvider
   ImageStreamCompleter load(
       CachedNetworkImageProvider key, DecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decode),
+    return MultiFrameImageStreamCompleter(
+      codec: _loadAsync(key, chunkEvents, decode).first,
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
       informationCollector: () sync* {
@@ -115,8 +113,8 @@ class CachedNetworkImageProvider
   ImageStreamCompleter loadBuffer(
       CachedNetworkImageProvider key, DecoderBufferCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
-      codec: _loadBufferAsync(key, chunkEvents, decode),
+    return MultiFrameImageStreamCompleter(
+      codec: _loadBufferAsync(key, chunkEvents, decode).first,
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
       informationCollector: () sync* {
