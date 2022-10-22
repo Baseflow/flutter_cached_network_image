@@ -77,7 +77,7 @@ class CachedNetworkImageProvider
   ImageStreamCompleter load(
       image_provider.CachedNetworkImageProvider key, DecoderCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
+    final imageStreamCompleter = MultiImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
@@ -89,6 +89,10 @@ class CachedNetworkImageProvider
         );
       },
     );
+
+    _handleChunkEventsClose(imageStreamCompleter, chunkEvents);
+
+    return imageStreamCompleter;
   }
 
   @Deprecated(
@@ -118,7 +122,7 @@ class CachedNetworkImageProvider
   ImageStreamCompleter loadBuffer(image_provider.CachedNetworkImageProvider key,
       DecoderBufferCallback decode) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
+    final imageStreamCompleter = MultiImageStreamCompleter(
       codec: _loadBufferAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
@@ -130,6 +134,10 @@ class CachedNetworkImageProvider
         );
       },
     );
+
+    _handleChunkEventsClose(imageStreamCompleter, chunkEvents);
+
+    return imageStreamCompleter;
   }
 
   Stream<ui.Codec> _loadBufferAsync(
@@ -162,6 +170,21 @@ class CachedNetworkImageProvider
           maxWidth == other.maxWidth;
     }
     return false;
+  }
+
+  void _handleChunkEventsClose(
+    ImageStreamCompleter imageStreamCompleter,
+    StreamController<ImageChunkEvent> chunkEvents,
+  ) {
+    // Make sure to close the chunk events controller after
+    // the image stream disposes. Otherwise reporting an image chunk
+    // event could fail beacause the ImageStream has been disposed.
+    // (https://github.com/Baseflow/flutter_cached_network_image/issues/785)
+    imageStreamCompleter.addOnLastListenerRemovedCallback(() {
+      if (!chunkEvents.isClosed) {
+        chunkEvents.close();
+      }
+    });
   }
 
   @override
