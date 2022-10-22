@@ -38,7 +38,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       );
     });
     if (chunkEvents != null) {
-      chunkEvents.listen(
+      _chunkSubscription = chunkEvents.listen(
         reportImageChunkEvent,
         onError: (dynamic error, StackTrace stack) {
           reportError(
@@ -65,9 +65,16 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   // How many frames have been emitted so far.
   int _framesEmitted = 0;
   Timer? _timer;
+  StreamSubscription<ImageChunkEvent>? _chunkSubscription;
 
   // Used to guard against registering multiple _handleAppFrame callbacks for the same frame.
   bool _frameCallbackScheduled = false;
+
+  /// We must avoid disposing a completer if it has never had a listener, even
+  /// if all [keepAlive] handles get disposed.
+  bool __hadAtLeastOneListener = false;
+
+  bool __disposed = false;
 
   void _switchToNewCodec() {
     _framesEmitted = 0;
@@ -159,6 +166,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   @override
   void addListener(ImageStreamListener listener) {
+    __hadAtLeastOneListener = true;
     if (!hasListeners && _codec != null) _decodeNextFrameAndSchedule();
     super.addListener(listener);
   }
@@ -169,6 +177,56 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     if (!hasListeners) {
       _timer?.cancel();
       _timer = null;
+      __maybeDispose();
     }
+  }
+
+  int __keepAliveHandles = 0;
+
+  @override
+  ImageStreamCompleterHandle keepAlive() {
+    final delegateHandle = super.keepAlive();
+    return _MultiImageStreamCompleterHandle(this, delegateHandle);
+  }
+
+  void __maybeDispose() {
+    if (!__hadAtLeastOneListener ||
+        __disposed ||
+        hasListeners ||
+        __keepAliveHandles != 0) {
+      return;
+    }
+
+    __disposed = true;
+
+    _chunkSubscription?.onData(null);
+    _chunkSubscription?.cancel();
+    _chunkSubscription = null;
+  }
+}
+
+class _MultiImageStreamCompleterHandle implements ImageStreamCompleterHandle {
+  _MultiImageStreamCompleterHandle(this._completer, this._delegateHandle) {
+    _completer!.__keepAliveHandles += 1;
+  }
+
+  MultiImageStreamCompleter? _completer;
+  final ImageStreamCompleterHandle _delegateHandle;
+
+  /// Call this method to signal the [ImageStreamCompleter] that it can now be
+  /// disposed when its last listener drops.
+  ///
+  /// This method must only be called once per object.
+  @override
+  void dispose() {
+    assert(_completer != null);
+    assert(_completer!.__keepAliveHandles > 0);
+    assert(!_completer!.__disposed);
+
+    _delegateHandle.dispose();
+
+    _completer!.__keepAliveHandles -= 1;
+    _completer!.__maybeDispose();
+    _completer = null;
   }
 }
