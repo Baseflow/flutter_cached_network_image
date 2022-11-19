@@ -70,7 +70,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   // Used to guard against registering multiple _handleAppFrame callbacks for the same frame.
   bool _frameCallbackScheduled = false;
 
-  /// We must avoid disposing a completer if it has never had a listener, even
+  /// We must avoid disposing a completer if it never had a listener, even
   /// if all [keepAlive] handles get disposed.
   bool __hadAtLeastOneListener = false;
 
