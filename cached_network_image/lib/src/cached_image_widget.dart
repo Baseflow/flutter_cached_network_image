@@ -33,7 +33,7 @@ typedef ProgressIndicatorBuilder = Widget Function(
 typedef LoadingErrorWidgetBuilder = Widget Function(
   BuildContext context,
   String url,
-  dynamic error,
+  Object error,
 );
 
 /// Image widget to show NetworkImage with caching functionality.
@@ -49,13 +49,13 @@ class CachedNetworkImage extends StatelessWidget {
   /// [BaseCacheManager] as the in memory [ImageCache] of the [ImageProvider].
   /// [url] is used by both the disk and memory cache. The scale is only used
   /// to clear the image from the [ImageCache].
-  static Future evictFromCache(
+  static Future<bool> evictFromCache(
     String url, {
     String? cacheKey,
-    BaseCacheManager? cacheManager,
+    BaseCacheManager? baseCacheManager,
     double scale = 1.0,
   }) async {
-    cacheManager = cacheManager ?? DefaultCacheManager();
+    final cacheManager = baseCacheManager ?? DefaultCacheManager();
     await cacheManager.removeFile(cacheKey ?? url);
     return CachedNetworkImageProvider(url, scale: scale).evict();
   }
@@ -254,7 +254,7 @@ class CachedNetworkImage extends StatelessWidget {
     var octoProgressIndicatorBuilder =
         progressIndicatorBuilder != null ? _octoProgressIndicatorBuilder : null;
 
-    ///If there is no placeholer OctoImage does not fade, so always set an
+    ///If there is no placeholder OctoImage does not fade, so always set an
     ///(empty) placeholder as this always used to be the behaviour of
     ///CachedNetworkImage.
     if (octoPlaceholderBuilder == null &&
@@ -307,7 +307,10 @@ class CachedNetworkImage extends StatelessWidget {
       downloaded = progress.cumulativeBytesLoaded;
     }
     return progressIndicatorBuilder!(
-        context, imageUrl, DownloadProgress(imageUrl, totalSize, downloaded));
+      context,
+      imageUrl,
+      DownloadProgress(imageUrl, totalSize, downloaded),
+    );
   }
 
   Widget _octoErrorBuilder(

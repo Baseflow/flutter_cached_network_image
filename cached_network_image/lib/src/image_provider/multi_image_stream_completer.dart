@@ -22,25 +22,28 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     InformationCollector? informationCollector,
   })  : _informationCollector = informationCollector,
         _scale = scale {
-    codec.listen((event) {
-      if (_timer != null) {
-        _nextImageCodec = event;
-      } else {
-        _handleCodecReady(event);
-      }
-    }, onError: (dynamic error, StackTrace stack) {
-      reportError(
-        context: ErrorDescription('resolving an image codec'),
-        exception: error,
-        stack: stack,
-        informationCollector: informationCollector,
-        silent: true,
-      );
-    });
+    codec.listen(
+      (event) {
+        if (_timer != null) {
+          _nextImageCodec = event;
+        } else {
+          _handleCodecReady(event);
+        }
+      },
+      onError: (Object error, StackTrace stack) {
+        reportError(
+          context: ErrorDescription('resolving an image codec'),
+          exception: error,
+          stack: stack,
+          informationCollector: informationCollector,
+          silent: true,
+        );
+      },
+    );
     if (chunkEvents != null) {
       chunkEvents.listen(
         reportImageChunkEvent,
-        onError: (dynamic error, StackTrace stack) {
+        onError: (Object error, StackTrace stack) {
           reportError(
             context: ErrorDescription('loading an image'),
             exception: error,
@@ -59,7 +62,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   final InformationCollector? _informationCollector;
   ui.FrameInfo? _nextFrame;
   // When the current was first shown.
-  Duration? _shownTimestamp;
+  late Duration? _shownTimestamp;
   // The requested duration for the current frame;
   Duration? _frameDuration;
   // How many frames have been emitted so far.

@@ -1,6 +1,6 @@
+import 'package:baseflow_plugin_template/baseflow_plugin_template.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:baseflow_plugin_template/baseflow_plugin_template.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 
 void main() {
@@ -199,12 +199,10 @@ class GridContent extends StatelessWidget {
   }
 
   Widget _loader(BuildContext context, String url) {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    return const Center(child: CircularProgressIndicator());
   }
 
-  Widget _error(BuildContext context, String url, dynamic error) {
+  Widget _error(BuildContext context, String url, Object error) {
     return const Center(child: Icon(Icons.error));
   }
 }

@@ -177,7 +177,7 @@ class MyImageWidget extends StatelessWidget {
 
   static LoadingErrorWidgetBuilder? getErrorBuilder(VoidCallback? onError) {
     if (onError == null) return null;
-    return (context, error, stacktrace) {
+    return (context, url, error) {
       onError();
       return const Icon(Icons.error);
     };
