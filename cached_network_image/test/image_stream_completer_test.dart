@@ -96,6 +96,37 @@ void main() {
     expect(tester.takeException(), 'failure message');
   });
 
+  test('Completer unsubscribes to chunk events when disposed', () async {
+    final codecStream = StreamController<Codec>();
+    final chunkStream = StreamController<ImageChunkEvent>();
+
+    final MultiImageStreamCompleter completer = MultiImageStreamCompleter(
+      codec: codecStream.stream,
+      scale: 1.0,
+      chunkEvents: chunkStream.stream,
+    );
+
+    expect(chunkStream.hasListener, true);
+
+    chunkStream.add(
+        const ImageChunkEvent(cumulativeBytesLoaded: 1, expectedTotalBytes: 3));
+
+    final ImageStreamListener listener =
+        ImageStreamListener((ImageInfo info, bool syncCall) {});
+    // Cause the completer to dispose.
+    completer.addListener(listener);
+    completer.removeListener(listener);
+
+    expect(chunkStream.hasListener, false);
+
+    // The above expectation should cover this, but the point of this test is to
+    // make sure the completer does not assert that it's disposed and still
+    // receiving chunk events. Streams from the network can keep sending data
+    // even after evicting an image from the cache, for example.
+    chunkStream.add(
+        const ImageChunkEvent(cumulativeBytesLoaded: 2, expectedTotalBytes: 3));
+  });
+
   testWidgets('Decoding starts when a listener is added after codec is ready',
       (WidgetTester tester) async {
     final codecStream = StreamController<Codec>();
