@@ -1,7 +1,8 @@
 ## [1.0.3] - TBD
 * Specify types
-* Add ErrorListener
+* Add error to ErrorListener
 * Update example
+* Use `loadImage` instead `loadBuffer` and `load`
 
 ## [1.0.2] - 2022-08-31
 * Added loadBufferAsync and deprecated loadAsync

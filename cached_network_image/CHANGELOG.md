@@ -2,8 +2,9 @@
 * Support Dart 3.0.0 for http ^1.0.0 and file ^7.0.0
 * Add topics
 * Specify types
-* Add ErrorListener
+* Add error to ErrorListener
 * Update example
+* Use `loadImage` instead `loadBuffer` and `load`
 
 ## [3.2.3] - 2022-11-25
 * Correctly dispose image stream handler

@@ -22,7 +22,7 @@ enum ImageRenderMethodForWeb {
 class ImageLoader {
   /// loads the images async and gives the resulted codecs on a Stream. The
   /// Stream gives the option to show multiple images after each other.
-  @Deprecated('Use loadBufferAsync instead')
+  @Deprecated('Use loadImageAsync instead')
   Stream<ui.Codec> loadAsync(
     String url,
     String? cacheKey,
@@ -41,11 +41,30 @@ class ImageLoader {
 
   /// loads the images async and gives the resulted codecs on a Stream. The
   /// Stream gives the option to show multiple images after each other.
+  @Deprecated('Use loadImageAsync instead')
   Stream<ui.Codec> loadBufferAsync(
     String url,
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderBufferCallback decode,
+    BaseCacheManager cacheManager,
+    int? maxHeight,
+    int? maxWidth,
+    Map<String, String>? headers,
+    ValueChanged<Object>? errorListener,
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    VoidCallback evictImage,
+  ) {
+    throw UnimplementedError();
+  }
+
+  /// loads the images async and gives the resulted codecs on a Stream. The
+  /// Stream gives the option to show multiple images after each other.
+  Stream<ui.Codec> loadImageAsync(
+    String url,
+    String? cacheKey,
+    StreamController<ImageChunkEvent> chunkEvents,
+    ImageDecoderCallback decode,
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,

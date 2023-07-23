@@ -15,7 +15,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader implements platform.ImageLoader {
-  @Deprecated('Use loadBufferAsync instead')
+  @Deprecated('Use loadImageAsync instead')
   @override
   Stream<ui.Codec> loadAsync(
     String url,
@@ -45,12 +45,45 @@ class ImageLoader implements platform.ImageLoader {
     );
   }
 
+  @Deprecated('Use loadImageAsync instead')
   @override
   Stream<ui.Codec> loadBufferAsync(
     String url,
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
     DecoderBufferCallback decode,
+    BaseCacheManager cacheManager,
+    int? maxHeight,
+    int? maxWidth,
+    Map<String, String>? headers,
+    ValueChanged<Object>? errorListener,
+    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    VoidCallback evictImage,
+  ) {
+    return _load(
+      url,
+      cacheKey,
+      chunkEvents,
+      (bytes) async {
+        final buffer = await ImmutableBuffer.fromUint8List(bytes);
+        return decode(buffer);
+      },
+      cacheManager,
+      maxHeight,
+      maxWidth,
+      headers,
+      errorListener,
+      imageRenderMethodForWeb,
+      evictImage,
+    );
+  }
+
+  @override
+  Stream<ui.Codec> loadImageAsync(
+    String url,
+    String? cacheKey,
+    StreamController<ImageChunkEvent> chunkEvents,
+    ImageDecoderCallback decode,
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
