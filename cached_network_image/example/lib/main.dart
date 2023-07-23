@@ -9,8 +9,8 @@ void main() {
   runApp(
     BaseflowPluginExample(
       pluginName: 'CachedNetworkImage',
-      githubURL: 'https://github.com/Baseflow/flutter_cache_manager',
-      pubDevURL: 'https://pub.dev/packages/flutter_cache_manager',
+      githubURL: 'https://github.com/Baseflow/flutter_cached_network_image',
+      pubDevURL: 'https://pub.dev/packages/cached_network_image',
       pages: [
         BasicContent.createPage(),
         ListContent.createPage(),
@@ -51,13 +51,13 @@ class BasicContent extends StatelessWidget {
                   ),
                 ),
                 imageUrl:
-                'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
+                    'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
                 placeholder: (context, url) =>
-                const CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                 imageUrl: 'https://via.placeholder.com/200x150',
               ),
             ),
@@ -77,7 +77,7 @@ class BasicContent extends StatelessWidget {
                   ),
                 ),
                 placeholder: (context, url) =>
-                const CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -96,7 +96,7 @@ class BasicContent extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: 'https://notAvalid.uri',
                 placeholder: (context, url) =>
-                const CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -104,7 +104,7 @@ class BasicContent extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: 'not a uri at all',
                 placeholder: (context, url) =>
-                const CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -113,7 +113,7 @@ class BasicContent extends StatelessWidget {
                 maxHeightDiskCache: 10,
                 imageUrl: 'https://via.placeholder.com/350x200',
                 placeholder: (context, url) =>
-                const CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fadeOutDuration: const Duration(seconds: 1),
                 fadeInDuration: const Duration(seconds: 3),
@@ -191,7 +191,7 @@ class GridContent extends StatelessWidget {
     return GridView.builder(
       itemCount: 250,
       gridDelegate:
-      const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
       itemBuilder: (BuildContext context, int index) => CachedNetworkImage(
         imageUrl: 'https://loremflickr.com/100/100/music?lock=$index',
         placeholder: _loader,

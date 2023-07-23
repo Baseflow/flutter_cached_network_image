@@ -7,14 +7,14 @@ project(runner LANGUAGES CXX)
 #
 # Any new source files that you add to the application should be added here.
 add_executable(${BINARY_NAME} WIN32
-        "flutter_window.cpp"
-        "main.cpp"
-        "utils.cpp"
-        "win32_window.cpp"
-        "${FLUTTER_MANAGED_DIR}/generated_plugin_registrant.cc"
-        "Runner.rc"
-        "runner.exe.manifest"
-        )
+  "flutter_window.cpp"
+  "main.cpp"
+  "utils.cpp"
+  "win32_window.cpp"
+  "${FLUTTER_MANAGED_DIR}/generated_plugin_registrant.cc"
+  "Runner.rc"
+  "runner.exe.manifest"
+)
 
 # Apply the standard set of build settings. This can be removed for applications
 # that need different build settings.
