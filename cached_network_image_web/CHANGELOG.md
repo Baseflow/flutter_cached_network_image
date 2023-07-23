@@ -1,3 +1,8 @@
+## [1.0.3] - TBD
+* Specify types
+* Add ErrorListener
+* Update example
+
 ## [1.0.2] - 2022-08-31
 * Added loadBufferAsync and deprecated loadAsync
 

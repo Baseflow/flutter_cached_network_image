@@ -5,10 +5,10 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class FakeFrameInfo implements FrameInfo {
   const FakeFrameInfo(this._duration, this._image);
@@ -829,7 +829,7 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('Multiframe image is completed before next image is shown',
+  testWidgets('Multi-frame image is completed before next image is shown',
       (WidgetTester tester) async {
     final firstCodec = MockCodec();
     firstCodec.frameCount = 3;

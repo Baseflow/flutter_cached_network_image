@@ -1,3 +1,4 @@
+/// Platform interface for CachedNetworkImage
 library cached_network_image_platform_interface;
 
 import 'dart:async';
@@ -21,7 +22,7 @@ enum ImageRenderMethodForWeb {
 class ImageLoader {
   /// loads the images async and gives the resulted codecs on a Stream. The
   /// Stream gives the option to show multiple images after each other.
-  @Deprecated('use loadBufferAsync instead')
+  @Deprecated('Use loadBufferAsync instead')
   Stream<ui.Codec> loadAsync(
     String url,
     String? cacheKey,
@@ -31,9 +32,9 @@ class ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    Function()? errorListener,
+    ValueChanged<Object>? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
-    Function() evictImage,
+    VoidCallback evictImage,
   ) {
     throw UnimplementedError();
   }
@@ -49,9 +50,9 @@ class ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    Function()? errorListener,
+    ValueChanged<Object>? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
-    Function() evictImage,
+    VoidCallback evictImage,
   ) {
     throw UnimplementedError();
   }

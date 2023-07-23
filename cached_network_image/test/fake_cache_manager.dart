@@ -2,12 +2,12 @@
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:file/memory.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mocktail/mocktail.dart';
-import 'dart:async';
 
 class FakeCacheManager extends Mock implements CacheManager {
   void throwsNotFound(String url) {
