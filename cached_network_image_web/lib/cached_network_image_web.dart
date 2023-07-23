@@ -124,7 +124,7 @@ class ImageLoader implements platform.ImageLoader {
   ) async* {
     try {
       await for (var result in cacheManager.getFileStream(url,
-          withProgress: true, headers: headers)) {
+          key: cacheKey, withProgress: true, headers: headers)) {
         if (result is DownloadProgress) {
           chunkEvents.add(ImageChunkEvent(
             cumulativeBytesLoaded: result.downloaded,
