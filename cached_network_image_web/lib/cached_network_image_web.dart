@@ -18,36 +18,6 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 class ImageLoader implements platform.ImageLoader {
   @Deprecated('Use loadImageAsync instead')
   @override
-  Stream<ui.Codec> loadAsync(
-    String url,
-    String? cacheKey,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-    BaseCacheManager cacheManager,
-    int? maxHeight,
-    int? maxWidth,
-    Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
-    ImageRenderMethodForWeb imageRenderMethodForWeb,
-    VoidCallback evictImage,
-  ) {
-    return _load(
-      url,
-      cacheKey,
-      chunkEvents,
-      decode,
-      cacheManager,
-      maxHeight,
-      maxWidth,
-      headers,
-      errorListener,
-      imageRenderMethodForWeb,
-      evictImage,
-    );
-  }
-
-  @Deprecated('Use loadImageAsync instead')
-  @override
   Stream<ui.Codec> loadBufferAsync(
     String url,
     String? cacheKey,
@@ -186,9 +156,8 @@ class ImageLoader implements platform.ImageLoader {
       });
       errorListener?.call(e);
       rethrow;
-    } finally {
-      await chunkEvents.close();
     }
+    await chunkEvents.close();
   }
 
   Future<ui.Codec> _loadAsyncHtmlImage(

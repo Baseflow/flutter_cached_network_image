@@ -13,31 +13,31 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('ImageLoader', () {
-    test('default loadAsync throws UnimplementedError', () {
-      var imageLoader = ImageLoader();
+    test('Default loadImageAsync throws UnimplementedError', () {
+      final imageLoader = ImageLoader();
       expect(
-          () => imageLoader.loadAsync(
-              'test.com/image',
-              null,
-              StreamController<ImageChunkEvent>(),
-              decoder,
-              MockCacheManager(),
-              null,
-              null,
-              null,
-              null,
-              ImageRenderMethodForWeb.HttpGet,
-              () => {}),
-          throwsA(const TypeMatcher<UnimplementedError>()));
+        () => imageLoader.loadImageAsync(
+          'test.com/image',
+          null,
+          StreamController<ImageChunkEvent>(),
+          decoder,
+          MockCacheManager(),
+          null,
+          null,
+          null,
+          null,
+          ImageRenderMethodForWeb.HttpGet,
+          () => {},
+        ),
+        throwsA(const TypeMatcher<UnimplementedError>()),
+      );
     });
   });
 }
 
 Future<ui.Codec> decoder(
-  Uint8List bytes, {
-  int? cacheWidth,
-  int? cacheHeight,
-  bool allowUpscaling = false,
+  ui.ImmutableBuffer buffer, {
+  ui.TargetImageSizeCallback? getTargetSize,
 }) {
   throw UnimplementedError();
 }
@@ -64,14 +64,19 @@ class MockCacheManager implements BaseCacheManager {
   }
 
   @override
-  Stream<FileInfo> getFile(String url,
-      {String? key, Map<String, String>? headers}) {
+  Stream<FileInfo> getFile(
+    String url, {
+    String? key,
+    Map<String, String>? headers,
+  }) {
     throw UnimplementedError();
   }
 
   @override
-  Future<FileInfo?> getFileFromCache(String key,
-      {bool ignoreMemCache = false}) {
+  Future<FileInfo?> getFileFromCache(
+    String key, {
+    bool ignoreMemCache = false,
+  }) {
     throw UnimplementedError();
   }
 
@@ -81,32 +86,45 @@ class MockCacheManager implements BaseCacheManager {
   }
 
   @override
-  Stream<FileResponse> getFileStream(String url,
-      {String? key, Map<String, String>? headers, bool withProgress = false}) {
+  Stream<FileResponse> getFileStream(
+    String url, {
+    String? key,
+    Map<String, String>? headers,
+    bool withProgress = false,
+  }) {
     throw UnimplementedError();
   }
 
   @override
-  Future<File> getSingleFile(String url,
-      {String? key, Map<String, String>? headers}) {
+  Future<File> getSingleFile(
+    String url, {
+    String? key,
+    Map<String, String>? headers,
+  }) {
     throw UnimplementedError();
   }
 
   @override
-  Future<File> putFile(String url, Uint8List fileBytes,
-      {String? key,
-      String? eTag,
-      Duration maxAge = const Duration(days: 30),
-      String fileExtension = 'file'}) {
+  Future<File> putFile(
+    String url,
+    Uint8List fileBytes, {
+    String? key,
+    String? eTag,
+    Duration maxAge = const Duration(days: 30),
+    String fileExtension = 'file',
+  }) {
     throw UnimplementedError();
   }
 
   @override
-  Future<File> putFileStream(String url, Stream<List<int>> source,
-      {String? key,
-      String? eTag,
-      Duration maxAge = const Duration(days: 30),
-      String fileExtension = 'file'}) {
+  Future<File> putFileStream(
+    String url,
+    Stream<List<int>> source, {
+    String? key,
+    String? eTag,
+    Duration maxAge = const Duration(days: 30),
+    String fileExtension = 'file',
+  }) {
     throw UnimplementedError();
   }
 

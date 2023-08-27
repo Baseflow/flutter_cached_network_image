@@ -7,44 +7,11 @@ import 'package:cached_network_image_platform_interface/cached_network_image_pla
 import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart' as platform
     show ImageLoader;
-import 'package:cached_network_image_platform_interface'
-        '/cached_network_image_platform_interface.dart'
-    show ImageRenderMethodForWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader implements platform.ImageLoader {
-  @Deprecated('Use loadImageAsync instead')
-  @override
-  Stream<ui.Codec> loadAsync(
-    String url,
-    String? cacheKey,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-    BaseCacheManager cacheManager,
-    int? maxHeight,
-    int? maxWidth,
-    Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
-    ImageRenderMethodForWeb imageRenderMethodForWeb,
-    VoidCallback evictImage,
-  ) {
-    return _load(
-      url,
-      cacheKey,
-      chunkEvents,
-      decode,
-      cacheManager,
-      maxHeight,
-      maxWidth,
-      headers,
-      errorListener,
-      imageRenderMethodForWeb,
-      evictImage,
-    );
-  }
-
   @Deprecated('Use loadImageAsync instead')
   @override
   Stream<ui.Codec> loadBufferAsync(
@@ -173,9 +140,8 @@ class ImageLoader implements platform.ImageLoader {
 
       errorListener?.call(e);
       rethrow;
-    } finally {
-      await chunkEvents.close();
     }
+    await chunkEvents.close();
   }
 }
 

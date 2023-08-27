@@ -67,49 +67,6 @@ class CachedNetworkImageProvider
     return SynchronousFuture<CachedNetworkImageProvider>(this);
   }
 
-  @Deprecated('load is deprecated, use loadImage instead')
-  @override
-  ImageStreamCompleter load(
-    CachedNetworkImageProvider key,
-    DecoderCallback decode,
-  ) {
-    final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decode),
-      chunkEvents: chunkEvents.stream,
-      scale: key.scale,
-      informationCollector: () sync* {
-        yield DiagnosticsProperty<ImageProvider>(
-          'Image provider: $this \n Image key: $key',
-          this,
-          style: DiagnosticsTreeStyle.errorProperty,
-        );
-      },
-    );
-  }
-
-  @Deprecated('_loadAsync is deprecated, use _loadImageAsync instead')
-  Stream<ui.Codec> _loadAsync(
-    CachedNetworkImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents,
-    DecoderCallback decode,
-  ) {
-    assert(key == this);
-    return ImageLoader().loadAsync(
-      url,
-      cacheKey,
-      chunkEvents,
-      decode,
-      cacheManager ?? DefaultCacheManager(),
-      maxHeight,
-      maxWidth,
-      headers,
-      errorListener,
-      imageRenderMethodForWeb,
-      () => PaintingBinding.instance.imageCache.evict(key),
-    );
-  }
-
   @Deprecated('loadBuffer is deprecated, use loadImage instead')
   @override
   ImageStreamCompleter loadBuffer(
