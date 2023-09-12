@@ -32,7 +32,6 @@ class ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {

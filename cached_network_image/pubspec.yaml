@@ -6,14 +6,14 @@ topics:
   - cache
   - image
   - network-image
-version: 3.2.4
+version: 3.3.0
 environment:
   sdk: ^3.0.0
   flutter: '>=3.10.0'
 
 dependencies:
-  cached_network_image_platform_interface: ^2.0.1
-  cached_network_image_web: ^1.0.3
+  cached_network_image_platform_interface: ^3.0.0
+  cached_network_image_web: ^1.1.0
   flutter:
     sdk: flutter
   flutter_cache_manager: ^3.3.1
@@ -21,7 +21,7 @@ dependencies:
 
 dev_dependencies:
   file: '>=6.1.4 <8.0.0'
-  flutter_lints: ^2.0.2
+  flutter_lints: ^2.0.3
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.0

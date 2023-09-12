@@ -1,11 +1,10 @@
-## [3.2.4] - TBD
-* Support Dart 3.0.0 for http ^1.0.0 and file ^7.0.0
+## [3.3.0] - TBD
+* Add error to ErrorListener
+* Update to Dart 3
 * Add topics
 * Specify types
-* Add error to ErrorListener
 * Update example
-* Use `loadImage` instead `loadBuffer`
-* Remove [`load`](https://github.com/flutter/flutter/pull/132679)
+* Remove [`load`](https://github.com/flutter/flutter/pull/132679), use `loadImage` instead `loadBuffer`
 
 ## [3.2.3] - 2022-11-25
 * Correctly dispose image stream handler

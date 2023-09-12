@@ -23,7 +23,6 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
@@ -39,7 +38,7 @@ class ImageLoader implements platform.ImageLoader {
       maxHeight,
       maxWidth,
       headers,
-      errorListener,
+      (_) {},
       imageRenderMethodForWeb,
       evictImage,
     );
