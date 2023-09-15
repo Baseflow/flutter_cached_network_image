@@ -7,6 +7,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+/// Listener for errors
+typedef ErrorListener = void Function(Object);
+
 /// Render options for images on the web platform.
 enum ImageRenderMethodForWeb {
   /// HtmlImage uses a default web image including default browser caching.
@@ -32,6 +35,7 @@ class ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
+    VoidCallback? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
@@ -49,7 +53,7 @@ class ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
+    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {

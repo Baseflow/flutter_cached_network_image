@@ -142,7 +142,7 @@ void main() {
             events.add(event);
           },
           onError: (Object error, StackTrace? stackTrace) {
-            imageAvailable.completeError(error as Object, stackTrace);
+            imageAvailable.completeError(error, stackTrace);
           },
         ),
       );

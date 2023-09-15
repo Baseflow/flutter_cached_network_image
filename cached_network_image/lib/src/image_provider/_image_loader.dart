@@ -23,6 +23,7 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
+    VoidCallback? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
@@ -38,7 +39,7 @@ class ImageLoader implements platform.ImageLoader {
       maxHeight,
       maxWidth,
       headers,
-      (_) {},
+      (_) => errorListener?.call(),
       imageRenderMethodForWeb,
       evictImage,
     );
@@ -54,7 +55,7 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
+    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
@@ -80,12 +81,12 @@ class ImageLoader implements platform.ImageLoader {
     String url,
     String? cacheKey,
     StreamController<ImageChunkEvent> chunkEvents,
-    _FileDecoderCallback decode,
+    Future<ui.Codec> Function(Uint8List) decode,
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
+    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) async* {
@@ -143,5 +144,3 @@ class ImageLoader implements platform.ImageLoader {
     await chunkEvents.close();
   }
 }
-
-typedef _FileDecoderCallback = Future<ui.Codec> Function(Uint8List);

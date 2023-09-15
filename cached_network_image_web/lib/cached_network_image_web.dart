@@ -7,10 +7,7 @@ import 'dart:ui' as ui;
 
 import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart' as platform
-    show ImageLoader;
-import 'package:cached_network_image_platform_interface'
-        '/cached_network_image_platform_interface.dart'
-    show ImageRenderMethodForWeb;
+    show ImageLoader, ErrorListener, ImageRenderMethodForWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
@@ -27,7 +24,8 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    VoidCallback? errorListener,
+    platform.ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
     return _load(
@@ -59,7 +57,7 @@ class ImageLoader implements platform.ImageLoader {
     int? maxWidth,
     Map<String, String>? headers,
     ValueChanged<Object>? errorListener,
-    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    platform.ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
     return _load(
@@ -89,12 +87,12 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
-    ImageRenderMethodForWeb imageRenderMethodForWeb,
+    platform.ErrorListener? errorListener,
+    platform.ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
     switch (imageRenderMethodForWeb) {
-      case ImageRenderMethodForWeb.HttpGet:
+      case platform.ImageRenderMethodForWeb.HttpGet:
         return _loadAsyncHttpGet(
           url,
           cacheKey,
@@ -107,7 +105,7 @@ class ImageLoader implements platform.ImageLoader {
           errorListener,
           evictImage,
         );
-      case ImageRenderMethodForWeb.HtmlImage:
+      case platform.ImageRenderMethodForWeb.HtmlImage:
         return _loadAsyncHtmlImage(url, chunkEvents).asStream();
     }
   }
@@ -121,7 +119,7 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ValueChanged<Object>? errorListener,
+    platform.ErrorListener? errorListener,
     VoidCallback evictImage,
   ) async* {
     try {
