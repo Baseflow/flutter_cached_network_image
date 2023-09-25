@@ -1,3 +1,9 @@
+## [1.1.0] - TBD
+* Add error to ErrorListener
+* Specify types
+* Update example
+* Remove [`load`](https://github.com/flutter/flutter/pull/132679), use `loadImage` instead `loadBuffer`
+
 ## [1.0.2] - 2022-08-31
 * Added loadBufferAsync and deprecated loadAsync
 

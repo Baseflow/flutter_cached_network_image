@@ -1,26 +1,28 @@
+import 'package:baseflow_plugin_template/baseflow_plugin_template.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:baseflow_plugin_template/baseflow_plugin_template.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 
 void main() {
   CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
 
-  runApp(BaseflowPluginExample(
-    pluginName: 'CachedNetworkImage',
-    githubURL: 'https://github.com/Baseflow/flutter_cache_manager',
-    pubDevURL: 'https://pub.dev/packages/flutter_cache_manager',
-    pages: [
-      BasicContent.createPage(),
-      ListContent.createPage(),
-      GridContent.createPage(),
-    ],
-  ));
+  runApp(
+    BaseflowPluginExample(
+      pluginName: 'CachedNetworkImage',
+      githubURL: 'https://github.com/Baseflow/flutter_cached_network_image',
+      pubDevURL: 'https://pub.dev/packages/cached_network_image',
+      pages: [
+        BasicContent.createPage(),
+        ListContent.createPage(),
+        GridContent.createPage(),
+      ],
+    ),
+  );
 }
 
 /// Demonstrates a [StatelessWidget] containing [CachedNetworkImage]
 class BasicContent extends StatelessWidget {
-  const BasicContent({Key? key}) : super(key: key);
+  const BasicContent({super.key});
 
   static ExamplePage createPage() {
     return ExamplePage(Icons.image, (context) => const BasicContent());
@@ -113,7 +115,6 @@ class BasicContent extends StatelessWidget {
                 placeholder: (context, url) =>
                     const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
-                fadeOutDuration: const Duration(seconds: 1),
                 fadeInDuration: const Duration(seconds: 3),
               ),
             ),
@@ -139,8 +140,8 @@ class BasicContent extends StatelessWidget {
 
   Widget _sizedContainer(Widget child) {
     return SizedBox(
-      width: 300.0,
-      height: 150.0,
+      width: 300,
+      height: 150,
       child: Center(child: child),
     );
   }
@@ -148,7 +149,7 @@ class BasicContent extends StatelessWidget {
 
 /// Demonstrates a [ListView] containing [CachedNetworkImage]
 class ListContent extends StatelessWidget {
-  const ListContent({Key? key}) : super(key: key);
+  const ListContent({super.key});
 
   static ExamplePage createPage() {
     return ExamplePage(Icons.list, (context) => const ListContent());
@@ -178,7 +179,7 @@ class ListContent extends StatelessWidget {
 
 /// Demonstrates a [GridView] containing [CachedNetworkImage]
 class GridContent extends StatelessWidget {
-  const GridContent({Key? key}) : super(key: key);
+  const GridContent({super.key});
 
   static ExamplePage createPage() {
     return ExamplePage(Icons.grid_on, (context) => const GridContent());
@@ -199,12 +200,10 @@ class GridContent extends StatelessWidget {
   }
 
   Widget _loader(BuildContext context, String url) {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
+    return const Center(child: CircularProgressIndicator());
   }
 
-  Widget _error(BuildContext context, String url, dynamic error) {
+  Widget _error(BuildContext context, String url, Object error) {
     return const Center(child: Icon(Icons.error));
   }
 }

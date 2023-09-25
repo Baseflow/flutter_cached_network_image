@@ -40,12 +40,14 @@ void main() {
       cacheManager.returns(imageUrl, kTransparentImage);
       var progressShown = false;
       var thrown = false;
-      await tester.pumpWidget(MyImageWidget(
-        imageUrl: imageUrl,
-        cacheManager: cacheManager,
-        onProgress: () => progressShown = true,
-        onError: () => thrown = true,
-      ));
+      await tester.pumpWidget(
+        MyImageWidget(
+          imageUrl: imageUrl,
+          cacheManager: cacheManager,
+          onProgress: () => progressShown = true,
+          onError: () => thrown = true,
+        ),
+      );
       await tester.pump();
       expect(thrown, isFalse);
       expect(progressShown, isTrue);
@@ -57,12 +59,14 @@ void main() {
       cacheManager.throwsNotFound(imageUrl);
       var placeholderShown = false;
       var thrown = false;
-      await tester.pumpWidget(MyImageWidget(
-        imageUrl: imageUrl,
-        cacheManager: cacheManager,
-        onPlaceHolder: () => placeholderShown = true,
-        onError: () => thrown = true,
-      ));
+      await tester.pumpWidget(
+        MyImageWidget(
+          imageUrl: imageUrl,
+          cacheManager: cacheManager,
+          onPlaceHolder: () => placeholderShown = true,
+          onError: () => thrown = true,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(thrown, isTrue);
       expect(placeholderShown, isTrue);
@@ -72,11 +76,13 @@ void main() {
       var imageUrl = '12345';
       cacheManager.throwsNotFound(imageUrl);
       var thrown = false;
-      await tester.pumpWidget(MyImageWidget(
-        imageUrl: imageUrl,
-        cacheManager: cacheManager,
-        onError: () => thrown = true,
-      ));
+      await tester.pumpWidget(
+        MyImageWidget(
+          imageUrl: imageUrl,
+          cacheManager: cacheManager,
+          onError: () => thrown = true,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(thrown, isTrue);
     });
@@ -87,11 +93,13 @@ void main() {
       // Create the widget by telling the tester to build it.
       cacheManager.returns(imageUrl, kTransparentImage);
       var thrown = false;
-      await tester.pumpWidget(MyImageWidget(
-        imageUrl: imageUrl,
-        cacheManager: cacheManager,
-        onError: () => thrown = true,
-      ));
+      await tester.pumpWidget(
+        MyImageWidget(
+          imageUrl: imageUrl,
+          cacheManager: cacheManager,
+          onError: () => thrown = true,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(thrown, isFalse);
     });
@@ -102,12 +110,14 @@ void main() {
       cacheManager.returns(imageUrl, kTransparentImage);
       var placeholderShown = false;
       var thrown = false;
-      await tester.pumpWidget(MyImageWidget(
-        imageUrl: imageUrl,
-        cacheManager: cacheManager,
-        onPlaceHolder: () => placeholderShown = true,
-        onError: () => thrown = true,
-      ));
+      await tester.pumpWidget(
+        MyImageWidget(
+          imageUrl: imageUrl,
+          cacheManager: cacheManager,
+          onPlaceHolder: () => placeholderShown = true,
+          onError: () => thrown = true,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(thrown, isFalse);
       expect(placeholderShown, isTrue);
@@ -124,12 +134,14 @@ void main() {
       );
       var progressIndicatorCalled = 0;
       var thrown = false;
-      await tester.pumpWidget(MyImageWidget(
-        imageUrl: imageUrl,
-        cacheManager: cacheManager,
-        onProgress: () => progressIndicatorCalled++,
-        onError: () => thrown = true,
-      ));
+      await tester.pumpWidget(
+        MyImageWidget(
+          imageUrl: imageUrl,
+          cacheManager: cacheManager,
+          onProgress: () => progressIndicatorCalled++,
+          onError: () => thrown = true,
+        ),
+      );
       for (var i = 0; i < expectedResult.chunks; i++) {
         await tester.pump(delay);
         await tester.idle();
