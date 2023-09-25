@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_cache_manager: ^3.3.1
-  octo_image: ^1.0.2
+  octo_image: ^2.0.0
 
 dev_dependencies:
   file: '>=6.1.4 <8.0.0'

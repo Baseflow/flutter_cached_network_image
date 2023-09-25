@@ -1,4 +1,4 @@
-## [3.0.0] - TBD
+## [3.0.0] - 2023-09-25
 * Add error to ErrorListener
 * Specify types
 * Remove [`load`](https://github.com/flutter/flutter/pull/132679), use `loadImage` instead `loadBuffer`

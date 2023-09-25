@@ -1,4 +1,4 @@
-## [1.1.0] - TBD
+## [1.1.0] - 2023-09-25
 * Add error to ErrorListener
 * Specify types
 * Update example

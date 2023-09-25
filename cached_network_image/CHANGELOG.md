@@ -1,10 +1,12 @@
-## [3.3.0] - TBD
+## [3.3.0] - 2023-09-25
 * Add error to ErrorListener
 * Update to Dart 3
-* Add topics
+* Remove [`load`](https://github.com/flutter/flutter/pull/132679), use `loadImage` instead `loadBuffer`
+
+Minor code clean-ups:
+* Add topics in pubspec
 * Specify types
 * Update example
-* Remove [`load`](https://github.com/flutter/flutter/pull/132679), use `loadImage` instead `loadBuffer`
 
 ## [3.2.3] - 2022-11-25
 * Correctly dispose image stream handler
