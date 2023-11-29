@@ -163,7 +163,7 @@ class ImageLoader implements platform.ImageLoader {
   ) {
     final resolved = Uri.base.resolve(url);
     // ignore: undefined_function
-    return ui.webOnlyInstantiateImageCodecFromUrl(
+    return ui.createImageCodecFromUrl(
       resolved,
       chunkCallback: (int bytes, int total) {
         chunkEvents.add(
