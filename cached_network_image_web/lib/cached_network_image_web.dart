@@ -164,7 +164,7 @@ class ImageLoader implements platform.ImageLoader {
   ) {
     final resolved = Uri.base.resolve(url);
     // ignore: undefined_function
-    return ui_web.createImageCodecFromUrl(
+    return ui_web.webOnlyInstantiateImageCodecFromUrl(
       resolved,
       chunkCallback: (int bytes, int total) {
         chunkEvents.add(
@@ -174,7 +174,7 @@ class ImageLoader implements platform.ImageLoader {
           ),
         );
       },
-    );
+    ) as Future<ui.Codec>;
   }
 }
 
