@@ -163,7 +163,7 @@ class ImageLoader implements platform.ImageLoader {
     StreamController<ImageChunkEvent> chunkEvents,
   ) {
     final resolved = Uri.base.resolve(url);
-    // ignore: undefined_function
+
     return ui_web.createImageCodecFromUrl(
       resolved,
       chunkCallback: (int bytes, int total) {
