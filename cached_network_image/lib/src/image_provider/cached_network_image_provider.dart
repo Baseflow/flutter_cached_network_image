@@ -74,7 +74,7 @@ class CachedNetworkImageProvider
     DecoderBufferCallback decode,
   ) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
+    final imageStreamCompleter = MultiImageStreamCompleter(
       codec: _loadBufferAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
@@ -86,6 +86,19 @@ class CachedNetworkImageProvider
         );
       },
     );
+
+    if (errorListener != null) {
+      imageStreamCompleter.addListener(
+        ImageStreamListener(
+          (image, synchronousCall) {},
+          onError: (Object error, StackTrace? trace) {
+            errorListener?.call(error);
+          },
+        ),
+      );
+    }
+
+    return imageStreamCompleter;
   }
 
   @Deprecated('_loadBufferAsync is deprecated, use _loadImageAsync instead')
@@ -116,7 +129,7 @@ class CachedNetworkImageProvider
     ImageDecoderCallback decode,
   ) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    return MultiImageStreamCompleter(
+    final imageStreamCompleter = MultiImageStreamCompleter(
       codec: _loadImageAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
@@ -128,6 +141,19 @@ class CachedNetworkImageProvider
         );
       },
     );
+
+    if (errorListener != null) {
+      imageStreamCompleter.addListener(
+        ImageStreamListener(
+          (image, synchronousCall) {},
+          onError: (Object error, StackTrace? trace) {
+            errorListener?.call(error);
+          },
+        ),
+      );
+    }
+
+    return imageStreamCompleter;
   }
 
   Stream<ui.Codec> _loadImageAsync(
