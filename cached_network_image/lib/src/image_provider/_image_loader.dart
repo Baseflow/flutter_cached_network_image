@@ -23,7 +23,6 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    VoidCallback? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
@@ -39,7 +38,6 @@ class ImageLoader implements platform.ImageLoader {
       maxHeight,
       maxWidth,
       headers,
-      (_) => errorListener?.call(),
       imageRenderMethodForWeb,
       evictImage,
     );
@@ -55,7 +53,6 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
@@ -71,7 +68,6 @@ class ImageLoader implements platform.ImageLoader {
       maxHeight,
       maxWidth,
       headers,
-      errorListener,
       imageRenderMethodForWeb,
       evictImage,
     );
@@ -86,7 +82,6 @@ class ImageLoader implements platform.ImageLoader {
     int? maxHeight,
     int? maxWidth,
     Map<String, String>? headers,
-    ErrorListener? errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) async* {
@@ -137,8 +132,6 @@ class ImageLoader implements platform.ImageLoader {
       scheduleMicrotask(() {
         evictImage();
       });
-
-      errorListener?.call(e);
       rethrow;
     } finally {
       await chunkEvents.close();

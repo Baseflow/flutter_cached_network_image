@@ -1,3 +1,6 @@
+## [4.0.0] - 2023-12-31
+* Removed errorListener from ImageLoader interface
+
 ## [3.0.0] - 2023-09-25
 * Add error to ErrorListener
 * Specify types
