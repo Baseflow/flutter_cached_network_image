@@ -117,7 +117,6 @@ class CachedNetworkImageProvider
       maxHeight,
       maxWidth,
       headers,
-      () => errorListener,
       imageRenderMethodForWeb,
       () => PaintingBinding.instance.imageCache.evict(key),
     );
@@ -171,7 +170,6 @@ class CachedNetworkImageProvider
       maxHeight,
       maxWidth,
       headers,
-      errorListener,
       imageRenderMethodForWeb,
       () => PaintingBinding.instance.imageCache.evict(key),
     );

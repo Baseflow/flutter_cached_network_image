@@ -24,7 +24,6 @@ void main() {
       null,
       null,
       null,
-      null,
       ImageRenderMethodForWeb.HttpGet,
       () => {},
     );
