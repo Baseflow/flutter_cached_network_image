@@ -34,6 +34,9 @@ class CachedNetworkImageProvider
   /// CacheManager from which the image files are loaded.
   final BaseCacheManager? cacheManager;
 
+  /// The default cache manager used for image caching.
+  static DefaultCacheManager defaultCacheManager = DefaultCacheManager();
+
   /// Web url of the image to load
   final String url;
 
@@ -113,7 +116,7 @@ class CachedNetworkImageProvider
       cacheKey,
       chunkEvents,
       decode,
-      cacheManager ?? DefaultCacheManager(),
+      cacheManager ?? defaultCacheManager,
       maxHeight,
       maxWidth,
       headers,
@@ -166,7 +169,7 @@ class CachedNetworkImageProvider
       cacheKey,
       chunkEvents,
       decode,
-      cacheManager ?? DefaultCacheManager(),
+      cacheManager ?? defaultCacheManager,
       maxHeight,
       maxWidth,
       headers,
