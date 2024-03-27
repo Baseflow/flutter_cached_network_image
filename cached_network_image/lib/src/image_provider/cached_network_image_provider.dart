@@ -35,7 +35,7 @@ class CachedNetworkImageProvider
   final BaseCacheManager? cacheManager;
 
   /// The default cache manager used for image caching.
-  static DefaultCacheManager defaultCacheManager = DefaultCacheManager();
+  static BaseCacheManager defaultCacheManager = DefaultCacheManager();
 
   /// Web url of the image to load
   final String url;
