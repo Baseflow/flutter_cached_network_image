@@ -125,14 +125,14 @@ class ImageLoader implements platform.ImageLoader {
           yield decoded;
         }
       }
-    } on Object {
+    } on Object catch (error, stackTrace) {
       // Depending on where the exception was thrown, the image cache may not
       // have had a chance to track the key in the cache at all.
       // Schedule a microtask to give the cache a chance to add the key.
       scheduleMicrotask(() {
         evictImage();
       });
-      rethrow;
+      yield* Stream.error(error, stackTrace);
     } finally {
       await chunkEvents.close();
     }
