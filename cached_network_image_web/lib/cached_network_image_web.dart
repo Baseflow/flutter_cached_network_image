@@ -4,10 +4,10 @@ library cached_network_image_web;
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'dart:ui_web' as ui_web;
 
 import 'package:cached_network_image_platform_interface'
-        '/cached_network_image_platform_interface.dart' as platform
-    show ImageLoader, ImageRenderMethodForWeb;
+    '/cached_network_image_platform_interface.dart' as platform show ImageLoader, ImageRenderMethodForWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
@@ -154,8 +154,7 @@ class ImageLoader implements platform.ImageLoader {
     StreamController<ImageChunkEvent> chunkEvents,
   ) {
     final resolved = Uri.base.resolve(url);
-    // ignore: undefined_function
-    return ui.webOnlyInstantiateImageCodecFromUrl(
+    return ui_web.createImageCodecFromUrl(
       resolved,
       chunkCallback: (int bytes, int total) {
         chunkEvents.add(
@@ -165,7 +164,7 @@ class ImageLoader implements platform.ImageLoader {
           ),
         );
       },
-    ) as Future<ui.Codec>;
+    );
   }
 }
 
