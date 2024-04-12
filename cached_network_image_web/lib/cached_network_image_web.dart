@@ -7,8 +7,9 @@ import 'dart:ui' as ui;
 import 'dart:ui_web' as ui_web;
 
 import 'package:cached_network_image_platform_interface'
-    '/cached_network_image_platform_interface.dart' as platform show ImageLoader, ImageRenderMethodForWeb;
-import 'package:flutter/material.dart';
+        '/cached_network_image_platform_interface.dart' as platform
+    show ImageLoader, ImageRenderMethodForWeb;
+import 'package:flutter/rendering.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// ImageLoader class to load images on the web platform.
