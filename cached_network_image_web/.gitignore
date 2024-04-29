@@ -31,6 +31,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+**/pubspec_overrides.yaml
+
 
 # Symbolication related
 app.*.symbols
