@@ -1,3 +1,6 @@
+## [1.2.0] - 2024-04-29 
+* Replace deprecated `webOnlyInstantiateImageCodecFromUrl` to `createImageCodecFromUrl` from `dart:ui_web`
+
 ## [1.1.1] - 2023-12-31
 * Removed errorListener from ImageLoader interface
 
