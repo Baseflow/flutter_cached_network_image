@@ -1,3 +1,6 @@
+## [3.3.2] - 2024-04-10
+* Change how errors are reported by ImageLoader. Emitting errors as streams instead of re-throwing.
+
 ## [3.3.1] - 2023-12-31
 * Adding an errorListener prevents automatic reporting to global error handler.
 
