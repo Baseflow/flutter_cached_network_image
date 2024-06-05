@@ -115,39 +115,46 @@ class ImageLoader implements platform.ImageLoader {
     int? maxWidth,
     Map<String, String>? headers,
     VoidCallback evictImage,
-  ) async* {
-    try {
-      await for (final result in cacheManager.getFileStream(
-        url,
-        key: cacheKey,
-        withProgress: true,
-        headers: headers,
-      )) {
-        if (result is DownloadProgress) {
+  ) {
+    var streamController = StreamController<ui.Codec>();
+
+    final stream = cacheManager.getFileStream(
+      url,
+      withProgress: true,
+      headers: headers,
+      key: cacheKey,
+    );
+
+    stream.listen(
+      (event) {
+        if (event is DownloadProgress) {
           chunkEvents.add(
             ImageChunkEvent(
-              cumulativeBytesLoaded: result.downloaded,
-              expectedTotalBytes: result.totalSize,
+              cumulativeBytesLoaded: event.downloaded,
+              expectedTotalBytes: event.totalSize,
             ),
           );
         }
-        if (result is FileInfo) {
-          final file = result.file;
-          final bytes = await file.readAsBytes();
-          final decoded = await decode(bytes);
-          yield decoded;
+        if (event is FileInfo) {
+          event.file
+              .readAsBytes()
+              .then((value) => decode(value).then(streamController.add));
         }
-      }
-    } on Object {
-      // Depending on where the exception was thrown, the image cache may not
-      // have had a chance to track the key in the cache at all.
-      // Schedule a microtask to give the cache a chance to add the key.
-      scheduleMicrotask(() {
-        evictImage();
-      });
-      rethrow;
-    }
-    await chunkEvents.close();
+      },
+      onError: (e, st) {
+        scheduleMicrotask(() {
+          evictImage();
+        });
+        streamController.addError(e, st);
+      },
+      onDone: () async {
+        streamController.close();
+        chunkEvents.close();
+      },
+      cancelOnError: true,
+    );
+
+    return streamController.stream;
   }
 
   Future<ui.Codec> _loadAsyncHtmlImage(
