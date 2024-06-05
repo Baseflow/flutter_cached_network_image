@@ -12,6 +12,8 @@ import 'package:cached_network_image_platform_interface'
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+enum _State { open, waitingForData, closing }
+
 /// ImageLoader class to load images on the web platform.
 class ImageLoader implements platform.ImageLoader {
   @Deprecated('Use loadImageAsync instead')
@@ -125,6 +127,8 @@ class ImageLoader implements platform.ImageLoader {
       key: cacheKey,
     );
 
+    var state = _State.open;
+
     stream.listen(
       (event) {
         if (event is DownloadProgress) {
@@ -136,9 +140,17 @@ class ImageLoader implements platform.ImageLoader {
           );
         }
         if (event is FileInfo) {
-          event.file
-              .readAsBytes()
-              .then((value) => decode(value).then(streamController.add));
+          if (state == _State.open) {
+            state = _State.waitingForData;
+          }
+
+          event.file.readAsBytes().then((value) => decode(value)).then((data) {
+            streamController.add(data);
+            if (state == _State.closing) {
+              streamController.close();
+              chunkEvents.close();
+            }
+          });
         }
       },
       onError: (e, st) {
@@ -148,8 +160,12 @@ class ImageLoader implements platform.ImageLoader {
         streamController.addError(e, st);
       },
       onDone: () async {
-        streamController.close();
-        chunkEvents.close();
+        if (state == _State.open) {
+          streamController.close();
+          chunkEvents.close();
+        } else if (state == _State.waitingForData) {
+          state = _State.closing;
+        }
       },
       cancelOnError: true,
     );
