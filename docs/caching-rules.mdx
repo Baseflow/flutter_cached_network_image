@@ -1,0 +1,4 @@
+# Caching rules
+
+It uses [cache-control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) headers to know if the cache is outdated (max-age and eTag).
+If it is outdated the cached version is shown directly and the server is requested for an update. If the server sends a new image it updates the image directly.
