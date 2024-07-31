@@ -4,13 +4,13 @@ name: platform_interface
 # events but only for the develop branch
 on:
   push:
-    branches: [ develop, master ]
+    branches: [develop, main]
     paths:
-      - 'cached_network_image_platform_interface/**'
+      - "cached_network_image_platform_interface/**"
   pull_request:
-    branches: [ develop ]
+    branches: [develop]
     paths:
-      - 'cached_network_image_platform_interface/**'
+      - "cached_network_image_platform_interface/**"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,7 +31,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -60,7 +60,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -88,7 +88,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies

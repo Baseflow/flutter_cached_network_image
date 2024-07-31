@@ -4,13 +4,13 @@ name: app_facing_package
 # events but only for the develop branch
 on:
   push:
-    branches: [ develop, master ]
+    branches: [develop, main]
     paths:
-      - 'cached_network_image/**'
+      - "cached_network_image/**"
   pull_request:
-    branches: [ develop ]
+    branches: [develop]
     paths:
-      - 'cached_network_image/**'
+      - "cached_network_image/**"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,7 +31,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -60,7 +60,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -90,13 +90,13 @@ jobs:
       # Ensure correct JAVA version is installed.
       - uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: "zulu"
+          java-version: "17"
 
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -126,7 +126,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -156,7 +156,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Enable platform support
       - name: Enable macOS
@@ -191,7 +191,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Enable platform support
       - name: Enable Windows
@@ -230,7 +230,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Enable platform support
       - name: Enable Linux
@@ -270,7 +270,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -298,7 +298,7 @@ jobs:
       # Make sure the stable version of Flutter is available
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       # Download all Flutter packages
       - name: Download dependencies

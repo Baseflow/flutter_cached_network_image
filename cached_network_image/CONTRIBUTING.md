@@ -18,7 +18,7 @@ Setting up your development environment
    to generate an SSH key.
  * Clone your forked repo on your local development machine: `git clone git@github.com:<your_name_here>/flutter_cached_network_image.git`
  * Change into the `flutter_cached_network_image` directory: `cd flutter_cached_network_image`
- * Add an upstream to the original repo, so that fetch from the master repository and not your clone: `git remote add upstream git@github.com:baseflow/flutter_cached_network_image.git`
+ * Add an upstream to the original repo, so that fetch from the main repository and not your clone: `git remote add upstream git@github.com:baseflow/flutter_cached_network_image.git`
 
 Running the example project
 ---------------------------
@@ -31,7 +31,7 @@ Contribute
 
 We really appreciate contributions via GitHub pull requests. To contribute take the following steps:
 
- * Make sure you are up to date with the latest code on the master: 
+ * Make sure you are up to date with the latest code on the main:
    * `git fetch upstream`
    * `git checkout upstream/develop -b <name_of_your_branch>`
  * Apply your changes
