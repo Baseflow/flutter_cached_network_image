@@ -13,14 +13,14 @@ environment:
 
 dependencies:
   cached_network_image_platform_interface: ^4.0.0
-  cached_network_image_web: ^1.1.1
+  cached_network_image_web: ^1.2.0
   flutter:
     sdk: flutter
-  flutter_cache_manager: ^3.3.1
+  flutter_cache_manager: ^3.3.3
   octo_image: ^2.0.0
 
 dev_dependencies:
-  file: '>=6.1.4 <8.0.0'
+  file: '>=7.0.0 <8.0.0'
   flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
