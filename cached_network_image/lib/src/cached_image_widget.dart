@@ -240,6 +240,7 @@ class CachedNetworkImage extends StatelessWidget {
     this.errorListener,
     ImageRenderMethodForWeb imageRenderMethodForWeb =
         ImageRenderMethodForWeb.HtmlImage,
+    double scale = 1.0,
   }) : _image = CachedNetworkImageProvider(
           imageUrl,
           headers: httpHeaders,
@@ -249,6 +250,7 @@ class CachedNetworkImage extends StatelessWidget {
           maxWidth: maxWidthDiskCache,
           maxHeight: maxHeightDiskCache,
           errorListener: errorListener,
+          scale: scale,
         );
 
   @override
