@@ -101,15 +101,17 @@ class TestRenderingFlutterBinding extends BindingBase
       _errors.add(details);
     };
     try {
-      pipelineOwner.flushLayout();
+      rootPipelineOwner.flushLayout();
       if (phase == EnginePhase.layout) return;
-      pipelineOwner.flushCompositingBits();
+      rootPipelineOwner.flushCompositingBits();
       if (phase == EnginePhase.compositingBits) return;
-      pipelineOwner.flushPaint();
+      rootPipelineOwner.flushPaint();
       if (phase == EnginePhase.paint) return;
-      renderView.compositeFrame();
+      for (final renderView in renderViews) {
+        renderView.compositeFrame();
+      }
       if (phase == EnginePhase.composite) return;
-      pipelineOwner.flushSemantics();
+      rootPipelineOwner.flushSemantics();
       if (phase == EnginePhase.flushSemantics) return;
       assert(
         phase == EnginePhase.flushSemantics ||
@@ -166,7 +168,7 @@ void layout(
     box.parent == null,
   ); // We stick the box in another, so you can't reuse it easily, sorry.
 
-  renderer.renderView.child = null;
+  renderer.renderViews.first.child = null;
   if (constraints != null) {
     box = RenderPositionedBox(
       alignment: alignment,
@@ -176,7 +178,7 @@ void layout(
       ),
     );
   }
-  renderer.renderView.child = box;
+  renderer.renderViews.first.child = box;
 
   pumpFrame(phase: phase, onErrors: onErrors);
 }
@@ -188,7 +190,7 @@ void pumpFrame({
   EnginePhase phase = EnginePhase.layout,
   VoidCallback? onErrors,
 }) {
-  assert(renderer.renderView.child != null); // call layout() first!
+  assert(renderer.renderViews.first.child != null); // call layout() first!
 
   if (onErrors != null) {
     renderer.onErrors = onErrors;

@@ -110,9 +110,10 @@ class BasicContent extends StatelessWidget {
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 errorListener: (e) {
                   if (e is SocketException) {
-                    print('Error with ${e.address} and message ${e.message}');
+                    debugPrint(
+                        'Error with ${e.address} and message ${e.message}');
                   } else {
-                    print('Image Exception is: ${e.runtimeType}');
+                    debugPrint('Image Exception is: ${e.runtimeType}');
                   }
                 },
               ),
