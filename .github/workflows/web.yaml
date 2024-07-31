@@ -7,10 +7,12 @@ on:
     branches: [develop, main]
     paths:
       - "cached_network_image_web/**"
+      - ".github/workflows/web.yaml"
   pull_request:
     branches: [develop]
     paths:
       - "cached_network_image_web/**"
+      - ".github/workflows/web.yaml"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:

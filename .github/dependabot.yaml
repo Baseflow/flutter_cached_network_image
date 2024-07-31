@@ -1,0 +1,19 @@
+version: 2
+enable-beta-ecosystems: true
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/cached_network_image/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/cached_network_image_platform_interface/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/cached_network_image_web/"
+    schedule:
+      interval: "daily"
