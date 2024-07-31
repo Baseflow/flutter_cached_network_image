@@ -96,7 +96,7 @@ jobs:
       - uses: actions/checkout@v4
 
       # Ensure correct JAVA version is installed.
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: "17"
@@ -340,8 +340,10 @@ jobs:
         working-directory: ${{env.source-directory}}
 
       # Upload code coverage information
-      - uses: codecov/codecov-action@v4
-        with:
-          files: ${{env.source-directory}}/coverage/lcov.info
-          name: CachedNetworkImage (App Facing Package)
-          fail_ci_if_error: true
+      # - uses: codecov/codecov-action@v4
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      #   with:
+      #     files: ${{env.source-directory}}/coverage/lcov.info
+      #     name: CachedNetworkImage (App Facing Package)
+      #     fail_ci_if_error: true
