@@ -160,7 +160,7 @@ class MyImageWidget extends StatelessWidget {
   final String imageUrl;
 
   MyImageWidget({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.cacheManager,
     VoidCallback? onProgress,
@@ -168,8 +168,7 @@ class MyImageWidget extends StatelessWidget {
     VoidCallback? onError,
   })  : progressBuilder = getProgress(onProgress),
         placeholderBuilder = getPlaceholder(onPlaceHolder),
-        errorBuilder = getErrorBuilder(onError),
-        super(key: key);
+        errorBuilder = getErrorBuilder(onError);
 
   static ProgressIndicatorBuilder? getProgress(VoidCallback? onProgress) {
     if (onProgress == null) return null;

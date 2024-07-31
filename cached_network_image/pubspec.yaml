@@ -21,7 +21,7 @@ dependencies:
 
 dev_dependencies:
   file: '>=6.1.4 <8.0.0'
-  flutter_lints: ^2.0.3
+  flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.0
