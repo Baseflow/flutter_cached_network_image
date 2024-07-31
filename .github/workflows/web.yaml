@@ -26,12 +26,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Make sure the stable version of Flutter is available
-      - uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          architecture: x64
+          cache: true
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -55,12 +58,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Make sure the stable version of Flutter is available
-      - uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          architecture: x64
+          cache: true
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -83,12 +89,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Make sure the stable version of Flutter is available
-      - uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          architecture: x64
+          cache: true
 
       # Download all Flutter packages
       - name: Download dependencies
@@ -101,7 +110,7 @@ jobs:
         working-directory: ${{env.source-directory}}
 
       # # Upload code coverage information
-      # - uses: codecov/codecov-action@v1
+      # - uses: codecov/codecov-action@v4
       #   with:
       #     files: ${{env.source-directory}}/coverage/lcov.info
       #     name: CachedNetworkImage (Web)
