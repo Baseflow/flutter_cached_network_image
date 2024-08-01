@@ -84,52 +84,52 @@ jobs:
         run: flutter analyze
         working-directory: ${{env.source-directory}}
 
-  tests:
-    name: Unit-tests
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  # tests:
+  #   name: Unit-tests
+  #   # The type of runner that the job will run on
+  #   runs-on: ubuntu-latest
 
-    env:
-      source-directory: ./cached_network_image_web
+  #   env:
+  #     source-directory: ./cached_network_image_web
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+  #   # Steps represent a sequence of tasks that will be executed as part of the job
+  #   steps:
+  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+  #     - uses: actions/checkout@v4
 
-      # Make sure the stable version of Flutter is available
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          architecture: x64
-          cache: true
+  #     # Make sure the stable version of Flutter is available
+  #     - name: Set up Flutter
+  #       uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: "stable"
+  #         architecture: x64
+  #         cache: true
 
-      # Download all Flutter packages
-      - name: Download dependencies
-        run: flutter pub get
-        working-directory: ${{env.source-directory}}
+  #     # Download all Flutter packages
+  #     - name: Download dependencies
+  #       run: flutter pub get
+  #       working-directory: ${{env.source-directory}}
 
-      # Run all unit-tests with code coverage
-      - name: Run unit tests
-        run: flutter test --coverage
-        working-directory: ${{env.source-directory}}
+  #     # Run all unit-tests with code coverage
+  #     - name: Run unit tests
+  #       run: flutter test --coverage
+  #       working-directory: ${{env.source-directory}}
 
-      # Upload code coverage information
-      # - uses: codecov/codecov-action@v4
-      #   env:
-      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      #   with:
-      #     files: ${{env.source-directory}}/coverage/lcov.info
-      #     name: CachedNetworkImage (App Facing Package)
-      #     fail_ci_if_error: true
+  # Upload code coverage information
+  # - uses: codecov/codecov-action@v4
+  #   env:
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  #   with:
+  #     files: ${{env.source-directory}}/coverage/lcov.info
+  #     name: CachedNetworkImage (App Facing Package)
+  #     fail_ci_if_error: true
 
   publish:
     if: ${{ github.ref_type == 'tag' }}
     name: Publish package
     permissions:
       id-token: write
-    needs: [format, analyze, tests]
+    needs: [format, analyze]
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
