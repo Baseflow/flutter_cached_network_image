@@ -10,12 +10,12 @@ on:
       - "web-v[0-9]+.[0-9]+.[0-9]+*"
     branches: [develop, main]
     paths:
-      - "cached_network_image_platform_web/**"
+      - "cached_network_image_web/**"
       - ".github/workflows/platform_web.yaml"
   pull_request:
     branches: [develop]
     paths:
-      - "cached_network_image_platform_web/**"
+      - "cached_network_image_web/**"
       - ".github/workflows/platform_web.yaml"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      source-directory: ./cached_network_image_platform_web
+      source-directory: ./cached_network_image_web
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      source-directory: ./cached_network_image_platform_web
+      source-directory: ./cached_network_image_web
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      source-directory: ./cached_network_image_platform_web
+      source-directory: ./cached_network_image_web
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -134,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      source-directory: ./cached_network_image_platform_web
+      source-directory: ./cached_network_image_web
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
