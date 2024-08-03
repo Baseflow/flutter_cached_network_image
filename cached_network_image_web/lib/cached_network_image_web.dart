@@ -120,55 +120,65 @@ class ImageLoader implements platform.ImageLoader {
   ) {
     var streamController = StreamController<ui.Codec>();
 
-    final stream = cacheManager.getFileStream(
-      url,
-      withProgress: true,
-      headers: headers,
-      key: cacheKey,
-    );
+    try {
+      final stream = cacheManager.getFileStream(
+        url,
+        withProgress: true,
+        headers: headers,
+        key: cacheKey,
+      );
 
-    var state = _State.open;
+      var state = _State.open;
 
-    stream.listen(
-      (event) {
-        if (event is DownloadProgress) {
-          chunkEvents.add(
-            ImageChunkEvent(
-              cumulativeBytesLoaded: event.downloaded,
-              expectedTotalBytes: event.totalSize,
-            ),
-          );
-        }
-        if (event is FileInfo) {
-          if (state == _State.open) {
-            state = _State.waitingForData;
+      stream.listen(
+        (event) {
+          if (event is DownloadProgress) {
+            chunkEvents.add(
+              ImageChunkEvent(
+                cumulativeBytesLoaded: event.downloaded,
+                expectedTotalBytes: event.totalSize,
+              ),
+            );
           }
-
-          event.file.readAsBytes().then((value) => decode(value)).then((data) {
-            streamController.add(data);
-            if (state == _State.closing) {
-              streamController.close();
-              chunkEvents.close();
+          if (event is FileInfo) {
+            if (state == _State.open) {
+              state = _State.waitingForData;
             }
+
+            event.file
+                .readAsBytes()
+                .then((value) => decode(value))
+                .then((data) {
+              streamController.add(data);
+              if (state == _State.closing) {
+                streamController.close();
+                chunkEvents.close();
+              }
+            });
+          }
+        },
+        onError: (e, st) {
+          scheduleMicrotask(() {
+            evictImage();
           });
-        }
-      },
-      onError: (e, st) {
-        scheduleMicrotask(() {
-          evictImage();
-        });
-        streamController.addError(e, st);
-      },
-      onDone: () async {
-        if (state == _State.open) {
-          streamController.close();
-          chunkEvents.close();
-        } else if (state == _State.waitingForData) {
-          state = _State.closing;
-        }
-      },
-      cancelOnError: true,
-    );
+          streamController.addError(e, st);
+        },
+        onDone: () async {
+          if (state == _State.open) {
+            streamController.close();
+            chunkEvents.close();
+          } else if (state == _State.waitingForData) {
+            state = _State.closing;
+          }
+        },
+        cancelOnError: true,
+      );
+    } on Object catch (e, st) {
+      scheduleMicrotask(() {
+        evictImage();
+      });
+      streamController.addError(e, st);
+    }
 
     return streamController.stream;
   }
