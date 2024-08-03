@@ -7,7 +7,7 @@ environment:
   flutter: '>=3.10.0'
 
 dependencies:
-  baseflow_plugin_template: ^2.1.2
+  baseflow_plugin_template: ^2.2.0
   cached_network_image:
     path: ../
   flutter:
