@@ -12,6 +12,8 @@ import 'package:cached_network_image_platform_interface'
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+enum _State { open, waitingForData, closing }
+
 /// ImageLoader class to load images on the web platform.
 class ImageLoader implements platform.ImageLoader {
   @Deprecated('Use loadImageAsync instead')
@@ -115,39 +117,70 @@ class ImageLoader implements platform.ImageLoader {
     int? maxWidth,
     Map<String, String>? headers,
     VoidCallback evictImage,
-  ) async* {
+  ) {
+    var streamController = StreamController<ui.Codec>();
+
     try {
-      await for (final result in cacheManager.getFileStream(
+      final stream = cacheManager.getFileStream(
         url,
-        key: cacheKey,
         withProgress: true,
         headers: headers,
-      )) {
-        if (result is DownloadProgress) {
-          chunkEvents.add(
-            ImageChunkEvent(
-              cumulativeBytesLoaded: result.downloaded,
-              expectedTotalBytes: result.totalSize,
-            ),
-          );
-        }
-        if (result is FileInfo) {
-          final file = result.file;
-          final bytes = await file.readAsBytes();
-          final decoded = await decode(bytes);
-          yield decoded;
-        }
-      }
-    } on Object {
-      // Depending on where the exception was thrown, the image cache may not
-      // have had a chance to track the key in the cache at all.
-      // Schedule a microtask to give the cache a chance to add the key.
+        key: cacheKey,
+      );
+
+      var state = _State.open;
+
+      stream.listen(
+        (event) {
+          if (event is DownloadProgress) {
+            chunkEvents.add(
+              ImageChunkEvent(
+                cumulativeBytesLoaded: event.downloaded,
+                expectedTotalBytes: event.totalSize,
+              ),
+            );
+          }
+          if (event is FileInfo) {
+            if (state == _State.open) {
+              state = _State.waitingForData;
+            }
+
+            event.file
+                .readAsBytes()
+                .then((value) => decode(value))
+                .then((data) {
+              streamController.add(data);
+              if (state == _State.closing) {
+                streamController.close();
+                chunkEvents.close();
+              }
+            });
+          }
+        },
+        onError: (e, st) {
+          scheduleMicrotask(() {
+            evictImage();
+          });
+          streamController.addError(e, st);
+        },
+        onDone: () async {
+          if (state == _State.open) {
+            streamController.close();
+            chunkEvents.close();
+          } else if (state == _State.waitingForData) {
+            state = _State.closing;
+          }
+        },
+        cancelOnError: true,
+      );
+    } on Object catch (e, st) {
       scheduleMicrotask(() {
         evictImage();
       });
-      rethrow;
+      streamController.addError(e, st);
     }
-    await chunkEvents.close();
+
+    return streamController.stream;
   }
 
   Future<ui.Codec> _loadAsyncHtmlImage(
