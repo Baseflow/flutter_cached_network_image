@@ -18,9 +18,11 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   MultiImageStreamCompleter({
     required Stream<ui.Codec> codec,
     required this._scale,
+    String? debugLabel,
     Stream<ImageChunkEvent>? chunkEvents,
     InformationCollector? informationCollector,
   }) : _informationCollector = informationCollector {
+    this.debugLabel = debugLabel;
     codec.listen(
       (event) {
         if (_timer != null) {
