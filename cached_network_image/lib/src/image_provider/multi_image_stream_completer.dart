@@ -102,7 +102,13 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     _frameCallbackScheduled = false;
     if (!hasListeners) return;
     if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
-      _emitFrame(ImageInfo(image: _nextFrame!.image, scale: _scale));
+      _emitFrame(
+        ImageInfo(
+          image: _nextFrame!.image,
+          scale: _scale,
+          debugLabel: debugLabel,
+        ),
+      );
       _shownTimestamp = timestamp;
       _frameDuration = _nextFrame!.duration;
       _nextFrame = null;
@@ -152,7 +158,13 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
       // This is not an animated image, just return it and don't schedule more
       // frames.
-      _emitFrame(ImageInfo(image: _nextFrame!.image, scale: _scale));
+      _emitFrame(
+        ImageInfo(
+          image: _nextFrame!.image,
+          scale: _scale,
+          debugLabel: debugLabel,
+        ),
+      );
       return;
     }
     _scheduleAppFrame();
