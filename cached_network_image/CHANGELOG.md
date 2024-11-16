@@ -1,3 +1,7 @@
+## [3.4.2] - 2024-11-16
+
+* export [`ImageRenderMethodForWeb`] as it is part of the public API.
+
 ## [3.4.1] - 2024-08-13
 
 * Target js_interop for Wasm support
