@@ -3,11 +3,11 @@ import 'dart:ui' as ui show Codec;
 
 import 'package:cached_network_image/src/image_provider/multi_image_stream_completer.dart';
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
-    show ErrorListener, ImageRenderMethodForWeb;
-import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
     if (dart.library.io) '_image_loader.dart'
     if (dart.library.js_interop) 'package:cached_network_image_web/cached_network_image_web.dart'
     show ImageLoader;
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
+    show ErrorListener, ImageRenderMethodForWeb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -28,7 +28,7 @@ class CachedNetworkImageProvider
     this.headers,
     this.cacheManager,
     this.cacheKey,
-    this.imageRenderMethodForWeb = ImageRenderMethodForWeb.HtmlImage,
+    this.imageRenderMethodForWeb = ImageRenderMethodForWeb.HttpGet,
   });
 
   /// CacheManager from which the image files are loaded.

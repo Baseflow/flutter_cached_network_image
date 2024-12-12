@@ -5,7 +5,7 @@ homepage: https://github.com/Baseflow/flutter_cached_network_image
 
 environment:
   sdk: ^3.0.0
-  flutter: '>=3.10.0'
+  flutter: ">=3.10.0"
 
 dependencies:
   cached_network_image_platform_interface: ^4.1.1
@@ -15,7 +15,7 @@ dependencies:
   web: ^1.0.0
 
 dev_dependencies:
-  file: '>=7.0.0 <8.0.0'
+  file: ">=7.0.0 <8.0.0"
   flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
