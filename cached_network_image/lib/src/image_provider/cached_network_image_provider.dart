@@ -3,11 +3,11 @@ import 'dart:ui' as ui show Codec;
 
 import 'package:cached_network_image/src/image_provider/multi_image_stream_completer.dart';
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
-    show ErrorListener, ImageRenderMethodForWeb;
-import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
     if (dart.library.io) '_image_loader.dart'
     if (dart.library.js_interop) 'package:cached_network_image_web/cached_network_image_web.dart'
     show ImageLoader;
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
+    show ErrorListener, ImageRenderMethodForWeb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -31,6 +31,19 @@ class CachedNetworkImageProvider
     this.imageRenderMethodForWeb = ImageRenderMethodForWeb.HtmlImage,
   });
 
+  /// Maintain compatibility with sync provided headers
+  CachedNetworkImageProvider.sync(
+    this.url, {
+    this.maxHeight,
+    this.maxWidth,
+    this.scale = 1.0,
+    this.errorListener,
+    Map<String, String>? headers,
+    this.cacheManager,
+    this.cacheKey,
+    this.imageRenderMethodForWeb = ImageRenderMethodForWeb.HtmlImage,
+  }) : headers = Future.value(headers ?? {});
+
   /// CacheManager from which the image files are loaded.
   final BaseCacheManager? cacheManager;
 
@@ -50,7 +63,7 @@ class CachedNetworkImageProvider
   final ErrorListener? errorListener;
 
   /// Set headers for the image provider, for example for authentication
-  final Map<String, String>? headers;
+  final Future<Map<String, String>>? headers;
 
   /// Maximum height of the loaded image. If not null and using an
   /// [ImageCacheManager] the image is resized on disk to fit the height.

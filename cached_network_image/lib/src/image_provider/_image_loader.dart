@@ -3,10 +3,10 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
-import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart';
 import 'package:cached_network_image_platform_interface'
         '/cached_network_image_platform_interface.dart' as platform
     show ImageLoader;
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
@@ -22,7 +22,7 @@ class ImageLoader implements platform.ImageLoader {
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
-    Map<String, String>? headers,
+    Future<Map<String, String>>? headers,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
@@ -52,7 +52,7 @@ class ImageLoader implements platform.ImageLoader {
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
-    Map<String, String>? headers,
+    Future<Map<String, String>>? headers,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) {
@@ -81,7 +81,7 @@ class ImageLoader implements platform.ImageLoader {
     BaseCacheManager cacheManager,
     int? maxHeight,
     int? maxWidth,
-    Map<String, String>? headers,
+    Future<Map<String, String>>? headers,
     ImageRenderMethodForWeb imageRenderMethodForWeb,
     VoidCallback evictImage,
   ) async* {
@@ -99,13 +99,13 @@ class ImageLoader implements platform.ImageLoader {
               maxHeight: maxHeight,
               maxWidth: maxWidth,
               withProgress: true,
-              headers: headers,
+              headers: await headers,
               key: cacheKey,
             )
           : cacheManager.getFileStream(
               url,
               withProgress: true,
-              headers: headers,
+              headers: await headers,
               key: cacheKey,
             );
 

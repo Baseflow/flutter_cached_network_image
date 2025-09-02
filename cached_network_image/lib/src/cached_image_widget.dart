@@ -166,7 +166,7 @@ class CachedNetworkImage extends StatelessWidget {
   final bool matchTextDirection;
 
   /// Optional headers for the http request of the image url
-  final Map<String, String>? httpHeaders;
+  final Future<Map<String, String>>? httpHeaders;
 
   /// When set to true it will animate from the old image to the new image
   /// if the url changes.
