@@ -1,19 +1,19 @@
 name: platform_web
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the develop branch
+# events but only for the main branch
 on:
   workflow_dispatch:
 
   push:
     tags:
       - "web-v[0-9]+.[0-9]+.[0-9]+*"
-    branches: [develop, main]
+    branches: [main]
     paths:
       - "cached_network_image_web/**"
       - ".github/workflows/platform_web.yaml"
   pull_request:
-    branches: [develop]
+    branches: [main]
     paths:
       - "cached_network_image_web/**"
       - ".github/workflows/platform_web.yaml"
