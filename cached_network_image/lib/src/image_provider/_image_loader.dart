@@ -108,7 +108,6 @@ class ImageLoader implements platform.ImageLoader {
               headers: headers,
               key: cacheKey,
             );
-
       await for (final result in stream) {
         if (result is DownloadProgress) {
           chunkEvents.add(

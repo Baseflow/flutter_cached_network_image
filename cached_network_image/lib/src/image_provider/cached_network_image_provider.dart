@@ -1,7 +1,6 @@
 import 'dart:async' show Future, StreamController;
 import 'dart:ui' as ui show Codec;
 
-import 'package:cached_network_image/src/image_provider/multi_image_stream_completer.dart';
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
     show ErrorListener, ImageRenderMethodForWeb;
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
@@ -77,8 +76,8 @@ class CachedNetworkImageProvider
     DecoderBufferCallback decode,
   ) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    final imageStreamCompleter = MultiImageStreamCompleter(
-      codec: _loadBufferAsync(key, chunkEvents, decode),
+    final imageStreamCompleter = MultiFrameImageStreamCompleter(
+      codec: _loadBufferAsync(key, chunkEvents, decode).first,
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
       informationCollector: () => <DiagnosticsNode>[
@@ -128,8 +127,8 @@ class CachedNetworkImageProvider
     ImageDecoderCallback decode,
   ) {
     final chunkEvents = StreamController<ImageChunkEvent>();
-    final imageStreamCompleter = MultiImageStreamCompleter(
-      codec: _loadImageAsync(key, chunkEvents, decode),
+    final imageStreamCompleter = MultiFrameImageStreamCompleter(
+      codec: _loadImageAsync(key, chunkEvents, decode).first,
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
       informationCollector: () => <DiagnosticsNode>[
