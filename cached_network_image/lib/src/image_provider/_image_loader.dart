@@ -118,6 +118,10 @@ class ImageLoader implements platform.ImageLoader {
             ),
           );
         }
+        if (result is InterlacedProgress) {
+          final decoded = await decode(result.data);
+          yield decoded;
+        }
         if (result is FileInfo) {
           final file = result.file;
           final bytes = await file.readAsBytes();
