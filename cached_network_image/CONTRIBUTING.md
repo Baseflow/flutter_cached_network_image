@@ -21,9 +21,11 @@ This is a monorepo holding three published packages plus an example app:
  * `cached_network_image_web/` — the web implementation
 
 There is no Melos and no root `pubspec.yaml`, so every command below runs from
-inside the package you are changing. A change to the platform interface almost
-always has to be applied to both implementations in the same pull request. See
-[AGENTS.md](../AGENTS.md) for the architecture and the full development reference.
+inside the package you are changing. **Scope your pull request to one
+package** — the only exception is a change to the platform interface, which
+almost always has to be applied to both implementations in the same pull
+request. See [AGENTS.md](../AGENTS.md) for the architecture and the full
+development reference.
 
 Setting up your development environment
 ---------------------------------------
@@ -54,6 +56,9 @@ the following steps:
    * `git fetch upstream`
    * `git checkout upstream/main -b <name_of_your_branch>`
  * Apply your changes
+ * Bump the `version:` in that package's `pubspec.yaml` (following semver) and
+   add a matching `## [x.y.z] - YYYY-MM-DD` entry to its `CHANGELOG.md`
+   describing what changed
  * Verify your changes and fix potential warnings and errors, from each package you changed:
    * Check formatting: `dart format <the files you changed>`
    * Run static analysis: `flutter analyze`
@@ -68,7 +73,7 @@ your change.
 
 Send us your pull request:
 
- * Go to `https://github.com/Baseflow/flutter_cached_network_image` and click the "Compare & pull request" button.
+ * Go to `https://github.com/Baseflow/flutter_cached_network_image` and click the "Compare & pull request" button, targeting `main`.
 
 Please make sure you have solved all warnings and errors reported by static
 analysis and that you fill in the full pull request template. Failing to do so

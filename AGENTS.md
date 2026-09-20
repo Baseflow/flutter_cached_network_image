@@ -199,6 +199,16 @@ branch gets no CI at all.
 | Any type shared by IO and web | `cached_network_image_platform_interface/lib/`, **and mirrored into both implementations in the same PR** |
 | Download, disk cache, TTL, eviction, cache metadata | `Baseflow/flutter_cache_manager`, not here |
 
+**One package per pull request.** Scope every PR to a single package — its
+`pubspec.yaml` version bump and `CHANGELOG.md` entry travel with it in the same
+PR (see [Pull request workflow](#pull-request-workflow)). The only exception is
+a signature change to `ImageLoader`: that one still has to land in
+`cached_network_image_platform_interface` and both implementations in the same
+PR, per the row above, because nothing in either package's own CI job would
+catch the other half breaking. When a PR is that exception, bump the version
+and `CHANGELOG.md` for every package it touches, and update the sibling
+version constraint in the dependents' `pubspec.yaml` to match.
+
 Things to know before changing the loaders:
 
 - **Resizing silently does nothing on a plain cache manager.** `_image_loader.dart`
@@ -366,14 +376,19 @@ This repo uses the **forking workflow**: contributors work on their own fork and
 open pull requests to the main repository. Maintainers review and merge; do not
 push directly to `Baseflow/flutter_cached_network_image`.
 
-1. Apply changes on a branch based on `upstream/main`.
-2. Verify locally, from each package you changed:
+1. Apply changes on a branch based on `upstream/main`, scoped to one package
+   per the rule above.
+2. Bump that package's `version:` in `pubspec.yaml` following semver, and add a
+   matching `## [x.y.z] - YYYY-MM-DD` `CHANGELOG.md` entry describing the
+   change (format: see [Releases](#releases)). Date it with the day you open
+   the PR; a maintainer will correct it if it slips before tagging.
+3. Verify locally, from each package you changed:
    - `dart format <the files you changed>`
    - `flutter analyze`
    - `flutter test` (`flutter test --platform chrome` for the web package)
-3. Push to your fork: `git push origin <name_of_your_branch>`
-4. Open a pull request against `Baseflow/flutter_cached_network_image` and fill
-   out the full [PR template](.github/PULL_REQUEST_TEMPLATE.md).
+4. Push to your fork: `git push origin <name_of_your_branch>`
+5. Open a pull request against `main` on `Baseflow/flutter_cached_network_image`
+   and fill out the full [PR template](.github/PULL_REQUEST_TEMPLATE.md).
 
 Keep public API changes additive and non-breaking where possible; breaking changes
 need a clear major-version plan and README/CHANGELOG callouts.
@@ -416,12 +431,13 @@ The repository's own template checklist:
 
 And for this repo specifically:
 
-- [ ] If a type in `cached_network_image_platform_interface` changed, both
-      implementations are updated in the same pull request
+- [ ] This PR touches exactly one package — or, for an `ImageLoader` signature
+      change, the platform interface and both implementations it must mirror
 - [ ] If `analysis_options.yaml` changed, all four copies changed
 - [ ] No `pubspec_overrides.yaml` in the diff, and no regenerated example plugin
       registrant files unless the plugin set actually changed
-- [ ] `CHANGELOG.md` updated in every package the change touches
+- [ ] `pubspec.yaml` version bumped and `CHANGELOG.md` updated for every
+      package this PR changes
 - [ ] Public API documented with `///` doc comments where applicable
 - [ ] New tests added where applicable; all tests pass
 
@@ -442,11 +458,15 @@ everything it depends on is live there. Never push all three tags at once: the t
 downstream workflows will start immediately and fail to resolve siblings that are
 not published yet.
 
-1. Land the preparation first. Bump `version:` in each package's `pubspec.yaml`,
-   bump the sibling constraints in `cached_network_image/pubspec.yaml` and
-   `cached_network_image_web/pubspec.yaml` to match, and add each `CHANGELOG.md`
-   entry. A release that raises the Dart or Flutter floor is breaking for all
-   three and bumps all three majors together.
+1. Confirm `main` is ready. Under the one-package-per-PR rule, every merged PR
+   already bumped its own package's `version:` and added its `CHANGELOG.md`
+   entry (see [Pull request workflow](#pull-request-workflow)) — there is no
+   separate release-prep PR to land first. Before tagging, check that the
+   sibling constraints in `cached_network_image/pubspec.yaml` and
+   `cached_network_image_web/pubspec.yaml` were bumped to match wherever a
+   dependency they pin took a new major version. A release that raises the
+   Dart or Flutter floor is breaking for all three and needs all three bumped
+   together in one coordinated PR.
 2. Verify from each package directory, with any `pubspec_overrides.yaml` deleted:
    `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`
    (`--platform chrome` for the web package), and `dart pub publish --dry-run`.
@@ -466,9 +486,11 @@ and never bump a version without a tag to match.
 
 `CHANGELOG.md` today uses `## [x.y.z] - YYYY-MM-DD` headings with `### Breaking
 changes` and `### Other changes` subsections and `*` bullets, and no
-`## [Unreleased]` section. Match that format. Introducing an `[Unreleased]`
-section is a separate decision, not something to do as part of an unrelated
-change.
+`## [Unreleased]` section. Match that format. When you add your own entry in a
+pull request, date it with the day you open the PR — a maintainer will correct
+the date if it changes before the version is actually tagged. Introducing an
+`[Unreleased]` section is a separate decision, not something to do as part of
+an unrelated change.
 
 Published versions are immutable, so keep branch names out of URLs in
 `pubspec.yaml` and in docs: a branch-specific link becomes a permanent dead link

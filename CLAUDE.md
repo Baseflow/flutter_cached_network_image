@@ -42,6 +42,10 @@ so other agents and human contributors pick it up too.
 - Follow the forking + PR workflow in `AGENTS.md`; don't push to
   `Baseflow/flutter_cached_network_image` branches directly unless the maintainer asks
   for it in that session. Target `main`.
+- Before opening a PR, confirm it touches exactly one package (or, for an
+  `ImageLoader` signature change, the interface plus both implementations it
+  mirrors) and that you bumped that package's `pubspec.yaml` version and added
+  its `CHANGELOG.md` entry.
 - End commit messages with:
 
   ```
