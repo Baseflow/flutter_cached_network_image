@@ -11,6 +11,8 @@
 .project
 .svn/
 bin/
+.fvmrc
+.fvm/
 
 # IntelliJ related
 *.iml
