@@ -36,11 +36,11 @@ dependency_overrides:
       ref: feature/progressive
   cached_network_image_platform_interface:
     git:
-      url: git@github.com:glemartret/flutter_cached_network_image_platform_interface.git
+      url: git@github.com:glemartret/flutter_cached_network_image.git
       path: cached_network_image_platform_interface
       ref: feature/progressive
   cached_network_image_web:
     git:
-      url: git@github.com:glemartret/flutter_cached_network_image_web.git
+      url: git@github.com:glemartret/flutter_cached_network_image.git
       path: cached_network_image_web
       ref: feature/progressive
