@@ -17,6 +17,7 @@ void main() {
         BasicContent.createPage(),
         ListContent.createPage(),
         GridContent.createPage(),
+        ProgressiveContent.createPage(),
       ],
     ),
   );
@@ -215,5 +216,30 @@ class GridContent extends StatelessWidget {
 
   Widget _error(BuildContext context, String url, Object error) {
     return const Center(child: Icon(Icons.error));
+  }
+}
+
+/// Demonstrates a Progressive image loading
+class ProgressiveContent extends StatelessWidget {
+  const ProgressiveContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+      imageUrl:
+          'https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg?${DateTime.now().millisecondsSinceEpoch}',
+      // imageUrl:
+      //     'https://www.hoalen.com/medias/home/desktop/596-1734529993.webp?${DateTime.now().millisecondsSinceEpoch}',
+      // placeholder: (BuildContext context, String url) => Container(
+      //   width: 320,
+      //   height: 240,
+      //   color: Colors.purple,
+      // ),
+    );
+  }
+
+  static ExamplePage createPage() {
+    return ExamplePage(
+        Icons.downloading_rounded, (context) => const ProgressiveContent());
   }
 }
