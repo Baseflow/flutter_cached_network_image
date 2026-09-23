@@ -1,3 +1,7 @@
+## [5.0.1] - 2026-09-22
+
+* Reformat with the current Dart formatter
+
 ## [5.0.0] - 2026-08-25
 
 ### Breaking changes
