@@ -3,9 +3,7 @@ import 'dart:ui' as ui;
 Future<ui.Codec> createImageCodecFromUrl(
   Uri url, {
   void Function(int cumulativeBytesLoaded, int expectedTotalBytes)?
-      chunkCallback,
+  chunkCallback,
 }) {
-  throw UnsupportedError(
-    'createImageCodecFromUrl is only available on web',
-  );
+  throw UnsupportedError('createImageCodecFromUrl is only available on web');
 }
