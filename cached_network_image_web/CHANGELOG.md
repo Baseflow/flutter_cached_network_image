@@ -1,3 +1,7 @@
+## [2.0.2] - 2026-09-23
+
+* Bump `flutter_lints` to `^6.0.0` and drop the library name, fixing an `unnecessary_library_name` lint
+
 ## [2.0.1] - 2026-09-22
 
 * Reformat with the current Dart formatter

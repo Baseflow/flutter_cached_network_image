@@ -1,5 +1,5 @@
 /// Web implementation of CachedNetworkImage
-library cached_network_image_web;
+library;
 
 import 'dart:async';
 import 'dart:typed_data';
