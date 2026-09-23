@@ -39,9 +39,12 @@ so other agents and human contributors pick it up too.
 
 ### Commits and PRs
 
-- Follow the forking + PR workflow in `AGENTS.md`; don't push to
-  `Baseflow/flutter_cached_network_image` branches directly unless the maintainer asks
-  for it in that session. Target `main`.
+- Follow the PR workflow in `AGENTS.md`, and check the user's access before the
+  first push (`gh api repos/Baseflow/flutter_cached_network_image --jq
+  .permissions.admin`). For a repository admin, push branches straight to
+  `Baseflow/flutter_cached_network_image` and open the PR from there. Do not
+  use or create a fork. For anyone else, push to their fork and never to a
+  `Baseflow` branch. Never push to `main`. Target `main`.
 - Before opening a PR, confirm it touches exactly one package (or, for an
   `ImageLoader` signature change, the interface plus both implementations it
   mirrors) and that you bumped that package's `pubspec.yaml` version and added

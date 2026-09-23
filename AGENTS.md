@@ -228,7 +228,18 @@ and testing patterns.
 
 ## Development setup
 
-Baseflow's open-source forking workflow:
+How you work depends on your access to `Baseflow/flutter_cached_network_image`.
+Check it with:
+
+```bash
+gh api repos/Baseflow/flutter_cached_network_image --jq .permissions.admin
+```
+
+**Repository admins** clone `Baseflow/flutter_cached_network_image` directly, with
+it as `origin`, and push their branches there. They branch from `origin/main`,
+and they do not use a fork.
+
+**Everyone else** uses Baseflow's open-source forking workflow:
 
 1. Fork `https://github.com/Baseflow/flutter_cached_network_image` on GitHub.
 2. Clone your fork: `git clone git@github.com:<your_name>/flutter_cached_network_image.git`
@@ -366,18 +377,23 @@ packages agree with each other, not that the published graph resolves.
 
 ## Pull request workflow
 
-**`main` is the branch of record.** Fork from `upstream/main`, open every pull
+**`main` is the branch of record.** Branch from the latest `main`, open every pull
 request against `main`, and rebase onto `main` before submitting. All four
 workflows build `main` only, so a pull request against anything else gets no CI.
-`origin/develop` is a leftover from an earlier branch layout: it is not
-maintained, and must not be branched from or targeted.
+`develop` is a leftover from an earlier branch layout: it is not maintained, and
+must not be branched from or targeted.
 
-This repo uses the **forking workflow**: contributors work on their own fork and
-open pull requests to the main repository. Maintainers review and merge; do not
-push directly to `Baseflow/flutter_cached_network_image`.
+This repo uses the **forking workflow** for everyone who is not a repository
+admin: contributors work on their own fork and open pull requests to the main
+repository, and must not push branches to `Baseflow/flutter_cached_network_image`.
+**Repository admins** push their branches straight to
+`Baseflow/flutter_cached_network_image` and open pull requests from there
+(`gh pr create --head <name_of_your_branch>`), not from a fork (see
+[Development setup](#development-setup)). Either way, every change reaches `main`
+through a reviewed pull request; nobody pushes to `main` directly.
 
-1. Apply changes on a branch based on `upstream/main`, scoped to one package
-   per the rule above.
+1. Apply changes on a branch based on `main` (`upstream/main` from a fork,
+   `origin/main` for admins), scoped to one package per the rule above.
 2. Bump that package's `version:` in `pubspec.yaml` following semver, and add a
    matching `## [x.y.z] - YYYY-MM-DD` `CHANGELOG.md` entry describing the
    change (format: see [Releases](#releases)). Date it with the day you open
@@ -386,7 +402,8 @@ push directly to `Baseflow/flutter_cached_network_image`.
    - `dart format <the files you changed>`
    - `flutter analyze`
    - `flutter test` (`flutter test --platform chrome` for the web package)
-4. Push to your fork: `git push origin <name_of_your_branch>`
+4. Push the branch: `git push origin <name_of_your_branch>`. That is your fork,
+   or `Baseflow/flutter_cached_network_image` for admins.
 5. Open a pull request against `main` on `Baseflow/flutter_cached_network_image`
    and fill out the full [PR template](.github/PULL_REQUEST_TEMPLATE.md).
 
