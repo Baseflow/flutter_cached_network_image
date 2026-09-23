@@ -6,7 +6,8 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:cached_network_image_platform_interface'
-        '/cached_network_image_platform_interface.dart' as platform
+    '/cached_network_image_platform_interface.dart'
+    as platform
     show ImageLoader, ImageRenderMethodForWeb;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -147,10 +148,9 @@ class ImageLoader implements platform.ImageLoader {
               state = _State.waitingForData;
             }
 
-            event.file
-                .readAsBytes()
-                .then((value) => decode(value))
-                .then((data) {
+            event.file.readAsBytes().then((value) => decode(value)).then((
+              data,
+            ) {
               streamController.add(data);
               if (state == _State.closing) {
                 streamController.close();

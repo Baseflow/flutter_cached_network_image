@@ -15,7 +15,6 @@ enum ImageRenderMethodForWeb {
   /// HtmlImage uses a default web image including default browser caching.
   /// This is the recommended and default choice.
   HtmlImage, // ignore: constant_identifier_names
-
   /// HttpGet uses an http client to fetch an image. It enables the use of
   /// headers, but loses some default web functionality.
   HttpGet, // ignore: constant_identifier_names
