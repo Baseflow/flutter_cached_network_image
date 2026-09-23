@@ -1,3 +1,18 @@
+## [5.0.1] - 2026-09-22
+
+* Reformat with the current Dart formatter
+
+## [5.0.0] - 2026-08-25
+
+### Breaking changes
+
+* Requires Flutter `>=3.44.0` and Dart `^3.12.0` (via `material_ui` dependency)
+* Replaces `flutter/material.dart` with `material_ui` for Wasm compatibility
+
+### Other changes
+
+* Exclude platform folders from analyzer configuration
+
 ## [4.1.1] - 2024-08-13
 
 * Target js_interop for Wasm support

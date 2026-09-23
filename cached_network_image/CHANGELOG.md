@@ -1,3 +1,21 @@
+## [4.0.1] - 2026-09-22
+
+* Use an initializing formal for `MultiImageStreamCompleter`'s `scale`, fixing a `prefer_initializing_formals` lint
+* Reformat with the current Dart formatter
+* Update the example's Android build to AGP 9.0.1, Kotlin 2.3.20, Gradle 9.1.0 and Java 17
+
+## [4.0.0] - 2026-08-25
+
+### Breaking changes
+
+* Requires Flutter `>=3.44.0` and Dart `^3.12.0` (via `material_ui` dependency)
+* Replaces `flutter/material.dart` with `material_ui` across all packages for Wasm compatibility
+
+### Other changes
+
+* Exclude platform folders from analyzer configuration
+* Fix `FakeTicker` test helper for newer Flutter versions
+
 ## [3.4.1] - 2024-08-13
 
 * Target js_interop for Wasm support

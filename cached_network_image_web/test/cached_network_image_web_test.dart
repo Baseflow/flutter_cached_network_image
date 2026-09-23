@@ -5,7 +5,8 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:cached_network_image_platform_interface'
-    '/cached_network_image_platform_interface.dart' hide ImageLoader;
+    '/cached_network_image_platform_interface.dart'
+    hide ImageLoader;
 import 'package:cached_network_image_web/cached_network_image_web.dart';
 import 'package:file/file.dart';
 import 'package:flutter/widgets.dart';

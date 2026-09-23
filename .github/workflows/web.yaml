@@ -1,15 +1,15 @@
 name: web
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the develop branch
+# events but only for the main branch
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
     paths:
       - "cached_network_image_web/**"
       - ".github/workflows/web.yaml"
   pull_request:
-    branches: [develop]
+    branches: [main]
     paths:
       - "cached_network_image_web/**"
       - ".github/workflows/web.yaml"

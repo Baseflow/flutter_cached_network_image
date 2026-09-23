@@ -17,12 +17,11 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   /// to show.
   MultiImageStreamCompleter({
     required Stream<ui.Codec> codec,
-    required double scale,
+    required this._scale,
     String? debugLabel,
     Stream<ImageChunkEvent>? chunkEvents,
     InformationCollector? informationCollector,
-  })  : _informationCollector = informationCollector,
-        _scale = scale {
+  }) : _informationCollector = informationCollector {
     this.debugLabel = debugLabel;
     codec.listen(
       (event) {

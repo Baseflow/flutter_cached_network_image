@@ -1,3 +1,19 @@
+## [2.0.1] - 2026-09-22
+
+* Reformat with the current Dart formatter
+
+## [2.0.0] - 2026-08-25
+
+### Breaking changes
+
+* Requires Flutter `>=3.44.0` and Dart `^3.12.0` (via `material_ui` dependency)
+* Replaces `flutter/material.dart` with `material_ui` for Wasm compatibility
+* Use conditional imports for `createImageCodecFromUrl` so VM tests can compile
+
+### Other changes
+
+* Exclude platform folders from analyzer configuration
+
 ## [1.3.1] - 2024-08-13
 
 * Target js_interop for Wasm support

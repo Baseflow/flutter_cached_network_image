@@ -4,13 +4,16 @@ library cached_network_image_web;
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'dart:ui_web';
 
 import 'package:cached_network_image_platform_interface'
-        '/cached_network_image_platform_interface.dart' as platform
+    '/cached_network_image_platform_interface.dart'
+    as platform
     show ImageLoader, ImageRenderMethodForWeb;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+import 'src/create_image_codec_from_url_stub.dart'
+    if (dart.library.ui_web) 'src/create_image_codec_from_url_web.dart';
 
 enum _State { open, waitingForData, closing }
 
@@ -145,10 +148,9 @@ class ImageLoader implements platform.ImageLoader {
               state = _State.waitingForData;
             }
 
-            event.file
-                .readAsBytes()
-                .then((value) => decode(value))
-                .then((data) {
+            event.file.readAsBytes().then((value) => decode(value)).then((
+              data,
+            ) {
               streamController.add(data);
               if (state == _State.closing) {
                 streamController.close();
@@ -188,7 +190,6 @@ class ImageLoader implements platform.ImageLoader {
     StreamController<ImageChunkEvent> chunkEvents,
   ) {
     final resolved = Uri.base.resolve(url);
-    // ignore: undefined_function
     return createImageCodecFromUrl(
       resolved,
       chunkCallback: (int bytes, int total) {
