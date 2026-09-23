@@ -20,8 +20,8 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     required double scale,
     Stream<ImageChunkEvent>? chunkEvents,
     InformationCollector? informationCollector,
-  })  : _informationCollector = informationCollector,
-        _scale = scale {
+  }) : _informationCollector = informationCollector,
+       _scale = scale {
     codec.listen(
       (event) {
         if (_timer != null) {

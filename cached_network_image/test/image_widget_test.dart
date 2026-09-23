@@ -87,8 +87,9 @@ void main() {
       expect(thrown, isTrue);
     });
 
-    testWidgets("errorBuilder doesn't call when image doesn't fail",
-        (tester) async {
+    testWidgets("errorBuilder doesn't call when image doesn't fail", (
+      tester,
+    ) async {
       var imageUrl = '123456';
       // Create the widget by telling the tester to build it.
       cacheManager.returns(imageUrl, kTransparentImage);
@@ -166,9 +167,9 @@ class MyImageWidget extends StatelessWidget {
     VoidCallback? onProgress,
     VoidCallback? onPlaceHolder,
     VoidCallback? onError,
-  })  : progressBuilder = getProgress(onProgress),
-        placeholderBuilder = getPlaceholder(onPlaceHolder),
-        errorBuilder = getErrorBuilder(onError);
+  }) : progressBuilder = getProgress(onProgress),
+       placeholderBuilder = getPlaceholder(onPlaceHolder),
+       errorBuilder = getErrorBuilder(onError);
 
   static ProgressIndicatorBuilder? getProgress(VoidCallback? onProgress) {
     if (onProgress == null) return null;

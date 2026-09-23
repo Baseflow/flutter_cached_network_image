@@ -88,8 +88,10 @@ void main() {
 
     await runZoned(
       () async {
-        final ImageProvider imageProvider =
-            CachedNetworkImageProvider(url, cacheManager: cacheManager);
+        final ImageProvider imageProvider = CachedNetworkImageProvider(
+          url,
+          cacheManager: cacheManager,
+        );
         final caughtError = Completer<bool>();
         FlutterError.onError = (FlutterErrorDetails details) {
           throw Error();
@@ -106,61 +108,55 @@ void main() {
         expect(await caughtError.future, true);
       },
       zoneSpecification: ZoneSpecification(
-        handleUncaughtError: (
-          Zone zone,
-          ZoneDelegate zoneDelegate,
-          Zone parent,
-          Object error,
-          StackTrace stackTrace,
-        ) {
-          uncaught = true;
-        },
+        handleUncaughtError:
+            (
+              Zone zone,
+              ZoneDelegate zoneDelegate,
+              Zone parent,
+              Object error,
+              StackTrace stackTrace,
+            ) {
+              uncaught = true;
+            },
       ),
     );
     expect(uncaught, false);
   });
 
-  test(
-    'Notifies listeners of chunk events',
-    () async {
-      final imageAvailable = Completer<void>();
-      var url = 'foo';
-      var expectedResult = cacheManager.returns(url, kTransparentImage);
+  test('Notifies listeners of chunk events', () async {
+    final imageAvailable = Completer<void>();
+    var url = 'foo';
+    var expectedResult = cacheManager.returns(url, kTransparentImage);
 
-      final ImageProvider imageProvider = CachedNetworkImageProvider(
-        nonconst('foo'),
-        cacheManager: cacheManager,
+    final ImageProvider imageProvider = CachedNetworkImageProvider(
+      nonconst('foo'),
+      cacheManager: cacheManager,
+    );
+    final result = imageProvider.resolve(ImageConfiguration.empty);
+    final events = <ImageChunkEvent>[];
+    result.addListener(
+      ImageStreamListener(
+        (ImageInfo image, bool synchronousCall) {
+          imageAvailable.complete();
+        },
+        onChunk: (ImageChunkEvent event) {
+          events.add(event);
+        },
+        onError: (Object error, StackTrace? stackTrace) {
+          imageAvailable.completeError(error, stackTrace);
+        },
+      ),
+    );
+    await imageAvailable.future;
+    expect(events.length, expectedResult.chunks);
+    for (var i = 0; i < events.length; i++) {
+      expect(
+        events[i].cumulativeBytesLoaded,
+        math.min((i + 1) * expectedResult.chunkSize, kTransparentImage.length),
       );
-      final result = imageProvider.resolve(ImageConfiguration.empty);
-      final events = <ImageChunkEvent>[];
-      result.addListener(
-        ImageStreamListener(
-          (ImageInfo image, bool synchronousCall) {
-            imageAvailable.complete();
-          },
-          onChunk: (ImageChunkEvent event) {
-            events.add(event);
-          },
-          onError: (Object error, StackTrace? stackTrace) {
-            imageAvailable.completeError(error, stackTrace);
-          },
-        ),
-      );
-      await imageAvailable.future;
-      expect(events.length, expectedResult.chunks);
-      for (var i = 0; i < events.length; i++) {
-        expect(
-          events[i].cumulativeBytesLoaded,
-          math.min(
-            (i + 1) * expectedResult.chunkSize,
-            kTransparentImage.length,
-          ),
-        );
-        expect(events[i].expectedTotalBytes, kTransparentImage.length);
-      }
-    },
-    skip: isBrowser,
-  ); // Browser loads images through <img> not Http.
+      expect(events[i].expectedTotalBytes, kTransparentImage.length);
+    }
+  }, skip: isBrowser); // Browser loads images through <img> not Http.
 }
 
 class FakeCodec implements Codec {

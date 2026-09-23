@@ -7,34 +7,28 @@ import 'package:octo_image/octo_image.dart';
 
 /// Builder function to create an image widget. The function is called after
 /// the ImageProvider completes the image loading.
-typedef ImageWidgetBuilder = Widget Function(
-  BuildContext context,
-  ImageProvider imageProvider,
-);
+typedef ImageWidgetBuilder =
+    Widget Function(BuildContext context, ImageProvider imageProvider);
 
 /// Builder function to create a placeholder widget. The function is called
 /// once while the ImageProvider is loading the image.
-typedef PlaceholderWidgetBuilder = Widget Function(
-  BuildContext context,
-  String url,
-);
+typedef PlaceholderWidgetBuilder =
+    Widget Function(BuildContext context, String url);
 
 /// Builder function to create a progress indicator widget. The function is
 /// called every time a chuck of the image is downloaded from the web, but at
 /// least once during image loading.
-typedef ProgressIndicatorBuilder = Widget Function(
-  BuildContext context,
-  String url,
-  DownloadProgress progress,
-);
+typedef ProgressIndicatorBuilder =
+    Widget Function(
+      BuildContext context,
+      String url,
+      DownloadProgress progress,
+    );
 
 /// Builder function to create an error widget. This builder is called when
 /// the image failed loading, for example due to a 404 NotFound exception.
-typedef LoadingErrorWidgetBuilder = Widget Function(
-  BuildContext context,
-  String url,
-  Object error,
-);
+typedef LoadingErrorWidgetBuilder =
+    Widget Function(BuildContext context, String url, Object error);
 
 /// Image widget to show NetworkImage with caching functionality.
 class CachedNetworkImage extends StatelessWidget {
@@ -243,23 +237,25 @@ class CachedNetworkImage extends StatelessWidget {
         ImageRenderMethodForWeb.HtmlImage,
     double scale = 1.0,
   }) : _image = CachedNetworkImageProvider(
-          imageUrl,
-          headers: httpHeaders,
-          cacheManager: cacheManager,
-          cacheKey: cacheKey,
-          imageRenderMethodForWeb: imageRenderMethodForWeb,
-          maxWidth: maxWidthDiskCache,
-          maxHeight: maxHeightDiskCache,
-          errorListener: errorListener,
-          scale: scale,
-        );
+         imageUrl,
+         headers: httpHeaders,
+         cacheManager: cacheManager,
+         cacheKey: cacheKey,
+         imageRenderMethodForWeb: imageRenderMethodForWeb,
+         maxWidth: maxWidthDiskCache,
+         maxHeight: maxHeightDiskCache,
+         errorListener: errorListener,
+         scale: scale,
+       );
 
   @override
   Widget build(BuildContext context) {
-    var octoPlaceholderBuilder =
-        placeholder != null ? _octoPlaceholderBuilder : null;
-    final octoProgressIndicatorBuilder =
-        progressIndicatorBuilder != null ? _octoProgressIndicatorBuilder : null;
+    var octoPlaceholderBuilder = placeholder != null
+        ? _octoPlaceholderBuilder
+        : null;
+    final octoProgressIndicatorBuilder = progressIndicatorBuilder != null
+        ? _octoProgressIndicatorBuilder
+        : null;
 
     ///If there is no placeholder OctoImage does not fade, so always set an
     ///(empty) placeholder as this always used to be the behaviour of
