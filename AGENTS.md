@@ -484,13 +484,14 @@ pub.dev OIDC trusted publishing, gated on `github.ref_type == 'tag'`. They do no
 bump versions and do not edit changelogs. Never run `dart pub publish` by hand,
 and never bump a version without a tag to match.
 
-`CHANGELOG.md` today uses `## [x.y.z] - YYYY-MM-DD` headings with `### Breaking
-changes` and `### Other changes` subsections and `*` bullets, and no
-`## [Unreleased]` section. Match that format. When you add your own entry in a
-pull request, date it with the day you open the PR — a maintainer will correct
-the date if it changes before the version is actually tagged. Introducing an
-`[Unreleased]` section is a separate decision, not something to do as part of
-an unrelated change.
+`CHANGELOG.md` today uses `## [x.y.z] - YYYY-MM-DD` headings with `*` bullets and
+no `## [Unreleased]` section. Split the entry into `### Breaking changes` and
+`### Other changes` subsections when the release includes a breaking change (the
+4.0.0 entry is the worked example); flat bullets under the heading are enough
+for an ordinary release. When you add your own entry in a pull request, date it
+with the day you open the PR — a maintainer will correct the date if it changes
+before the version is actually tagged. Introducing an `[Unreleased]` section is
+a separate decision, not something to do as part of an unrelated change.
 
 Published versions are immutable, so keep branch names out of URLs in
 `pubspec.yaml` and in docs: a branch-specific link becomes a permanent dead link
