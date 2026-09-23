@@ -169,7 +169,7 @@ Persistence and durability are `flutter_cache_manager`'s concern, not this repo'
 
 ### CI map
 
-| Workflow | Package | Jobs | Publish tag |
+| Workflow | Package | Jobs | Publish tag ([exact trigger](#releases)) |
 |---|---|---|---|
 | `.github/workflows/app_facing_package.yaml` | `cached_network_image` | format, analyze, tests (`--coverage`), plus example builds for android, ios, macos, windows, linux, web | `v*` |
 | `.github/workflows/platform_interface.yaml` | `cached_network_image_platform_interface` | format, analyze, tests (`--coverage`) | `interface-v*` |
@@ -463,11 +463,16 @@ And for this repo specifically:
 Each package is versioned and released independently, but they do not release
 independently of each other. Only maintainers cut releases.
 
-| Package | Tag | Workflow |
-|---|---|---|
-| `cached_network_image_platform_interface` | `interface-vX.Y.Z` | `platform_interface.yaml` |
-| `cached_network_image_web` | `web-vX.Y.Z` | `platform_web.yaml` |
-| `cached_network_image` | `vX.Y.Z` | `app_facing_package.yaml` |
+| Package | Tag | Workflow trigger | Workflow |
+|---|---|---|---|
+| `cached_network_image_platform_interface` | `interface-vX.Y.Z` | `interface-v[0-9]+.[0-9]+.[0-9]+*` | `platform_interface.yaml` |
+| `cached_network_image_web` | `web-vX.Y.Z` | `web-v[0-9]+.[0-9]+.[0-9]+*` | `platform_web.yaml` |
+| `cached_network_image` | `vX.Y.Z` | `v[0-9]+.[0-9]+.[0-9]+*` | `app_facing_package.yaml` |
+
+The tag must match the workflow's `tags:` trigger, so use exactly these forms.
+Any other name starts no workflow and publishes nothing. That includes the
+package-name tags such as `cached_network_image_v4.0.1` on the 4.0.x, 5.0.x and
+2.0.x releases, which were published by hand. Do not copy that naming.
 
 **The order is fixed: platform interface, then web, then app-facing.** Every
 publish job starts by resolving from pub.dev, so a package can only be tagged once
