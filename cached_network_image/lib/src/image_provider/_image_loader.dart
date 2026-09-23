@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
@@ -95,36 +96,56 @@ class ImageLoader implements platform.ImageLoader {
         'maxHeight will be ignored when a normal CacheManager is used.',
       );
 
-      final stream = cacheManager is ImageCacheManager
-          ? cacheManager.getImageFile(
-              url,
-              maxHeight: maxHeight,
-              maxWidth: maxWidth,
-              withProgress: true,
-              headers: headers,
-              key: cacheKey,
-            )
-          : cacheManager.getFileStream(
-              url,
-              withProgress: true,
-              headers: headers,
-              key: cacheKey,
+      for (int attempt = 0; attempt < 2; attempt++) {
+        final stream = cacheManager is ImageCacheManager
+            ? cacheManager.getImageFile(
+                url,
+                maxHeight: maxHeight,
+                maxWidth: maxWidth,
+                withProgress: true,
+                headers: headers,
+                key: cacheKey,
+              )
+            : cacheManager.getFileStream(
+                url,
+                withProgress: true,
+                headers: headers,
+                key: cacheKey,
             );
 
-      await for (final result in stream) {
-        if (result is DownloadProgress) {
-          chunkEvents.add(
-            ImageChunkEvent(
-              cumulativeBytesLoaded: result.downloaded,
-              expectedTotalBytes: result.totalSize,
-            ),
-          );
+        bool shouldRetry = false;
+        await for (final result in stream) {
+          if (result is DownloadProgress) {
+            chunkEvents.add(
+              ImageChunkEvent(
+                cumulativeBytesLoaded: result.downloaded,
+                expectedTotalBytes: result.totalSize,
+              ),
+            );
+          }
+          if (result is FileInfo) {
+            final file = result.file;
+            try {
+              final bytes = await file.readAsBytes();
+              final decoded = await decode(bytes);
+              yield decoded;
+              return;
+            } on FileSystemException catch (error) {
+              if (_isFileMissing(error) && attempt == 0) {
+                shouldRetry = true;
+                await _evictMissingCacheEntry(
+                  cacheManager,
+                  cacheKey ?? url,
+                  evictImage,
+                );
+                break;
+              }
+              rethrow;
+            }
+          }
         }
-        if (result is FileInfo) {
-          final file = result.file;
-          final bytes = await file.readAsBytes();
-          final decoded = await decode(bytes);
-          yield decoded;
+        if (!shouldRetry) {
+          return;
         }
       }
     } on Object catch (error, stackTrace) {
@@ -138,5 +159,24 @@ class ImageLoader implements platform.ImageLoader {
     } finally {
       await chunkEvents.close();
     }
+  }
+
+  bool _isFileMissing(FileSystemException error) {
+    return error is PathNotFoundException || error.osError?.errorCode == 2;
+  }
+
+  Future<void> _evictMissingCacheEntry(
+    BaseCacheManager cacheManager,
+    String key,
+    VoidCallback evictImage,
+  ) async {
+    try {
+      await cacheManager.removeFile(key);
+    } catch (_) {
+      // Ignore cache eviction failures; we'll surface the original error if needed.
+    }
+    scheduleMicrotask(() {
+      evictImage();
+    });
   }
 }
