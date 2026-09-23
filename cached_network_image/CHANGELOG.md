@@ -1,3 +1,7 @@
+## [4.0.2] - 2026-09-23
+
+* Bump `flutter_lints` to `^6.0.0` and drop the library name, fixing an `unnecessary_library_name` lint
+
 ## [4.0.1] - 2026-09-22
 
 * Use an initializing formal for `MultiImageStreamCompleter`'s `scale`, fixing a `prefer_initializing_formals` lint
