@@ -48,9 +48,7 @@ class BasicContent extends StatelessWidget {
             _sizedContainer(
               CachedNetworkImage(
                 progressIndicatorBuilder: (context, url, progress) => Center(
-                  child: CircularProgressIndicator(
-                    value: progress.progress,
-                  ),
+                  child: CircularProgressIndicator(value: progress.progress),
                 ),
                 imageUrl:
                     'https://images.unsplash.com/photo-1532264523420-881a47db012d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9',
@@ -89,10 +87,8 @@ class BasicContent extends StatelessWidget {
                 backgroundColor: Colors.amber,
                 radius: 150,
               ),
-              imageBuilder: (context, image) => CircleAvatar(
-                backgroundImage: image,
-                radius: 150,
-              ),
+              imageBuilder: (context, image) =>
+                  CircleAvatar(backgroundImage: image, radius: 150),
             ),
             _sizedContainer(
               CachedNetworkImage(
@@ -111,7 +107,8 @@ class BasicContent extends StatelessWidget {
                 errorListener: (e) {
                   if (e is SocketException) {
                     debugPrint(
-                        'Error with ${e.address} and message ${e.message}');
+                      'Error with ${e.address} and message ${e.message}',
+                    );
                   } else {
                     debugPrint('Image Exception is: ${e.runtimeType}');
                   }
@@ -149,11 +146,7 @@ class BasicContent extends StatelessWidget {
   }
 
   Widget _sizedContainer(Widget child) {
-    return SizedBox(
-      width: 300,
-      height: 150,
-      child: Center(child: child),
-    );
+    return SizedBox(width: 300, height: 150, child: Center(child: child));
   }
 }
 
@@ -173,11 +166,8 @@ class ListContent extends StatelessWidget {
           children: <Widget>[
             CachedNetworkImage(
               imageUrl: 'https://loremflickr.com/320/240/music?lock=$index',
-              placeholder: (BuildContext context, String url) => Container(
-                width: 320,
-                height: 240,
-                color: Colors.purple,
-              ),
+              placeholder: (BuildContext context, String url) =>
+                  Container(width: 320, height: 240, color: Colors.purple),
             ),
           ],
         ),
@@ -199,8 +189,9 @@ class GridContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       itemCount: 250,
-      gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+      ),
       itemBuilder: (BuildContext context, int index) => CachedNetworkImage(
         imageUrl: 'https://loremflickr.com/100/100/music?lock=$index',
         placeholder: _loader,
