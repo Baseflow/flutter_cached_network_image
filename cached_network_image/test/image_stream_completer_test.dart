@@ -452,6 +452,74 @@ void main() {
     );
   });
 
+  testWidgets('ImageStream emits the completer debugLabel (static image)', (
+    WidgetTester tester,
+  ) async {
+    final mockCodec = MockCodec();
+    mockCodec.frameCount = 1;
+    final codecStream = StreamController<Codec>();
+
+    const String debugLabel = 'debug label';
+    final ImageStreamCompleter imageStream = MultiImageStreamCompleter(
+      codec: codecStream.stream,
+      scale: 1.0,
+      debugLabel: debugLabel,
+    );
+
+    final emittedImages = <ImageInfo>[];
+    imageStream.addListener(
+      ImageStreamListener((ImageInfo image, bool synchronousCall) {
+        emittedImages.add(image);
+      }),
+    );
+
+    codecStream.add(mockCodec);
+    await tester.idle();
+
+    mockCodec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image20x10),
+    );
+    await tester.idle();
+
+    expect(emittedImages.single.debugLabel, debugLabel);
+  });
+
+  testWidgets('ImageStream emits the completer debugLabel (animated images)', (
+    WidgetTester tester,
+  ) async {
+    final mockCodec = MockCodec();
+    mockCodec.frameCount = 2;
+    mockCodec.repetitionCount = 0;
+    final codecStream = StreamController<Codec>();
+
+    const String debugLabel = 'debug label';
+    final ImageStreamCompleter imageStream = MultiImageStreamCompleter(
+      codec: codecStream.stream,
+      scale: 1.0,
+      debugLabel: debugLabel,
+    );
+
+    final emittedImages = <ImageInfo>[];
+    imageStream.addListener(
+      ImageStreamListener((ImageInfo image, bool synchronousCall) {
+        emittedImages.add(image);
+      }),
+    );
+
+    codecStream.add(mockCodec);
+    await tester.idle();
+
+    mockCodec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image20x10),
+    );
+    await tester.idle();
+
+    // Animated images are emitted on an animation tick instead of directly.
+    await tester.pump();
+
+    expect(emittedImages.single.debugLabel, debugLabel);
+  });
+
   testWidgets('ImageStream emits frames (animated images)', (
     WidgetTester tester,
   ) async {
