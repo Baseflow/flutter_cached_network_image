@@ -1,3 +1,8 @@
+## [4.0.3] - 2026-09-29
+
+* Bump `flutter_cache_manager` to `^3.4.5`, `material_ui` to `^1.3.0`, `octo_image` to `^2.1.1` and `mocktail` to `^1.0.5`
+* Update the example to `flutter_lints` `^6.0.0`, `flutter_blurhash` `^0.9.1` and `baseflow_plugin_template` `^2.2.1`, and raise its SDK constraint to match the package
+
 ## [4.0.2] - 2026-09-23
 
 * Bump `flutter_lints` to `^6.0.0` and drop the library name, fixing an `unnecessary_library_name` lint
