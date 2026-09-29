@@ -1,3 +1,7 @@
+## [4.0.3] - 2026-09-29
+
+* Use the image URL as the `debugLabel` of the emitted image, so image size warnings report the URL instead of `Image null`
+
 ## [4.0.2] - 2026-09-23
 
 * Bump `flutter_lints` to `^6.0.0` and drop the library name, fixing an `unnecessary_library_name` lint
