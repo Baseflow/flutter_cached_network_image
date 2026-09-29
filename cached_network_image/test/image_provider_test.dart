@@ -157,6 +157,30 @@ void main() {
       expect(events[i].expectedTotalBytes, kTransparentImage.length);
     }
   }, skip: isBrowser); // Browser loads images through <img> not Http.
+
+  test('Notifies listeners with the image URL as debug label', () async {
+    var url = 'debug-label-url';
+    cacheManager.returns(url, kTransparentImage);
+
+    final ImageProvider imageProvider = CachedNetworkImageProvider(
+      url,
+      cacheManager: cacheManager,
+    );
+    final result = imageProvider.resolve(ImageConfiguration.empty);
+    final imageInfo = Completer<ImageInfo>();
+    result.addListener(
+      ImageStreamListener(
+        (ImageInfo image, bool synchronousCall) {
+          imageInfo.complete(image);
+        },
+        onError: (Object error, StackTrace? stackTrace) {
+          imageInfo.completeError(error, stackTrace);
+        },
+      ),
+    );
+
+    expect((await imageInfo.future).debugLabel, url);
+  }, skip: isBrowser); // Browser loads images through <img> not Http.
 }
 
 class FakeCodec implements Codec {
