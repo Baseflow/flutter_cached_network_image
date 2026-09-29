@@ -159,7 +159,7 @@ void main() {
   }, skip: isBrowser); // Browser loads images through <img> not Http.
 
   test('Notifies listeners with the image URL as debug label', () async {
-    var url = 'debug-label-url';
+    final url = 'debug-label-url';
     cacheManager.returns(url, kTransparentImage);
 
     final ImageProvider imageProvider = CachedNetworkImageProvider(
