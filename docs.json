@@ -1,0 +1,22 @@
+{
+  "name": "cached_network_image",
+  "sidebar": [
+    [
+      "CachedNetworkImage",
+      [
+        ["Overview", "/"]
+      ]
+    ],
+    ["CacheManager",
+      [
+        ["Overview", "/cache-manager"],
+        ["Caching rules", "/caching-rules"]
+      ]
+    ],
+    ["OctoImage",
+      [
+        ["Overview","/octo-image"]
+      ]
+    ]
+  ]
+}
