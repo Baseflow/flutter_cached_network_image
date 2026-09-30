@@ -1,3 +1,7 @@
+## [2.0.3] - 2026-09-29
+
+* Bump `flutter_cache_manager` to `^3.4.5`, `material_ui` to `^1.3.0` and `web` to `^1.1.1`
+
 ## [2.0.2] - 2026-09-23
 
 * Bump `flutter_lints` to `^6.0.0` and drop the library name, fixing an `unnecessary_library_name` lint
