@@ -111,6 +111,11 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       );
       _shownTimestamp = timestamp;
       _frameDuration = _nextFrame!.duration;
+
+      if (_frameDuration! <= const Duration(milliseconds: 10)) {
+        _frameDuration = const Duration(milliseconds: 100);
+      }
+
       _nextFrame = null;
       if (_framesEmitted % _codec!.frameCount == 0 && _nextImageCodec != null) {
         _switchToNewCodec();
