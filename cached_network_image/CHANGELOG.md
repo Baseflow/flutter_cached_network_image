@@ -1,3 +1,8 @@
+## [4.0.4] - 2026-09-30
+
+* Bump `flutter_cache_manager` to `^3.4.5`, `material_ui` to `^1.3.0`, `octo_image` to `^2.1.1` and `mocktail` to `^1.0.5`
+* Update the example to `flutter_lints` `^6.0.0`, `flutter_blurhash` `^0.9.1` and `baseflow_plugin_template` `^2.2.1`, raise its SDK constraint to match the package, and reformat it for the tall style that constraint selects
+
 ## [4.0.3] - 2026-09-29
 
 * Use the image URL as the `debugLabel` of the emitted image, so image size warnings report the URL instead of `Image null`
