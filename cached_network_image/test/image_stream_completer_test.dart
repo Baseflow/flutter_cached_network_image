@@ -718,6 +718,38 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets(
+    'static images are not decoded again when a listener is re-added',
+    (WidgetTester tester) async {
+      final mockCodec = MockCodec();
+      final codecStream = StreamController<Codec>();
+
+      final ImageStreamCompleter imageStream = MultiImageStreamCompleter(
+        codec: codecStream.stream,
+        scale: 1.0,
+      );
+
+      var emittedImages = 0;
+      listener(ImageInfo image, bool synchronousCall) => emittedImages += 1;
+      imageStream.addListener(ImageStreamListener(listener));
+      final handle = imageStream.keepAlive();
+
+      codecStream.add(mockCodec);
+      await tester.idle();
+      mockCodec.completeNextFrame(FakeFrameInfo(Duration.zero, image20x10));
+      await tester.idle();
+
+      imageStream.removeListener(ImageStreamListener(listener));
+      imageStream.addListener(ImageStreamListener(listener));
+      await tester.idle();
+
+      expect(mockCodec.numFramesAsked, 1);
+      expect(emittedImages, 2);
+
+      handle.dispose();
+    },
+  );
+
   testWidgets('multiple stream listeners', (WidgetTester tester) async {
     final mockCodec = MockCodec();
     mockCodec.frameCount = 2;

@@ -186,7 +186,11 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   @override
   void addListener(ImageStreamListener listener) {
     __hadAtLeastOneListener = true;
-    if (!hasListeners && _codec != null) _decodeNextFrameAndSchedule();
+    if (!hasListeners &&
+        _codec != null &&
+        (_framesEmitted == 0 || _codec!.frameCount > 1)) {
+      _decodeNextFrameAndSchedule();
+    }
     super.addListener(listener);
   }
 

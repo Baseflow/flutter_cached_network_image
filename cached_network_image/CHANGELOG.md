@@ -1,3 +1,7 @@
+## [4.0.5] - 2026-10-14
+
+* Stop decoding a static image again each time a listener is re-added, which blanked images on web after navigating back
+
 ## [4.0.4] - 2026-09-30
 
 * Bump `flutter_cache_manager` to `^3.4.5`, `material_ui` to `^1.3.0`, `octo_image` to `^2.1.1` and `mocktail` to `^1.0.5`
