@@ -1061,4 +1061,192 @@ void main() {
     expect(firstCodec.numFramesAsked, 3);
     expect(secondCodec.numFramesAsked, 1);
   });
+
+  testWidgets('animated images resume decoding when a listener is re-added', (
+    WidgetTester tester,
+  ) async {
+    final mockCodec = MockCodec();
+    mockCodec.frameCount = 2;
+    mockCodec.repetitionCount = -1;
+    final codecStream = StreamController<Codec>();
+
+    final ImageStreamCompleter imageStream = MultiImageStreamCompleter(
+      codec: codecStream.stream,
+      scale: 1.0,
+    );
+
+    var emittedImages = 0;
+    listener(ImageInfo image, bool synchronousCall) => emittedImages += 1;
+    imageStream.addListener(ImageStreamListener(listener));
+
+    final handle = imageStream.keepAlive();
+
+    codecStream.add(mockCodec);
+    await tester.idle();
+
+    final FrameInfo frame1 = FakeFrameInfo(
+      const Duration(milliseconds: 200),
+      image20x10,
+    );
+    final FrameInfo frame2 = FakeFrameInfo(
+      const Duration(milliseconds: 400),
+      image200x100,
+    );
+
+    // Complete and emit 1st frame (which also requests 2nd frame)
+    mockCodec.completeNextFrame(frame1);
+    await tester.idle();
+    await tester.pump();
+    expect(emittedImages, 1);
+    expect(mockCodec.numFramesAsked, 2);
+
+    // Complete 2nd frame while listener is removed
+    mockCodec.completeNextFrame(frame2);
+    imageStream.removeListener(ImageStreamListener(listener));
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // Still 2 frames asked while no listener is attached
+    expect(mockCodec.numFramesAsked, 2);
+
+    // Re-adding listener asks for a new frame because frameCount > 1
+    imageStream.addListener(ImageStreamListener(listener));
+    await tester.idle();
+    expect(mockCodec.numFramesAsked, 3);
+    expect(emittedImages, 2);
+
+    // Complete the new frame and verify animation continues emitting
+    final FrameInfo frame3 = FakeFrameInfo(
+      const Duration(milliseconds: 200),
+      image300x100,
+    );
+    mockCodec.completeNextFrame(frame3);
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(emittedImages, 3);
+
+    // Clean up pending animation timer
+    imageStream.removeListener(ImageStreamListener(listener));
+    handle.dispose();
+  });
+
+  testWidgets(
+    'second static codec arriving with no listeners is decoded when listener is re-added',
+    (WidgetTester tester) async {
+      final firstCodec = MockCodec();
+      final secondCodec = MockCodec();
+      final codecStream = StreamController<Codec>();
+
+      final ImageStreamCompleter imageStream = MultiImageStreamCompleter(
+        codec: codecStream.stream,
+        scale: 1.0,
+      );
+
+      final emittedImages = <ImageInfo>[];
+      listener(ImageInfo image, bool synchronousCall) {
+        emittedImages.add(image);
+      }
+
+      imageStream.addListener(ImageStreamListener(listener));
+      final handle = imageStream.keepAlive();
+
+      codecStream.add(firstCodec);
+      await tester.idle();
+      firstCodec.completeNextFrame(FakeFrameInfo(Duration.zero, image20x10));
+      await tester.idle();
+
+      expect(firstCodec.numFramesAsked, 1);
+      expect(emittedImages.length, 1);
+
+      imageStream.removeListener(ImageStreamListener(listener));
+
+      codecStream.add(secondCodec);
+      await tester.idle();
+      expect(secondCodec.numFramesAsked, 0);
+
+      imageStream.addListener(ImageStreamListener(listener));
+      await tester.idle();
+      expect(secondCodec.numFramesAsked, 1);
+
+      final secondFrame = FakeFrameInfo(Duration.zero, image200x100);
+      secondCodec.completeNextFrame(secondFrame.clone());
+      await tester.idle();
+
+      expect(emittedImages.last.image.isCloneOf(secondFrame.image), true);
+
+      handle.dispose();
+    },
+  );
+
+  testWidgets(
+    'static image finishing decode without listeners is kept for next listener',
+    (WidgetTester tester) async {
+      final mockCodec = MockCodec();
+      final codecStream = StreamController<Codec>();
+
+      final ImageStreamCompleter imageStream = MultiImageStreamCompleter(
+        codec: codecStream.stream,
+        scale: 1.0,
+      );
+
+      var emittedImages = 0;
+      listener(ImageInfo image, bool synchronousCall) => emittedImages += 1;
+      imageStream.addListener(ImageStreamListener(listener));
+      final handle = imageStream.keepAlive();
+
+      codecStream.add(mockCodec);
+      await tester.idle();
+      expect(mockCodec.numFramesAsked, 1);
+
+      imageStream.removeListener(ImageStreamListener(listener));
+
+      mockCodec.completeNextFrame(FakeFrameInfo(Duration.zero, image20x10));
+      await tester.idle();
+      expect(emittedImages, 0);
+
+      imageStream.addListener(ImageStreamListener(listener));
+      await tester.idle();
+
+      expect(mockCodec.numFramesAsked, 1);
+      expect(emittedImages, 1);
+
+      handle.dispose();
+    },
+  );
+
+  testWidgets(
+    're-adding listener while static decode is in flight does not decode twice',
+    (WidgetTester tester) async {
+      final mockCodec = MockCodec();
+      final codecStream = StreamController<Codec>();
+
+      final ImageStreamCompleter imageStream = MultiImageStreamCompleter(
+        codec: codecStream.stream,
+        scale: 1.0,
+      );
+
+      var emittedImages = 0;
+      listener(ImageInfo image, bool synchronousCall) => emittedImages += 1;
+      imageStream.addListener(ImageStreamListener(listener));
+      final handle = imageStream.keepAlive();
+
+      codecStream.add(mockCodec);
+      await tester.idle();
+      expect(mockCodec.numFramesAsked, 1);
+
+      imageStream.removeListener(ImageStreamListener(listener));
+      imageStream.addListener(ImageStreamListener(listener));
+      await tester.idle();
+
+      expect(mockCodec.numFramesAsked, 1);
+
+      mockCodec.completeNextFrame(FakeFrameInfo(Duration.zero, image20x10));
+      await tester.idle();
+
+      expect(mockCodec.numFramesAsked, 1);
+      expect(emittedImages, 1);
+
+      handle.dispose();
+    },
+  );
 }
