@@ -1,10 +1,8 @@
-## [4.0.6] - 2026-10-17
+## [4.0.5] - 2026-10-17
 
-* Fix blank images on Firefox and Safari after route navigation by avoiding re-decoding already-decoded static images when a listener is re-added.
-
-## [4.0.5] - 2026-10-14
-
-* Stop decoding a static image again each time a listener is re-added, which blanked images on web after navigating back
+* Stop decoding a static image again each time a listener is re-added, which blanked images on web (Firefox and Safari) after navigating back to a route
+* Ignore listener re-adds while a frame is already being decoded, and retry decoding after a failed decode
+* Add tests for static and animated listener re-add, failed decodes and codec switches during decoding
 
 ## [4.0.4] - 2026-09-30
 
