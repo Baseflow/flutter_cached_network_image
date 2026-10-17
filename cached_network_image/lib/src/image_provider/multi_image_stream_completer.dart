@@ -88,8 +88,6 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   void _switchToNewCodec() {
     _framesEmitted = 0;
     _timer = null;
-    _currentCodecHasImage = false;
-    _codec = _nextImageCodec;
     _handleCodecReady(_nextImageCodec!);
     _nextImageCodec = null;
   }
@@ -146,47 +144,44 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       return;
     }
     _isDecoding = true;
-    final codec = _codec;
+    final codec = _codec!;
+    final ui.FrameInfo frame;
     try {
-      try {
-        _nextFrame = await codec!.getNextFrame();
-      } on Object catch (exception, stack) {
-        reportError(
-          context: ErrorDescription('resolving an image frame'),
-          exception: exception,
-          stack: stack,
-          informationCollector: _informationCollector,
-          silent: true,
-        );
-        return;
-      }
-      if (_codec != codec || __disposed) {
-        _nextFrame?.image.dispose();
-        _nextFrame = null;
-        return;
-      }
-      if (_codec!.frameCount == 1) {
-        // This is not an animated image, just return it and don't schedule more
-        // frames.
-        if (!__disposed) {
-          _emitFrame(
-            ImageInfo(
-              image: _nextFrame!.image.clone(),
-              scale: _scale,
-              debugLabel: debugLabel,
-            ),
-          );
-        }
-        _nextFrame!.image.dispose();
-        _nextFrame = null;
-        return;
-      }
-      _scheduleAppFrame();
-    } finally {
+      frame = await codec.getNextFrame();
+    } on Object catch (exception, stack) {
       if (_codec == codec) {
         _isDecoding = false;
       }
+      reportError(
+        context: ErrorDescription('resolving an image frame'),
+        exception: exception,
+        stack: stack,
+        informationCollector: _informationCollector,
+        silent: true,
+      );
+      return;
     }
+    // A newer codec replaced this one while decoding; it resets _isDecoding.
+    if (_codec != codec) {
+      frame.image.dispose();
+      return;
+    }
+    _isDecoding = false;
+    if (__disposed) {
+      frame.image.dispose();
+      return;
+    }
+    if (codec.frameCount == 1) {
+      // This is not an animated image, just return it and don't schedule more
+      // frames.
+      _emitFrame(
+        ImageInfo(image: frame.image, scale: _scale, debugLabel: debugLabel),
+      );
+      return;
+    }
+    _nextFrame?.image.dispose();
+    _nextFrame = frame;
+    _scheduleAppFrame();
   }
 
   void _scheduleAppFrame() {
@@ -198,8 +193,8 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   }
 
   void _emitFrame(ImageInfo imageInfo) {
-    setImage(imageInfo);
     _currentCodecHasImage = true;
+    setImage(imageInfo);
     _framesEmitted += 1;
   }
 
