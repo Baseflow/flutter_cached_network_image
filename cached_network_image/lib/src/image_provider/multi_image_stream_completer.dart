@@ -86,7 +86,6 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   bool __disposed = false;
 
   void _switchToNewCodec() {
-    _framesEmitted = 0;
     _timer = null;
     _handleCodecReady(_nextImageCodec!);
     _nextImageCodec = null;
@@ -94,6 +93,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   void _handleCodecReady(ui.Codec codec) {
     _codec = codec;
+    _framesEmitted = 0;
     _currentCodecHasImage = false;
     _isDecoding = false;
 
