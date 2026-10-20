@@ -94,6 +94,10 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     _codec = codec;
     _framesEmitted = 0;
     _isDecoding = false;
+    // A frame still waiting from the previous codec must not be shown as part
+    // of this one.
+    _nextFrame?.image.dispose();
+    _nextFrame = null;
 
     if (hasListeners) {
       _decodeNextFrameAndSchedule();
