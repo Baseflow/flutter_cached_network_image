@@ -1456,6 +1456,53 @@ void main() {
     },
   );
 
+  testWidgets(
+    'new codec arriving before a scheduled animated frame is shown does not throw',
+    (WidgetTester tester) async {
+      final animatedCodec = MockCodec();
+      animatedCodec.frameCount = 2;
+      animatedCodec.repetitionCount = -1;
+      final staticCodec = MockCodec();
+      final codecStream = StreamController<Codec>();
+
+      final ImageStreamCompleter imageStream = MultiImageStreamCompleter(
+        codec: codecStream.stream,
+        scale: 1.0,
+      );
+
+      final emittedImages = <ImageInfo>[];
+      listener(ImageInfo image, bool synchronousCall) {
+        emittedImages.add(image);
+      }
+
+      imageStream.addListener(ImageStreamListener(listener));
+
+      codecStream.add(animatedCodec);
+      await tester.idle();
+
+      // The 1st frame is decoded and waits for the next app frame
+      animatedCodec.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image20x10),
+      );
+      await tester.idle();
+
+      // A new codec arrives before that app frame
+      codecStream.add(staticCodec);
+      await tester.idle();
+      expect(staticCodec.numFramesAsked, 1);
+
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(emittedImages, isEmpty);
+
+      final staticFrame = FakeFrameInfo(Duration.zero, image200x100);
+      staticCodec.completeNextFrame(staticFrame);
+      await tester.idle();
+
+      expect(emittedImages.single.image.isCloneOf(staticFrame.image), true);
+    },
+  );
+
   testWidgets('failed decode does not block later decodes', (
     WidgetTester tester,
   ) async {

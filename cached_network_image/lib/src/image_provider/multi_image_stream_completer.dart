@@ -106,7 +106,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   void _handleAppFrame(Duration timestamp) {
     _frameCallbackScheduled = false;
-    if (!hasListeners) return;
+    if (!hasListeners || _nextFrame == null) return;
     if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
       _emitFrame(
         ImageInfo(
