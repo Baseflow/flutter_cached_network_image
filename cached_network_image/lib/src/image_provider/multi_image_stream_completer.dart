@@ -71,7 +71,6 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   // How many frames have been emitted so far.
   int _framesEmitted = 0;
-  bool _currentCodecHasImage = false;
   bool _isDecoding = false;
   Timer? _timer;
   StreamSubscription<ImageChunkEvent>? _chunkSubscription;
@@ -94,7 +93,6 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   void _handleCodecReady(ui.Codec codec) {
     _codec = codec;
     _framesEmitted = 0;
-    _currentCodecHasImage = false;
     _isDecoding = false;
 
     if (hasListeners) {
@@ -193,7 +191,6 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   }
 
   void _emitFrame(ImageInfo imageInfo) {
-    _currentCodecHasImage = true;
     setImage(imageInfo);
     _framesEmitted += 1;
   }
@@ -204,7 +201,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     if (!hasListeners &&
         _codec != null &&
         !_isDecoding &&
-        (!_currentCodecHasImage || _codec!.frameCount > 1)) {
+        (_framesEmitted == 0 || _codec!.frameCount > 1)) {
       _decodeNextFrameAndSchedule();
     }
     super.addListener(listener);
