@@ -711,8 +711,12 @@ void main() {
     // listeners to the stream
     expect(mockCodec.numFramesAsked, 2);
 
+    // Re-adding shows the waiting 2nd frame before asking for the 3rd.
     imageStream.addListener(ImageStreamListener(listener));
-    await tester.idle(); // let nextFrameFuture complete
+    await tester.idle();
+    expect(mockCodec.numFramesAsked, 2);
+
+    await tester.pump();
     expect(mockCodec.numFramesAsked, 3);
 
     handle.dispose();
@@ -1075,8 +1079,11 @@ void main() {
       scale: 1.0,
     );
 
-    var emittedImages = 0;
-    listener(ImageInfo image, bool synchronousCall) => emittedImages += 1;
+    final emittedImages = <ImageInfo>[];
+    listener(ImageInfo image, bool synchronousCall) {
+      if (!synchronousCall) emittedImages.add(image);
+    }
+
     imageStream.addListener(ImageStreamListener(listener));
 
     final handle = imageStream.keepAlive();
@@ -1097,10 +1104,10 @@ void main() {
     mockCodec.completeNextFrame(frame1);
     await tester.idle();
     await tester.pump();
-    expect(emittedImages, 1);
+    expect(emittedImages.length, 1);
     expect(mockCodec.numFramesAsked, 2);
 
-    // Complete 2nd frame while listener is removed
+    // Complete 2nd frame while listener is removed, so it waits
     mockCodec.completeNextFrame(frame2);
     imageStream.removeListener(ImageStreamListener(listener));
     await tester.idle();
@@ -1108,14 +1115,20 @@ void main() {
 
     // Still 2 frames asked while no listener is attached
     expect(mockCodec.numFramesAsked, 2);
+    expect(emittedImages.length, 1);
 
-    // Re-adding listener asks for a new frame because frameCount > 1
+    // Re-adding listener shows the waiting 2nd frame instead of decoding
+    // another one
     imageStream.addListener(ImageStreamListener(listener));
     await tester.idle();
-    expect(mockCodec.numFramesAsked, 3);
-    expect(emittedImages, 2);
+    expect(mockCodec.numFramesAsked, 2);
 
-    // Complete the new frame and verify animation continues emitting
+    await tester.pump();
+    expect(emittedImages.length, 2);
+    expect(emittedImages[1].image.isCloneOf(frame2.image), true);
+    expect(mockCodec.numFramesAsked, 3);
+
+    // Complete the next frame and verify animation continues emitting
     final FrameInfo frame3 = FakeFrameInfo(
       const Duration(milliseconds: 200),
       image300x100,
@@ -1123,9 +1136,9 @@ void main() {
     mockCodec.completeNextFrame(frame3);
     await tester.idle();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(emittedImages, 3);
+    expect(emittedImages.length, 3);
+    expect(emittedImages[2].image.isCloneOf(frame3.image), true);
 
-    // Clean up pending animation timer
     imageStream.removeListener(ImageStreamListener(listener));
     handle.dispose();
   });

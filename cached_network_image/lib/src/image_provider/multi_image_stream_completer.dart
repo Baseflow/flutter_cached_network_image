@@ -198,11 +198,13 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   @override
   void addListener(ImageStreamListener listener) {
     __hadAtLeastOneListener = true;
-    if (!hasListeners &&
-        _codec != null &&
-        !_isDecoding &&
-        (_framesEmitted == 0 || _codec!.frameCount > 1)) {
-      _decodeNextFrameAndSchedule();
+    if (!hasListeners && _codec != null) {
+      if (_nextFrame != null) {
+        // Show the frame decoded while nobody listened instead of skipping it.
+        _scheduleAppFrame();
+      } else if (_framesEmitted == 0 || _codec!.frameCount > 1) {
+        _decodeNextFrameAndSchedule();
+      }
     }
     super.addListener(listener);
   }
