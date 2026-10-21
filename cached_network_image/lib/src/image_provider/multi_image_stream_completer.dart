@@ -71,6 +71,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   // How many frames have been emitted so far.
   int _framesEmitted = 0;
+  bool _isDecoding = false;
   Timer? _timer;
   StreamSubscription<ImageChunkEvent>? _chunkSubscription;
 
@@ -84,7 +85,6 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   bool __disposed = false;
 
   void _switchToNewCodec() {
-    _framesEmitted = 0;
     _timer = null;
     _handleCodecReady(_nextImageCodec!);
     _nextImageCodec = null;
@@ -92,6 +92,12 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   void _handleCodecReady(ui.Codec codec) {
     _codec = codec;
+    _framesEmitted = 0;
+    _isDecoding = false;
+    // A frame still waiting from the previous codec must not be shown as part
+    // of this one.
+    _nextFrame?.image.dispose();
+    _nextFrame = null;
 
     if (hasListeners) {
       _decodeNextFrameAndSchedule();
@@ -100,7 +106,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   void _handleAppFrame(Duration timestamp) {
     _frameCallbackScheduled = false;
-    if (!hasListeners) return;
+    if (!hasListeners || _nextFrame == null) return;
     if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
       _emitFrame(
         ImageInfo(
@@ -136,9 +142,18 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   }
 
   Future<void> _decodeNextFrameAndSchedule() async {
+    if (_isDecoding) {
+      return;
+    }
+    _isDecoding = true;
+    final codec = _codec!;
+    final ui.FrameInfo frame;
     try {
-      _nextFrame = await _codec!.getNextFrame();
+      frame = await codec.getNextFrame();
     } on Object catch (exception, stack) {
+      if (_codec == codec) {
+        _isDecoding = false;
+      }
       reportError(
         context: ErrorDescription('resolving an image frame'),
         exception: exception,
@@ -148,25 +163,26 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       );
       return;
     }
-    if (_codec!.frameCount == 1) {
-      // ImageStreamCompleter listeners removed while waiting for next frame to
-      // be decoded.
-      // There's no reason to emit the frame without active listeners.
-      if (!hasListeners) {
-        return;
-      }
-
+    // A newer codec replaced this one while decoding; it resets _isDecoding.
+    if (_codec != codec) {
+      frame.image.dispose();
+      return;
+    }
+    _isDecoding = false;
+    if (__disposed) {
+      frame.image.dispose();
+      return;
+    }
+    if (codec.frameCount == 1) {
       // This is not an animated image, just return it and don't schedule more
       // frames.
       _emitFrame(
-        ImageInfo(
-          image: _nextFrame!.image,
-          scale: _scale,
-          debugLabel: debugLabel,
-        ),
+        ImageInfo(image: frame.image, scale: _scale, debugLabel: debugLabel),
       );
       return;
     }
+    _nextFrame?.image.dispose();
+    _nextFrame = frame;
     _scheduleAppFrame();
   }
 
@@ -186,7 +202,14 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   @override
   void addListener(ImageStreamListener listener) {
     __hadAtLeastOneListener = true;
-    if (!hasListeners && _codec != null) _decodeNextFrameAndSchedule();
+    if (!hasListeners && _codec != null) {
+      if (_nextFrame != null) {
+        // Show the frame decoded while nobody listened instead of skipping it.
+        _scheduleAppFrame();
+      } else if (_framesEmitted == 0 || _codec!.frameCount > 1) {
+        _decodeNextFrameAndSchedule();
+      }
+    }
     super.addListener(listener);
   }
 

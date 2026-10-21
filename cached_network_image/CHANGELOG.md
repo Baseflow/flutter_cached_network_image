@@ -1,3 +1,13 @@
+## [4.0.5] - 2026-10-17
+
+* Stop decoding a static image again each time a listener is re-added, which blanked images on web (Firefox and Safari) after navigating back to a route
+* Resume an animated image from its waiting frame when a listener is re-added, instead of skipping that frame
+* Reset the frame count when a new codec arrives, so an animation that follows a placeholder shows all of its frames
+* Discard frames from a codec that has been replaced, whether still decoding or waiting to be shown, so a stale cached image is no longer shown over the refreshed one
+* Dispose frames that finish decoding after the completer is disposed, instead of leaking them
+* Ignore listener re-adds while a frame is already being decoded; a failed decode no longer blocks later decodes
+* Add tests for listener re-add, failed decodes and codec switches during decoding
+
 ## [4.0.4] - 2026-09-30
 
 * Bump `flutter_cache_manager` to `^3.4.5`, `material_ui` to `^1.3.0`, `octo_image` to `^2.1.1` and `mocktail` to `^1.0.5`
