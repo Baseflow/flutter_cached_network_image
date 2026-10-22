@@ -1,3 +1,10 @@
+## [2.0.4] - 2026-10-23
+
+* Report a failure to read or decode a cached file on the `HttpGet` render method to the image stream, evict the image and the broken cache entry, and close the streams, instead of leaving the image loading forever
+* A stale cached file that fails to decode is only a failure if no fresh file follows, and a failure after a frame was shown keeps that frame
+* Close the streams after a download error too
+* Only the web loader removes the broken cache entry; the IO loader is unchanged
+
 ## [2.0.3] - 2026-09-29
 
 * Bump `flutter_cache_manager` to `^3.4.5`, `material_ui` to `^1.3.0` and `web` to `^1.1.1`
