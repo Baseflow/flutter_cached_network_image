@@ -9,6 +9,7 @@ import 'package:cached_network_image_platform_interface'
     hide ImageLoader;
 import 'package:cached_network_image_web/cached_network_image_web.dart';
 import 'package:file/file.dart';
+import 'package:file/memory.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,6 +31,150 @@ void main() {
     );
     expect(stream, isNotNull);
   });
+
+  group('HttpGet with a cached file', () {
+    const url = 'https://example.com/image.webp';
+    late _StreamingCacheManager cacheManager;
+    late List<Object> uncaught;
+    late List<Object> streamErrors;
+    late List<ui.Codec> codecs;
+    late int evicted;
+    late bool done;
+    late bool chunkEventsDone;
+
+    FileInfo fileInfo() {
+      final file = MemoryFileSystem().file('/image.webp')
+        ..writeAsBytesSync([0, 1, 2, 3]);
+      return FileInfo(
+        file,
+        FileSource.Online,
+        DateTime.now().add(const Duration(days: 1)),
+        url,
+      );
+    }
+
+    Future<void> load(
+      ImageDecoderCallback decode, {
+      String? cacheKey,
+      bool failRemove = false,
+    }) async {
+      uncaught = [];
+      streamErrors = [];
+      codecs = [];
+      evicted = 0;
+      done = false;
+      chunkEventsDone = false;
+      cacheManager = _StreamingCacheManager(failRemove: failRemove);
+      await runZonedGuarded(() async {
+        final chunkEvents = StreamController<ImageChunkEvent>();
+        chunkEvents.stream.listen((_) {}, onDone: () => chunkEventsDone = true);
+        ImageLoader()
+            .loadImageAsync(
+              url,
+              cacheKey,
+              chunkEvents,
+              decode,
+              cacheManager,
+              null,
+              null,
+              null,
+              ImageRenderMethodForWeb.HttpGet,
+              () => evicted++,
+            )
+            .listen(
+              codecs.add,
+              onError: streamErrors.add,
+              onDone: () => done = true,
+            );
+        cacheManager.events.add(fileInfo());
+        await cacheManager.events.close();
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }, (e, _) => uncaught.add(e));
+    }
+
+    test('reports a decode failure to the stream and cleans up', () async {
+      await load((buffer, {getTargetSize}) async {
+        buffer.dispose();
+        throw StateError('invalid image bytes');
+      }, cacheKey: 'custom-key');
+
+      expect(uncaught, isEmpty);
+      expect(streamErrors, hasLength(1));
+      expect(streamErrors.single, isA<StateError>());
+      expect(evicted, 1);
+      expect(done, isTrue);
+      expect(chunkEventsDone, isTrue);
+      expect(cacheManager.removedKeys, ['custom-key']);
+    });
+
+    test('removes the broken file under the url when no key is set', () async {
+      await load((buffer, {getTargetSize}) async {
+        buffer.dispose();
+        throw StateError('invalid image bytes');
+      });
+
+      expect(cacheManager.removedKeys, [url]);
+    });
+
+    test(
+      'still reports the decode failure if removing the file fails',
+      () async {
+        await load((buffer, {getTargetSize}) async {
+          buffer.dispose();
+          throw StateError('invalid image bytes');
+        }, failRemove: true);
+
+        expect(uncaught, isEmpty);
+        expect(streamErrors.single, isA<StateError>());
+        expect(done, isTrue);
+      },
+    );
+
+    test('closes the streams once the file is decoded', () async {
+      await load((buffer, {getTargetSize}) async {
+        buffer.dispose();
+        return _FakeCodec();
+      });
+
+      expect(uncaught, isEmpty);
+      expect(streamErrors, isEmpty);
+      expect(codecs, hasLength(1));
+      expect(evicted, 0);
+      expect(done, isTrue);
+      expect(chunkEventsDone, isTrue);
+      expect(cacheManager.removedKeys, isEmpty);
+    });
+  });
+}
+
+class _FakeCodec implements ui.Codec {
+  @override
+  void dispose() {}
+
+  @override
+  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _StreamingCacheManager extends MockCacheManager {
+  _StreamingCacheManager({this.failRemove = false});
+
+  final bool failRemove;
+  final events = StreamController<FileResponse>();
+  final removedKeys = <String>[];
+
+  @override
+  Stream<FileResponse> getFileStream(
+    String url, {
+    String? key,
+    Map<String, String>? headers,
+    bool withProgress = false,
+  }) => events.stream;
+
+  @override
+  Future<void> removeFile(String key) async {
+    removedKeys.add(key);
+    if (failRemove) throw StateError('remove failed');
+  }
 }
 
 Future<ui.Codec> decoder(

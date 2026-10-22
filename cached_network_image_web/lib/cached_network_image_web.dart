@@ -15,8 +15,6 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'src/create_image_codec_from_url_stub.dart'
     if (dart.library.ui_web) 'src/create_image_codec_from_url_web.dart';
 
-enum _State { open, waitingForData, closing }
-
 /// ImageLoader class to load images on the web platform.
 class ImageLoader implements platform.ImageLoader {
   @Deprecated('Use loadImageAsync instead')
@@ -131,9 +129,55 @@ class ImageLoader implements platform.ImageLoader {
         key: cacheKey,
       );
 
-      var state = _State.open;
+      var downloadDone = false;
+      var pendingDecodes = 0;
+      var finished = false;
+      late final StreamSubscription<FileResponse> subscription;
 
-      stream.listen(
+      void finish() {
+        if (finished) return;
+        finished = true;
+        streamController.close();
+        chunkEvents.close();
+      }
+
+      void closeIfComplete() {
+        if (downloadDone && pendingDecodes == 0) {
+          finish();
+        }
+      }
+
+      Future<void> decodeFile(FileInfo info) async {
+        try {
+          final bytes = await info.file.readAsBytes();
+          final codec = await decode(bytes);
+          if (finished) {
+            codec.dispose();
+          } else {
+            streamController.add(codec);
+          }
+        } on Object catch (e, st) {
+          if (finished) return;
+          scheduleMicrotask(() {
+            evictImage();
+          });
+          try {
+            // Drop the broken entry so the next attempt downloads it again.
+            await cacheManager.removeFile(cacheKey ?? url);
+          } on Object catch (_) {
+            // Keep the original error visible.
+          }
+          if (finished) return;
+          streamController.addError(e, st);
+          finish();
+          unawaited(subscription.cancel());
+        } finally {
+          pendingDecodes--;
+          closeIfComplete();
+        }
+      }
+
+      subscription = stream.listen(
         (event) {
           if (event is DownloadProgress) {
             chunkEvents.add(
@@ -144,19 +188,8 @@ class ImageLoader implements platform.ImageLoader {
             );
           }
           if (event is FileInfo) {
-            if (state == _State.open) {
-              state = _State.waitingForData;
-            }
-
-            event.file.readAsBytes().then((value) => decode(value)).then((
-              data,
-            ) {
-              streamController.add(data);
-              if (state == _State.closing) {
-                streamController.close();
-                chunkEvents.close();
-              }
-            });
+            pendingDecodes++;
+            unawaited(decodeFile(event));
           }
         },
         onError: (e, st) {
@@ -165,13 +198,9 @@ class ImageLoader implements platform.ImageLoader {
           });
           streamController.addError(e, st);
         },
-        onDone: () async {
-          if (state == _State.open) {
-            streamController.close();
-            chunkEvents.close();
-          } else if (state == _State.waitingForData) {
-            state = _State.closing;
-          }
+        onDone: () {
+          downloadDone = true;
+          closeIfComplete();
         },
         cancelOnError: true,
       );
