@@ -1,19 +1,19 @@
 name: platform_web
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the develop branch
+# events but only for the main branch
 on:
   workflow_dispatch:
 
   push:
     tags:
       - "web-v[0-9]+.[0-9]+.[0-9]+*"
-    branches: [develop, main]
+    branches: [main]
     paths:
       - "cached_network_image_web/**"
       - ".github/workflows/platform_web.yaml"
   pull_request:
-    branches: [develop]
+    branches: [main]
     paths:
       - "cached_network_image_web/**"
       - ".github/workflows/platform_web.yaml"
@@ -32,7 +32,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Make sure the stable version of Flutter is available
       - name: Set up Flutter
@@ -64,7 +64,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Make sure the stable version of Flutter is available
       - name: Set up Flutter
@@ -95,7 +95,7 @@ jobs:
   #   # Steps represent a sequence of tasks that will be executed as part of the job
   #   steps:
   #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-  #     - uses: actions/checkout@v4
+  #     - uses: actions/checkout@v7
 
   #     # Make sure the stable version of Flutter is available
   #     - name: Set up Flutter
@@ -139,7 +139,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Dart
         uses: dart-lang/setup-dart@v1

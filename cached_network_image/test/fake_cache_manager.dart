@@ -46,12 +46,7 @@ class FakeCacheManager extends Mock implements CacheManager {
         withProgress: any(named: 'withProgress'),
       ),
     ).thenAnswer(
-      (_) => _createResultStream(
-        url,
-        chunks,
-        imageData,
-        delayBetweenChunks,
-      ),
+      (_) => _createResultStream(url, chunks, imageData, delayBetweenChunks),
     );
 
     return ExpectedData(
@@ -109,12 +104,7 @@ class FakeImageCacheManager extends Mock implements ImageCacheManager {
         maxWidth: any(named: 'maxWidth'),
       ),
     ).thenAnswer(
-      (_) => _createResultStream(
-        url,
-        chunks,
-        imageData,
-        delayBetweenChunks,
-      ),
+      (_) => _createResultStream(url, chunks, imageData, delayBetweenChunks),
     );
 
     return ExpectedData(

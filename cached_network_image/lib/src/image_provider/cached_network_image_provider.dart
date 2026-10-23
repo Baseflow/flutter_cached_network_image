@@ -9,7 +9,7 @@ import 'package:cached_network_image_platform_interface/cached_network_image_pla
     if (dart.library.js_interop) 'package:cached_network_image_web/cached_network_image_web.dart'
     show ImageLoader;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// IO implementation of the CachedNetworkImageProvider; the ImageProvider to
@@ -81,6 +81,7 @@ class CachedNetworkImageProvider
       codec: _loadBufferAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
+      debugLabel: key.url,
       informationCollector: () => <DiagnosticsNode>[
         DiagnosticsProperty<ImageProvider>('Image provider', this),
         DiagnosticsProperty<CachedNetworkImageProvider>('Image key', key),
@@ -132,6 +133,7 @@ class CachedNetworkImageProvider
       codec: _loadImageAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: key.scale,
+      debugLabel: key.url,
       informationCollector: () => <DiagnosticsNode>[
         DiagnosticsProperty<ImageProvider>('Image provider', this),
         DiagnosticsProperty<CachedNetworkImageProvider>('Image key', key),

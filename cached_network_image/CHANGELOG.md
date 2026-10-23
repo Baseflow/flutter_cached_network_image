@@ -1,3 +1,44 @@
+## [4.0.5] - 2026-10-17
+
+* Stop decoding a static image again each time a listener is re-added, which blanked images on web (Firefox and Safari) after navigating back to a route
+* Resume an animated image from its waiting frame when a listener is re-added, instead of skipping that frame
+* Reset the frame count when a new codec arrives, so an animation that follows a placeholder shows all of its frames
+* Discard frames from a codec that has been replaced, whether still decoding or waiting to be shown, so a stale cached image is no longer shown over the refreshed one
+* Dispose frames that finish decoding after the completer is disposed, instead of leaking them
+* Ignore listener re-adds while a frame is already being decoded; a failed decode no longer blocks later decodes
+* Add tests for listener re-add, failed decodes and codec switches during decoding
+
+## [4.0.4] - 2026-09-30
+
+* Bump `flutter_cache_manager` to `^3.4.5`, `material_ui` to `^1.3.0`, `octo_image` to `^2.1.1` and `mocktail` to `^1.0.5`
+* Update the example to `flutter_lints` `^6.0.0`, `flutter_blurhash` `^0.9.1` and `baseflow_plugin_template` `^2.2.1`, raise its SDK constraint to match the package, and reformat it for the tall style that constraint selects
+
+## [4.0.3] - 2026-09-29
+
+* Use the image URL as the `debugLabel` of the emitted image, so image size warnings report the URL instead of `Image null`
+
+## [4.0.2] - 2026-09-23
+
+* Bump `flutter_lints` to `^6.0.0` and drop the library name, fixing an `unnecessary_library_name` lint
+
+## [4.0.1] - 2026-09-22
+
+* Use an initializing formal for `MultiImageStreamCompleter`'s `scale`, fixing a `prefer_initializing_formals` lint
+* Reformat with the current Dart formatter
+* Update the example's Android build to AGP 9.0.1, Kotlin 2.3.20, Gradle 9.1.0 and Java 17
+
+## [4.0.0] - 2026-08-25
+
+### Breaking changes
+
+* Requires Flutter `>=3.44.0` and Dart `^3.12.0` (via `material_ui` dependency)
+* Replaces `flutter/material.dart` with `material_ui` across all packages for Wasm compatibility
+
+### Other changes
+
+* Exclude platform folders from analyzer configuration
+* Fix `FakeTicker` test helper for newer Flutter versions
+
 ## [3.4.1] - 2024-08-13
 
 * Target js_interop for Wasm support

@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_cache_manager.dart';
@@ -87,8 +87,9 @@ void main() {
       expect(thrown, isTrue);
     });
 
-    testWidgets("errorBuilder doesn't call when image doesn't fail",
-        (tester) async {
+    testWidgets("errorBuilder doesn't call when image doesn't fail", (
+      tester,
+    ) async {
       var imageUrl = '123456';
       // Create the widget by telling the tester to build it.
       cacheManager.returns(imageUrl, kTransparentImage);
@@ -166,9 +167,9 @@ class MyImageWidget extends StatelessWidget {
     VoidCallback? onProgress,
     VoidCallback? onPlaceHolder,
     VoidCallback? onError,
-  })  : progressBuilder = getProgress(onProgress),
-        placeholderBuilder = getPlaceholder(onPlaceHolder),
-        errorBuilder = getErrorBuilder(onError);
+  }) : progressBuilder = getProgress(onProgress),
+       placeholderBuilder = getPlaceholder(onPlaceHolder),
+       errorBuilder = getErrorBuilder(onError);
 
   static ProgressIndicatorBuilder? getProgress(VoidCallback? onProgress) {
     if (onProgress == null) return null;

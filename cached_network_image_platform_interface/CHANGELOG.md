@@ -1,3 +1,26 @@
+## [5.0.3] - 2026-09-29
+
+* Bump `flutter_cache_manager` to `^3.4.5` and `material_ui` to `^1.3.0`
+
+## [5.0.2] - 2026-09-23
+
+* Bump `flutter_lints` to `^6.0.0` and drop the library name, fixing an `unnecessary_library_name` lint
+
+## [5.0.1] - 2026-09-22
+
+* Reformat with the current Dart formatter
+
+## [5.0.0] - 2026-08-25
+
+### Breaking changes
+
+* Requires Flutter `>=3.44.0` and Dart `^3.12.0` (via `material_ui` dependency)
+* Replaces `flutter/material.dart` with `material_ui` for Wasm compatibility
+
+### Other changes
+
+* Exclude platform folders from analyzer configuration
+
 ## [4.1.1] - 2024-08-13
 
 * Target js_interop for Wasm support
