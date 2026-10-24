@@ -23,8 +23,13 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     InformationCollector? informationCollector,
   }) : _informationCollector = informationCollector {
     this.debugLabel = debugLabel;
-    codec.listen(
+    _codecSubscription = codec.listen(
       (event) {
+        if (__disposed) {
+          event.dispose();
+          return;
+        }
+
         if (_timer != null) {
           _nextImageCodec = event;
         } else {
@@ -32,6 +37,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
         }
       },
       onError: (Object error, StackTrace stack) {
+        if (__disposed) return;
         reportError(
           context: ErrorDescription('resolving an image codec'),
           exception: error,
@@ -74,6 +80,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   bool _isDecoding = false;
   Timer? _timer;
   StreamSubscription<ImageChunkEvent>? _chunkSubscription;
+  StreamSubscription<ui.Codec>? _codecSubscription;
 
   // Used to guard against registering multiple _handleAppFrame callbacks for the same frame.
   bool _frameCallbackScheduled = false;
@@ -240,7 +247,8 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     }
 
     __disposed = true;
-
+    _codecSubscription?.cancel();
+    _codecSubscription = null;
     _chunkSubscription?.onData(null);
     _chunkSubscription?.cancel();
     _chunkSubscription = null;
