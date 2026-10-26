@@ -124,6 +124,128 @@ void main() {
     );
   });
 
+  testWidgets('disposes a decoded frame waiting for the first app frame', (
+    WidgetTester tester,
+  ) async {
+    final codecStream = StreamController<Codec>();
+    final codec = MockCodec()
+      ..frameCount = 2
+      ..repetitionCount = -1;
+    final completer = MultiImageStreamCompleter(
+      codec: codecStream.stream,
+      scale: 1.0,
+    );
+    var emittedImages = 0;
+    final listener = ImageStreamListener((image, _) {
+      emittedImages++;
+      image.dispose();
+    });
+    completer.addListener(listener);
+    codecStream.add(codec);
+    await tester.idle();
+
+    final frame = FakeFrameInfo(
+      const Duration(milliseconds: 200),
+      image20x10.clone(),
+    );
+    codec.completeNextFrame(frame);
+    await tester.idle();
+    expect(frame.image.debugDisposed, false);
+    expect(emittedImages, 0);
+
+    // The frame has decoded but has not yet been emitted by an app frame.
+    completer.removeListener(listener);
+    expect(frame.image.debugDisposed, true);
+    await tester.pump();
+    expect(emittedImages, 0);
+    await codecStream.close();
+  });
+
+  testWidgets(
+    'disposes a waiting animation frame when last listener is removed',
+    (WidgetTester tester) async {
+      final codecStream = StreamController<Codec>();
+      final codec = MockCodec()
+        ..frameCount = 2
+        ..repetitionCount = -1;
+      final completer = MultiImageStreamCompleter(
+        codec: codecStream.stream,
+        scale: 1.0,
+      );
+      var emittedImages = 0;
+      final listener = ImageStreamListener((image, _) {
+        emittedImages++;
+        image.dispose();
+      });
+      completer.addListener(listener);
+      codecStream.add(codec);
+      await tester.idle();
+
+      codec.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+      );
+      await tester.idle();
+      await tester.pump();
+      expect(emittedImages, 1);
+      expect(codec.numFramesAsked, 2);
+
+      final waitingFrame = FakeFrameInfo(
+        const Duration(milliseconds: 200),
+        image200x100.clone(),
+      );
+      codec.completeNextFrame(waitingFrame);
+      await tester.idle();
+      // Schedule a delay while the first frame is still being displayed.
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(waitingFrame.image.debugDisposed, false);
+      expect(emittedImages, 1);
+
+      completer.removeListener(listener);
+      expect(waitingFrame.image.debugDisposed, true);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(emittedImages, 1);
+      expect(codec.numFramesAsked, 2);
+      await codecStream.close();
+    },
+  );
+
+  testWidgets(
+    'retains waiting frame until final keep-alive handle is released',
+    (WidgetTester tester) async {
+      final codecStream = StreamController<Codec>();
+      final codec = MockCodec()
+        ..frameCount = 2
+        ..repetitionCount = -1;
+      final completer = MultiImageStreamCompleter(
+        codec: codecStream.stream,
+        scale: 1.0,
+      );
+      final listener = ImageStreamListener((image, _) => image.dispose());
+      completer.addListener(listener);
+      final firstHandle = completer.keepAlive();
+      final lastHandle = completer.keepAlive();
+      codecStream.add(codec);
+      await tester.idle();
+
+      final frame = FakeFrameInfo(
+        const Duration(milliseconds: 200),
+        image20x10.clone(),
+      );
+      codec.completeNextFrame(frame);
+      await tester.idle();
+
+      completer.removeListener(listener);
+      expect(frame.image.debugDisposed, false);
+      firstHandle.dispose();
+      expect(frame.image.debugDisposed, false);
+      lastHandle.dispose();
+      expect(frame.image.debugDisposed, true);
+      await tester.pump();
+      expect(codec.numFramesAsked, 1);
+      await codecStream.close();
+    },
+  );
+
   testWidgets('Decoding starts when a listener is added after codec is ready', (
     WidgetTester tester,
   ) async {
