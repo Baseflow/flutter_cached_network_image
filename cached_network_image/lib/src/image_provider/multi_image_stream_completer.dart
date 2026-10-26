@@ -241,6 +241,10 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
     __disposed = true;
 
+    // A decoded animation frame may still be waiting for an app frame.
+    _nextFrame?.image.dispose();
+    _nextFrame = null;
+
     _chunkSubscription?.onData(null);
     _chunkSubscription?.cancel();
     _chunkSubscription = null;

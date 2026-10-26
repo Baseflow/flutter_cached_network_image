@@ -1,3 +1,7 @@
+## [4.0.6] - 2026-10-25
+
+* Dispose an already-decoded animation frame when the image stream completer is disposed, including when the last keep-alive handle is released
+
 ## [4.0.5] - 2026-10-17
 
 * Stop decoding a static image again each time a listener is re-added, which blanked images on web (Firefox and Safari) after navigating back to a route
