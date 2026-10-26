@@ -108,16 +108,15 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     _frameCallbackScheduled = false;
     if (!hasListeners || _nextFrame == null) return;
     if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
-      _emitFrame(
-        ImageInfo(
-          image: _nextFrame!.image,
-          scale: _scale,
-          debugLabel: debugLabel,
-        ),
-      );
-      _shownTimestamp = timestamp;
-      _frameDuration = _nextFrame!.duration;
+      // Transfer ownership before callbacks can remove the last listener.
+      final frame = _nextFrame!;
       _nextFrame = null;
+      _emitFrame(
+        ImageInfo(image: frame.image, scale: _scale, debugLabel: debugLabel),
+      );
+      if (__disposed) return;
+      _shownTimestamp = timestamp;
+      _frameDuration = frame.duration;
       if (_framesEmitted % _codec!.frameCount == 0 && _nextImageCodec != null) {
         _switchToNewCodec();
       } else {

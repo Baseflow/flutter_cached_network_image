@@ -246,6 +246,57 @@ void main() {
     },
   );
 
+  for (final keptAlive in [false, true]) {
+    testWidgets(
+      keptAlive
+          ? 'last keep-alive handle can be released during animated frame delivery'
+          : 'last listener can remove itself during animated frame delivery',
+      (WidgetTester tester) async {
+        final codecStream = StreamController<Codec>();
+        final codec = MockCodec()
+          ..frameCount = 2
+          ..repetitionCount = -1;
+        final completer = MultiImageStreamCompleter(
+          codec: codecStream.stream,
+          scale: 1.0,
+        );
+        ImageStreamCompleterHandle? handle;
+        var emittedImages = 0;
+        late final ImageStreamListener listener;
+        listener = ImageStreamListener((image, _) {
+          emittedImages++;
+          try {
+            completer.removeListener(listener);
+            handle?.dispose();
+            // The delivered clone remains owned by its listener.
+            expect(image.image.debugDisposed, false);
+          } finally {
+            image.dispose();
+          }
+        });
+        completer.addListener(listener);
+        if (keptAlive) handle = completer.keepAlive();
+        codecStream.add(codec);
+        await tester.idle();
+
+        final frame = FakeFrameInfo(
+          const Duration(milliseconds: 200),
+          image20x10.clone(),
+        );
+        codec.completeNextFrame(frame);
+        await tester.idle();
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(emittedImages, 1);
+        expect(frame.image.debugDisposed, true);
+        // Final disposal during delivery must not request another frame.
+        expect(codec.numFramesAsked, 1);
+        await codecStream.close();
+      },
+    );
+  }
+
   testWidgets('Decoding starts when a listener is added after codec is ready', (
     WidgetTester tester,
   ) async {
