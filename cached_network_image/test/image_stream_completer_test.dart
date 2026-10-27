@@ -90,6 +90,67 @@ void main() {
     expect(tester.takeException(), 'failure message');
   });
 
+  testWidgets('minimum frame duration clamps 0ms and 10ms, not 11ms', (
+    WidgetTester tester,
+  ) async {
+    final codecStream = StreamController<Codec>();
+    final mockCodec = MockCodec()..frameCount = 5;
+    final images = <Image>[];
+    final completer = MultiImageStreamCompleter(
+      codec: codecStream.stream,
+      scale: 1.0,
+      minFrameDuration: const Duration(milliseconds: 100),
+    );
+    completer.addListener(
+      ImageStreamListener((ImageInfo info, bool synchronousCall) {
+        images.add(info.image);
+      }),
+    );
+    codecStream.add(mockCodec);
+    await tester.idle();
+
+    mockCodec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image20x10),
+    );
+    await tester.pump();
+    expect(images, <Image>[image20x10]);
+
+    // The zero-duration frame must be held for at least 100ms.
+    mockCodec.completeNextFrame(FakeFrameInfo(Duration.zero, image200x100));
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 199));
+    expect(images, hasLength(1));
+    await tester.pump(const Duration(milliseconds: 1));
+    expect(images, hasLength(2));
+
+    mockCodec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 10), image300x100),
+    );
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 99));
+    expect(images, hasLength(2));
+    await tester.pump(const Duration(milliseconds: 1));
+    expect(images, hasLength(3));
+
+    // The 11ms frame is not clamped, so the following frame appears after
+    // 11ms rather than 100ms.
+    mockCodec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 11), image20x10),
+    );
+    await tester.idle();
+    await tester.pump(Duration.zero);
+    expect(images, hasLength(4));
+
+    mockCodec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image200x100),
+    );
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 10));
+    expect(images, hasLength(4));
+    await tester.pump(const Duration(milliseconds: 1));
+    expect(images, hasLength(5));
+  });
+
   test('Completer unsubscribes to chunk events when disposed', () async {
     final codecStream = StreamController<Codec>();
     final chunkStream = StreamController<ImageChunkEvent>();

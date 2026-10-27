@@ -199,6 +199,13 @@ class CachedNetworkImage extends StatelessWidget {
   /// Listener to be called when images fails to load.
   final ValueChanged<Object>? errorListener;
 
+  /// Minimum duration for frames in animated images, including WebP and APNG.
+  ///
+  /// Frames with a duration of 10ms or less are displayed for at least this
+  /// duration, and never less than 100ms. Defaults to null, which preserves
+  /// the duration reported by the image codec.
+  final Duration? minFrameDuration;
+
   /// CachedNetworkImage shows a network image using a caching mechanism. It also
   /// provides support for a placeholder, showing an error and fading into the
   /// loaded image. Next to that it supports most features of a default Image
@@ -236,6 +243,7 @@ class CachedNetworkImage extends StatelessWidget {
     ImageRenderMethodForWeb imageRenderMethodForWeb =
         ImageRenderMethodForWeb.HtmlImage,
     double scale = 1.0,
+    this.minFrameDuration,
   }) : _image = CachedNetworkImageProvider(
          imageUrl,
          headers: httpHeaders,
@@ -246,6 +254,7 @@ class CachedNetworkImage extends StatelessWidget {
          maxHeight: maxHeightDiskCache,
          errorListener: errorListener,
          scale: scale,
+         minFrameDuration: minFrameDuration,
        );
 
   @override
