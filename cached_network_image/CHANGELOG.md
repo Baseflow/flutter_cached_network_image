@@ -5,7 +5,7 @@
 * Release active and pending codecs on disposal, dispose replaced codecs, and drain late codec results without retaining the disposed completer
 * Discard superseded pending refreshes when a newer codec arrives after listener removal, preventing older images from returning on resume
 * Preserve the new animation's frame count when a listener synchronously replaces the codec during frame delivery
-* Pause animation decoding when the final listener removes itself while a keep-alive handle remains, selecting any pending refresh before pausing
+* Pause animation decoding when the final listener removes itself while a keep-alive handle remains, selecting a pending refresh at cycle boundaries before pausing
 
 ## [4.0.5] - 2026-10-17
 
