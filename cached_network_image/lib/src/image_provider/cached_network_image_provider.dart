@@ -67,8 +67,9 @@ class CachedNetworkImageProvider
   /// Minimum duration for frames in animated images, including WebP and APNG.
   ///
   /// Frames with a duration of 10ms or less are displayed for at least this
-  /// duration, and never less than 100ms. Defaults to null, which preserves
-  /// the duration reported by the image codec.
+  /// duration. Frames longer than 10ms keep the duration reported by the image
+  /// codec. Defaults to null, which preserves all durations reported by the
+  /// image codec.
   final Duration? minFrameDuration;
 
   @override
@@ -198,7 +199,12 @@ class CachedNetworkImageProvider
 
   @override
   int get hashCode => Object.hash(
-      cacheKey ?? url, scale, maxHeight, maxWidth, minFrameDuration);
+    cacheKey ?? url,
+    scale,
+    maxHeight,
+    maxWidth,
+    minFrameDuration,
+  );
 
   @override
   String toString() => 'CachedNetworkImageProvider("$url", scale: $scale)';

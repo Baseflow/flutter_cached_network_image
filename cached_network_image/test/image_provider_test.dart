@@ -29,6 +29,27 @@ void main() {
     PaintingBinding.instance.imageCache.clearLiveImages();
   });
 
+  test('minFrameDuration participates in provider equality and hashCode', () {
+    final provider = CachedNetworkImageProvider(
+      'animation',
+      minFrameDuration: const Duration(milliseconds: 20),
+    );
+    final sameProvider = CachedNetworkImageProvider(
+      'animation',
+      minFrameDuration: const Duration(milliseconds: 20),
+    );
+    final differentProvider = CachedNetworkImageProvider(
+      'animation',
+      minFrameDuration: const Duration(milliseconds: 30),
+    );
+    final defaultProvider = CachedNetworkImageProvider('animation');
+
+    expect(provider, sameProvider);
+    expect(provider.hashCode, sameProvider.hashCode);
+    expect(provider, isNot(differentProvider));
+    expect(provider, isNot(defaultProvider));
+  });
+
   test(
     'Expect thrown exception with statusCode - evicts from cache',
     () async {

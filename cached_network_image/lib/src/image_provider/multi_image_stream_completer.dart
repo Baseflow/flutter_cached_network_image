@@ -11,7 +11,6 @@ double _timeDilation = 1;
 
 // Browsers commonly clamp animated image frame delays below 10ms to 100ms.
 const Duration _browserMinimumFrameDelay = Duration(milliseconds: 10);
-const Duration _browserFrameDelayFallback = Duration(milliseconds: 100);
 
 /// An ImageStreamCompleter with support for loading multiple images.
 class MultiImageStreamCompleter extends ImageStreamCompleter {
@@ -65,8 +64,8 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   /// Minimum duration for frames in animated images, including WebP and APNG.
   ///
   /// Frames with a duration of 10ms or less are displayed for at least this
-  /// duration, and never less than 100ms. If null, frame durations are used
-  /// without adjustment.
+  /// duration. Frames longer than 10ms keep the duration reported by the
+  /// image codec. If null, all frame durations are used without adjustment.
   final Duration? minFrameDuration;
 
   ui.Codec? _codec;
@@ -121,12 +120,9 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     if (!hasListeners || _nextFrame == null) return;
     if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
       final frameDuration = _nextFrame!.duration;
-      _frameDuration = minFrameDuration != null &&
-              frameDuration <= _browserMinimumFrameDelay &&
-              frameDuration < minFrameDuration!
-          ? minFrameDuration! > _browserFrameDelayFallback
-              ? minFrameDuration!
-              : _browserFrameDelayFallback
+      _frameDuration =
+          minFrameDuration != null && frameDuration <= _browserMinimumFrameDelay
+          ? minFrameDuration!
           : frameDuration;
       _emitFrame(
         ImageInfo(
