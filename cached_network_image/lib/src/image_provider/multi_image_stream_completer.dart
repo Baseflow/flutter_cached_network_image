@@ -15,6 +15,10 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   /// should be a stream with the images that should be shown. The
   /// [chunkEvents] should indicate the [ImageChunkEvent]s of the first image
   /// to show.
+  ///
+  /// Takes ownership of every codec delivered on [codec]; do not reuse them
+  /// elsewhere. Replaced codecs, codecs held at disposal, and late results
+  /// are disposed by this completer.
   MultiImageStreamCompleter({
     required Stream<ui.Codec> codec,
     required this._scale,
@@ -89,12 +93,15 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
 
   void _switchToNewCodec() {
     _timer = null;
-    final codec = _nextImageCodec!;
-    _nextImageCodec = null;
-    _handleCodecReady(codec);
+    _handleCodecReady(_nextImageCodec!);
   }
 
   void _handleCodecReady(ui.Codec codec) {
+    // Every activation supersedes a pending refresh, even when listener
+    // removal cancelled its timer before a newer codec arrived.
+    final pending = _nextImageCodec;
+    _nextImageCodec = null;
+    if (pending != codec && pending != _codec) pending?.dispose();
     if (_codec != codec) _codec?.dispose();
     _codec = codec;
     _framesEmitted = 0;
@@ -114,11 +121,12 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
       // Transfer ownership before callbacks can remove the last listener.
       final frame = _nextFrame!;
+      final codec = _codec!;
       _nextFrame = null;
       _emitFrame(
         ImageInfo(image: frame.image, scale: _scale, debugLabel: debugLabel),
       );
-      if (_disposed) return;
+      if (_disposed || _codec != codec) return;
       _shownTimestamp = timestamp;
       _frameDuration = frame.duration;
       if (_framesEmitted % _codec!.frameCount == 0 && _nextImageCodec != null) {
@@ -166,16 +174,12 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       );
       return;
     }
-    // A newer codec replaced this one while decoding; it resets _isDecoding.
-    if (_codec != codec) {
+    // Replacing the codec or disposing the completer invalidates this frame.
+    if (_disposed || _codec != codec) {
       frame.image.dispose();
       return;
     }
     _isDecoding = false;
-    if (_disposed) {
-      frame.image.dispose();
-      return;
-    }
     if (codec.frameCount == 1) {
       // This is not an animated image, just return it and don't schedule more
       // frames.
@@ -198,8 +202,9 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   }
 
   void _emitFrame(ImageInfo imageInfo) {
-    setImage(imageInfo);
+    // Callbacks may synchronously activate a new codec and reset this count.
     _framesEmitted += 1;
+    setImage(imageInfo);
   }
 
   @override
