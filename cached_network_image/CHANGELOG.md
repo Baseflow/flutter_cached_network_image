@@ -2,8 +2,8 @@
 
 * Dispose an already-decoded animation frame when the image stream completer is disposed, including when the last keep-alive handle is released
 * Safely transfer frame ownership when a listener removes itself or releases the final keep-alive handle during frame delivery
-* Release active and pending codecs on disposal, dispose replaced codecs, and cancel the codec subscription using the framework disposal hook
-* Pause animation decoding when the final listener removes itself while a keep-alive handle remains
+* Release active and pending codecs on disposal, dispose replaced codecs, and drain late codec results without retaining the disposed completer
+* Pause animation decoding when the final listener removes itself while a keep-alive handle remains, selecting any pending refresh before pausing
 
 ## [4.0.5] - 2026-10-17
 

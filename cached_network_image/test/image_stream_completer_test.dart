@@ -279,7 +279,7 @@ void main() {
     );
   }
 
-  testWidgets('final disposal cancels codec events and releases the codec', (
+  testWidgets('final disposal drains codec events and releases the codec', (
     tester,
   ) async {
     final fixture = AnimatedCompleterFixture();
@@ -292,7 +292,17 @@ void main() {
     expect(fixture.codecStream.hasListener, true);
     lastHandle.dispose();
     expect(fixture.codec.disposeCount, 1);
-    expect(fixture.codecStream.hasListener, false);
+    expect(fixture.codecStream.hasListener, true);
+    final lateCodec = MockCodec();
+    fixture.codecStream.add(lateCodec);
+    fixture.codecStream.addError(StateError('late codec failure'));
+    await tester.idle();
+    expect(lateCodec.disposeCount, 1);
+    expect(lateCodec.numFramesAsked, 0);
+    addTearDown(() async {
+      await fixture.codecStream.close();
+      expect(fixture.codecStream.hasListener, false);
+    });
     final lateFrame = FakeFrameInfo(Duration.zero, image20x10.clone());
     fixture.codec.completeNextFrame(lateFrame);
     await tester.idle();
@@ -386,7 +396,10 @@ void main() {
     await tester.idle();
     handle.dispose();
     expect(codec.disposeCount, 1);
-    expect(stream.hasListener, false);
+    final lateCodec = MockCodec();
+    stream.add(lateCodec);
+    await tester.idle();
+    expect(lateCodec.disposeCount, 1);
   });
 
   testWidgets('listener removal with keep-alive pauses decoding until resumed', (
@@ -422,6 +435,104 @@ void main() {
     handle.dispose();
     expect(fixture.codec.disposeCount, 1);
   });
+
+  testWidgets(
+    'pending refresh is selected when delivery removes last listener',
+    (tester) async {
+      late final AnimatedCompleterFixture fixture;
+      fixture = AnimatedCompleterFixture(
+        onImage: (_) {
+          if (fixture.emittedImages == 2) {
+            fixture.completer.removeListener(fixture.listener);
+          }
+        },
+      );
+      fixture.codec.repetitionCount = 0;
+      final handle = fixture.completer.keepAlive();
+      await tester.idle();
+      fixture.codec.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+      );
+      await tester.idle();
+      await tester.pump();
+      fixture.codec.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image200x100.clone()),
+      );
+      await tester.idle();
+      await tester.pump(const Duration(milliseconds: 50));
+      final refresh = MockCodec();
+      fixture.codecStream.add(refresh);
+      await tester.idle();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(fixture.emittedImages, 2);
+      expect(fixture.codec.disposeCount, 1);
+      expect(refresh.numFramesAsked, 0);
+
+      final images = <ImageInfo>[];
+      final listener = ImageStreamListener((image, _) => images.add(image));
+      fixture.completer.addListener(listener);
+      await tester.idle();
+      expect(refresh.numFramesAsked, 1);
+      expect(fixture.codec.numFramesAsked, 2);
+      refresh.completeNextFrame(
+        FakeFrameInfo(Duration.zero, image300x100.clone()),
+      );
+      await tester.idle();
+      expect(images.length, 2);
+      expect(images.last.image.isCloneOf(image300x100), true);
+      for (final image in images) {
+        image.dispose();
+      }
+      fixture.completer.removeListener(listener);
+      handle.dispose();
+      expect(refresh.disposeCount, 1);
+    },
+  );
+
+  for (final asyncGenerator in [false, true]) {
+    Stream<Codec> codecStream(Future<Codec> future) async* {
+      yield await future;
+    }
+
+    testWidgets(
+      'late codec is disposed after completer disposal (async generator: $asyncGenerator)',
+      (tester) async {
+        final future = Completer<Codec>();
+        final stream = asyncGenerator
+            ? codecStream(future.future)
+            : future.future.asStream();
+        final completer = MultiImageStreamCompleter(codec: stream, scale: 1);
+        final listener = ImageStreamListener((image, _) => image.dispose());
+        completer.addListener(listener);
+        await tester.idle();
+        completer.removeListener(listener);
+        final codec = MockCodec();
+        future.complete(codec);
+        await tester.idle();
+        expect(codec.disposeCount, 1);
+        expect(codec.numFramesAsked, 0);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'late codec error is ignored after disposal (async generator: $asyncGenerator)',
+      (tester) async {
+        final future = Completer<Codec>();
+        final stream = asyncGenerator
+            ? codecStream(future.future)
+            : future.future.asStream();
+        final completer = MultiImageStreamCompleter(codec: stream, scale: 1);
+        final listener = ImageStreamListener((image, _) => image.dispose());
+        completer.addListener(listener);
+        await tester.idle();
+        completer.removeListener(listener);
+        future.completeError(StateError('late decode failure'));
+        await tester.idle();
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('Decoding starts when a listener is added after codec is ready', (
     WidgetTester tester,

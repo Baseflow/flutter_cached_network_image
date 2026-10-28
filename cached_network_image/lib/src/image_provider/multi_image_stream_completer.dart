@@ -121,10 +121,10 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       if (_disposed) return;
       _shownTimestamp = timestamp;
       _frameDuration = frame.duration;
-      if (!hasListeners) return;
       if (_framesEmitted % _codec!.frameCount == 0 && _nextImageCodec != null) {
         _switchToNewCodec();
       } else {
+        if (!hasListeners) return;
         final completedCycles = _framesEmitted ~/ _codec!.frameCount;
         if (_codec!.repetitionCount == -1 ||
             completedCycles <= _codec!.repetitionCount) {
@@ -229,6 +229,10 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     _nextFrame = null;
   }
 
+  static void _disposeCodec(ui.Codec codec) => codec.dispose();
+
+  static void _ignoreCodecError(Object error, StackTrace stack) {}
+
   @override
   void onDisposed() {
     super.onDisposed();
@@ -236,7 +240,10 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     _timer?.cancel();
     _timer = null;
     _discardNextFrame();
-    _codecSubscription?.cancel();
+    // Cancelling can drop a codec still being created by the producer. Drain
+    // late results with static callbacks so the stream cannot retain us.
+    _codecSubscription?.onData(_disposeCodec);
+    _codecSubscription?.onError(_ignoreCodecError);
     _codecSubscription = null;
     _chunkSubscription?.cancel();
     _chunkSubscription = null;
