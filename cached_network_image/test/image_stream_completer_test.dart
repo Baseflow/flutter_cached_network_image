@@ -37,6 +37,7 @@ class MockCodec implements Codec {
   int repetitionCount = 1;
 
   int numFramesAsked = 0;
+  int disposeCount = 0;
 
   Completer<FrameInfo> _nextFrameCompleter = Completer<FrameInfo>();
 
@@ -57,7 +58,34 @@ class MockCodec implements Codec {
   }
 
   @override
-  void dispose() {}
+  void dispose() {
+    disposeCount++;
+  }
+}
+
+class AnimatedCompleterFixture {
+  AnimatedCompleterFixture({void Function(ImageInfo)? onImage}) {
+    completer = MultiImageStreamCompleter(codec: codecStream.stream, scale: 1);
+    listener = ImageStreamListener((image, _) {
+      emittedImages++;
+      try {
+        onImage?.call(image);
+      } finally {
+        image.dispose();
+      }
+    });
+    completer.addListener(listener);
+    codecStream.add(codec);
+    addTearDown(codecStream.close);
+  }
+
+  final codecStream = StreamController<Codec>();
+  final codec = MockCodec()
+    ..frameCount = 2
+    ..repetitionCount = -1;
+  late final MultiImageStreamCompleter completer;
+  late final ImageStreamListener listener;
+  int emittedImages = 0;
 }
 
 class FakeEventReportingImageStreamCompleter extends ImageStreamCompleter {
@@ -123,6 +151,635 @@ void main() {
       const ImageChunkEvent(cumulativeBytesLoaded: 2, expectedTotalBytes: 3),
     );
   });
+
+  testWidgets('disposes a decoded frame waiting for the first app frame', (
+    WidgetTester tester,
+  ) async {
+    final fixture = AnimatedCompleterFixture();
+    final codec = fixture.codec;
+    final completer = fixture.completer;
+    final listener = fixture.listener;
+    await tester.idle();
+
+    final frame = FakeFrameInfo(
+      const Duration(milliseconds: 200),
+      image20x10.clone(),
+    );
+    codec.completeNextFrame(frame);
+    await tester.idle();
+    expect(frame.image.debugDisposed, false);
+    expect(fixture.emittedImages, 0);
+
+    // The frame has decoded but has not yet been emitted by an app frame.
+    completer.removeListener(listener);
+    expect(frame.image.debugDisposed, true);
+    await tester.pump();
+    expect(fixture.emittedImages, 0);
+  });
+
+  testWidgets(
+    'disposes a waiting animation frame when last listener is removed',
+    (WidgetTester tester) async {
+      final fixture = AnimatedCompleterFixture();
+      final codec = fixture.codec;
+      final completer = fixture.completer;
+      final listener = fixture.listener;
+      await tester.idle();
+
+      codec.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+      );
+      await tester.idle();
+      await tester.pump();
+      expect(fixture.emittedImages, 1);
+      expect(codec.numFramesAsked, 2);
+
+      final waitingFrame = FakeFrameInfo(
+        const Duration(milliseconds: 200),
+        image200x100.clone(),
+      );
+      codec.completeNextFrame(waitingFrame);
+      await tester.idle();
+      // Schedule a delay while the first frame is still being displayed.
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(waitingFrame.image.debugDisposed, false);
+      expect(fixture.emittedImages, 1);
+
+      completer.removeListener(listener);
+      expect(waitingFrame.image.debugDisposed, true);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(fixture.emittedImages, 1);
+      expect(codec.numFramesAsked, 2);
+    },
+  );
+
+  testWidgets(
+    'retains waiting frame until final keep-alive handle is released',
+    (WidgetTester tester) async {
+      final fixture = AnimatedCompleterFixture();
+      final codec = fixture.codec;
+      final completer = fixture.completer;
+      final listener = fixture.listener;
+      final firstHandle = completer.keepAlive();
+      final lastHandle = completer.keepAlive();
+      await tester.idle();
+
+      final frame = FakeFrameInfo(
+        const Duration(milliseconds: 200),
+        image20x10.clone(),
+      );
+      codec.completeNextFrame(frame);
+      await tester.idle();
+
+      completer.removeListener(listener);
+      expect(frame.image.debugDisposed, false);
+      firstHandle.dispose();
+      expect(frame.image.debugDisposed, false);
+      lastHandle.dispose();
+      expect(frame.image.debugDisposed, true);
+      await tester.pump();
+      expect(codec.numFramesAsked, 1);
+    },
+  );
+
+  for (final keptAlive in [false, true]) {
+    testWidgets(
+      keptAlive
+          ? 'last keep-alive handle can be released during animated frame delivery'
+          : 'last listener can remove itself during animated frame delivery',
+      (WidgetTester tester) async {
+        ImageStreamCompleterHandle? handle;
+        late final AnimatedCompleterFixture fixture;
+        fixture = AnimatedCompleterFixture(
+          onImage: (image) {
+            fixture.completer.removeListener(fixture.listener);
+            handle?.dispose();
+            // The delivered clone remains owned by its listener.
+            expect(image.image.debugDisposed, false);
+          },
+        );
+        final codec = fixture.codec;
+        if (keptAlive) handle = fixture.completer.keepAlive();
+        await tester.idle();
+
+        final frame = FakeFrameInfo(
+          const Duration(milliseconds: 200),
+          image20x10.clone(),
+        );
+        codec.completeNextFrame(frame);
+        await tester.idle();
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(fixture.emittedImages, 1);
+        expect(frame.image.debugDisposed, true);
+        // Final disposal during delivery must not request another frame.
+        expect(codec.numFramesAsked, 1);
+      },
+    );
+  }
+
+  testWidgets('final disposal drains codec events and releases the codec', (
+    tester,
+  ) async {
+    final fixture = AnimatedCompleterFixture();
+    await tester.idle();
+    final firstHandle = fixture.completer.keepAlive();
+    final lastHandle = fixture.completer.keepAlive();
+    fixture.completer.removeListener(fixture.listener);
+    firstHandle.dispose();
+    expect(fixture.codec.disposeCount, 0);
+    expect(fixture.codecStream.hasListener, true);
+    lastHandle.dispose();
+    expect(fixture.codec.disposeCount, 1);
+    expect(fixture.codecStream.hasListener, true);
+    final lateCodec = MockCodec();
+    fixture.codecStream.add(lateCodec);
+    fixture.codecStream.addError(StateError('late codec failure'));
+    await tester.idle();
+    expect(lateCodec.disposeCount, 1);
+    expect(lateCodec.numFramesAsked, 0);
+    addTearDown(() async {
+      await fixture.codecStream.close();
+      expect(fixture.codecStream.hasListener, false);
+    });
+    final lateFrame = FakeFrameInfo(Duration.zero, image20x10.clone());
+    fixture.codec.completeNextFrame(lateFrame);
+    await tester.idle();
+    expect(lateFrame.image.debugDisposed, true);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('replacing a codec disposes it while its decode is in flight', (
+    tester,
+  ) async {
+    final fixture = AnimatedCompleterFixture();
+    await tester.idle();
+    final replacement = MockCodec();
+    fixture.codecStream.add(replacement);
+    await tester.idle();
+    expect(fixture.codec.disposeCount, 1);
+    expect(replacement.disposeCount, 0);
+    fixture.codec.failNextFrame('disposed codec');
+    await tester.idle();
+    expect(tester.takeException(), isNull);
+    fixture.completer.removeListener(fixture.listener);
+    expect(replacement.disposeCount, 1);
+  });
+
+  testWidgets('pending codecs are disposed on replacement and final disposal', (
+    tester,
+  ) async {
+    final fixture = AnimatedCompleterFixture();
+    await tester.idle();
+    fixture.codec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+    );
+    await tester.idle();
+    await tester.pump();
+    fixture.codec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image200x100.clone()),
+    );
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 50));
+    final pending = MockCodec();
+    final replacement = MockCodec();
+    fixture.codecStream.add(pending);
+    await tester.idle();
+    fixture.codecStream.add(replacement);
+    await tester.idle();
+    expect(pending.disposeCount, 1);
+    expect(fixture.codec.disposeCount, 0);
+    expect(replacement.disposeCount, 0);
+    fixture.completer.removeListener(fixture.listener);
+    expect(fixture.codec.disposeCount, 1);
+    expect(replacement.disposeCount, 1);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('refresh after a completed play-once animation is decoded', (
+    tester,
+  ) async {
+    final fixture = AnimatedCompleterFixture();
+    fixture.codec.repetitionCount = 0;
+    await tester.idle();
+    fixture.codec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+    );
+    await tester.idle();
+    await tester.pump();
+    fixture.codec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image200x100.clone()),
+    );
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(fixture.emittedImages, 2);
+    final refresh = MockCodec();
+    fixture.codecStream.add(refresh);
+    await tester.idle();
+    expect(refresh.numFramesAsked, 1);
+    refresh.completeNextFrame(
+      FakeFrameInfo(Duration.zero, image300x100.clone()),
+    );
+    await tester.idle();
+    expect(fixture.emittedImages, 3);
+    fixture.completer.removeListener(fixture.listener);
+    expect(fixture.codec.disposeCount, 1);
+    expect(refresh.disposeCount, 1);
+  });
+
+  for (final pendingIsActive in [false, true]) {
+    testWidgets(
+      'repeated pending codec is disposed once (active: $pendingIsActive)',
+      (tester) async {
+        final fixture = AnimatedCompleterFixture();
+        await tester.idle();
+        fixture.codec.completeNextFrame(
+          FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+        );
+        await tester.idle();
+        await tester.pump();
+        fixture.codec.completeNextFrame(
+          FakeFrameInfo(
+            const Duration(milliseconds: 200),
+            image200x100.clone(),
+          ),
+        );
+        await tester.idle();
+        await tester.pump(const Duration(milliseconds: 50));
+        final pending = pendingIsActive ? fixture.codec : MockCodec();
+        fixture.codecStream.add(pending);
+        fixture.codecStream.add(pending);
+        await tester.idle();
+        expect(pending.disposeCount, 0);
+        fixture.completer.removeListener(fixture.listener);
+        expect(pending.disposeCount, 1);
+        expect(fixture.codec.disposeCount, 1);
+      },
+    );
+  }
+
+  testWidgets('switching to a pending codec releases the previous codec', (
+    tester,
+  ) async {
+    final fixture = AnimatedCompleterFixture();
+    await tester.idle();
+    fixture.codec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+    );
+    await tester.idle();
+    await tester.pump();
+    fixture.codec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image200x100.clone()),
+    );
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 50));
+    final pending = MockCodec();
+    fixture.codecStream.add(pending);
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(fixture.codec.disposeCount, 1);
+    expect(pending.numFramesAsked, 1);
+    expect(pending.disposeCount, 0);
+    fixture.completer.removeListener(fixture.listener);
+    expect(pending.disposeCount, 1);
+  });
+
+  for (final scenario in [
+    (pause: false, resume: false),
+    (pause: true, resume: false),
+    (pause: true, resume: true),
+  ]) {
+    final pauseBeforeRefresh = scenario.pause;
+    final resumeBeforeRefresh = scenario.resume;
+    testWidgets(
+      'newest refresh supersedes parked codec (pause: $pauseBeforeRefresh, resume: $resumeBeforeRefresh)',
+      (tester) async {
+        final fixture = AnimatedCompleterFixture();
+        final handle = fixture.completer.keepAlive();
+        await tester.idle();
+        fixture.codec.completeNextFrame(
+          FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+        );
+        await tester.idle();
+        await tester.pump();
+        final waitingFrame = FakeFrameInfo(
+          const Duration(milliseconds: 200),
+          image200x100.clone(),
+        );
+        fixture.codec.completeNextFrame(waitingFrame);
+        await tester.idle();
+        await tester.pump(const Duration(milliseconds: 50));
+        final parked = MockCodec();
+        fixture.codecStream.add(parked);
+        await tester.idle();
+        if (pauseBeforeRefresh) {
+          fixture.completer.removeListener(fixture.listener);
+          if (resumeBeforeRefresh) {
+            fixture.completer.addListener(fixture.listener);
+          }
+        }
+        final newest = MockCodec()
+          ..frameCount = 2
+          ..repetitionCount = -1;
+        fixture.codecStream.add(newest);
+        await tester.idle();
+        expect(parked.disposeCount, 1);
+        expect(parked.numFramesAsked, 0);
+        if (pauseBeforeRefresh && !resumeBeforeRefresh) {
+          expect(newest.numFramesAsked, 0);
+          fixture.completer.addListener(fixture.listener);
+          await tester.idle();
+        }
+        if (!pauseBeforeRefresh) {
+          // The current animation finishes its cycle before the refresh.
+          await tester.pump(const Duration(milliseconds: 200));
+        }
+        expect(fixture.codec.disposeCount, 1);
+        expect(newest.numFramesAsked, 1);
+        // Play beyond a full cycle: no superseded codec may return.
+        for (var frame = 0; frame < 3; frame++) {
+          newest.completeNextFrame(
+            FakeFrameInfo(
+              const Duration(milliseconds: 200),
+              image300x100.clone(),
+            ),
+          );
+          await tester.idle();
+          await tester.pump(const Duration(milliseconds: 200));
+        }
+        expect(waitingFrame.image.debugDisposed, true);
+        expect(newest.numFramesAsked, 4);
+        expect(newest.disposeCount, 0);
+        expect(parked.numFramesAsked, 0);
+        fixture.completer.removeListener(fixture.listener);
+        handle.dispose();
+        expect(newest.disposeCount, 1);
+        expect(parked.disposeCount, 1);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  testWidgets(
+    'synchronous refresh during delivery preserves new animation cycle',
+    (tester) async {
+      final stream = StreamController<Codec>(sync: true);
+      addTearDown(stream.close);
+      final original = MockCodec()
+        ..frameCount = 2
+        ..repetitionCount = 0;
+      final refresh = MockCodec()
+        ..frameCount = 2
+        ..repetitionCount = 0;
+      final completer = MultiImageStreamCompleter(
+        codec: stream.stream,
+        scale: 1,
+      );
+      var delivered = 0;
+      final listener = ImageStreamListener((image, _) {
+        delivered++;
+        image.dispose();
+        if (delivered == 1) stream.add(refresh);
+      });
+      completer.addListener(listener);
+      stream.add(original);
+      original.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+      );
+      await tester.idle();
+      await tester.pump();
+      expect(original.disposeCount, 1);
+      expect(refresh.numFramesAsked, 1);
+      refresh.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image200x100.clone()),
+      );
+      await tester.idle();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(refresh.numFramesAsked, 2);
+      refresh.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image300x100.clone()),
+      );
+      await tester.idle();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(delivered, 3);
+      expect(original.numFramesAsked, 1);
+      expect(refresh.numFramesAsked, 2);
+      expect(refresh.disposeCount, 0);
+      completer.removeListener(listener);
+      expect(refresh.disposeCount, 1);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'synchronous refresh preserves the delivered non-first frame duration',
+    (tester) async {
+      final stream = StreamController<Codec>(sync: true);
+      addTearDown(stream.close);
+      final original = MockCodec()..frameCount = 3;
+      final refresh = MockCodec()
+        ..frameCount = 2
+        ..repetitionCount = 0;
+      final completer = MultiImageStreamCompleter(
+        codec: stream.stream,
+        scale: 1,
+      );
+      var delivered = 0;
+      final listener = ImageStreamListener((image, _) {
+        delivered++;
+        image.dispose();
+        if (delivered == 2) stream.add(refresh);
+      });
+      completer.addListener(listener);
+      addTearDown(() {
+        if (completer.hasListeners) completer.removeListener(listener);
+      });
+      stream.add(original);
+      original.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 100), image20x10.clone()),
+      );
+      await tester.idle();
+      await tester.pump();
+      original.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 400), image200x100.clone()),
+      );
+      await tester.idle();
+      await tester.pump(const Duration(milliseconds: 100));
+      refresh.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 50), image300x100.clone()),
+      );
+      await tester.idle();
+      await tester.pump();
+      expect(delivered, 2);
+      await tester.pump(const Duration(milliseconds: 399));
+      expect(delivered, 2);
+      await tester.pump(const Duration(milliseconds: 1));
+      expect(delivered, 3);
+      expect(original.numFramesAsked, 2);
+      expect(original.disposeCount, 1);
+      refresh.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 50), image300x100.clone()),
+      );
+      await tester.idle();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(delivered, 4);
+      completer.removeListener(listener);
+      expect(refresh.disposeCount, 1);
+    },
+  );
+
+  testWidgets('base disposal releases codecs before any listener was added', (
+    tester,
+  ) async {
+    final stream = StreamController<Codec>();
+    addTearDown(stream.close);
+    final codec = MockCodec();
+    final completer = MultiImageStreamCompleter(codec: stream.stream, scale: 1);
+    final handle = completer.keepAlive();
+    stream.add(codec);
+    await tester.idle();
+    handle.dispose();
+    expect(codec.disposeCount, 1);
+    final lateCodec = MockCodec();
+    stream.add(lateCodec);
+    await tester.idle();
+    expect(lateCodec.disposeCount, 1);
+  });
+
+  testWidgets('listener removal with keep-alive pauses decoding until resumed', (
+    tester,
+  ) async {
+    late final AnimatedCompleterFixture fixture;
+    fixture = AnimatedCompleterFixture(
+      onImage: (_) {
+        fixture.completer.removeListener(fixture.listener);
+      },
+    );
+    final handle = fixture.completer.keepAlive();
+    await tester.idle();
+    fixture.codec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+    );
+    await tester.idle();
+    await tester.pump();
+    expect(fixture.codec.numFramesAsked, 1);
+    expect(fixture.codec.disposeCount, 0);
+    // A fresh listener resumes the next frame rather than replaying the first.
+    final listener = ImageStreamListener((image, _) => image.dispose());
+    fixture.completer.addListener(listener);
+    await tester.idle();
+    expect(fixture.codec.numFramesAsked, 2);
+    fixture.codec.completeNextFrame(
+      FakeFrameInfo(const Duration(milliseconds: 200), image200x100.clone()),
+    );
+    await tester.idle();
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(fixture.codec.numFramesAsked, 3);
+    fixture.completer.removeListener(listener);
+    handle.dispose();
+    expect(fixture.codec.disposeCount, 1);
+  });
+
+  testWidgets(
+    'pending refresh is selected when delivery removes last listener',
+    (tester) async {
+      late final AnimatedCompleterFixture fixture;
+      fixture = AnimatedCompleterFixture(
+        onImage: (_) {
+          if (fixture.emittedImages == 2) {
+            fixture.completer.removeListener(fixture.listener);
+          }
+        },
+      );
+      fixture.codec.repetitionCount = 0;
+      final handle = fixture.completer.keepAlive();
+      await tester.idle();
+      fixture.codec.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image20x10.clone()),
+      );
+      await tester.idle();
+      await tester.pump();
+      fixture.codec.completeNextFrame(
+        FakeFrameInfo(const Duration(milliseconds: 200), image200x100.clone()),
+      );
+      await tester.idle();
+      await tester.pump(const Duration(milliseconds: 50));
+      final refresh = MockCodec();
+      fixture.codecStream.add(refresh);
+      await tester.idle();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(fixture.emittedImages, 2);
+      expect(fixture.codec.disposeCount, 1);
+      expect(refresh.numFramesAsked, 0);
+
+      final images = <ImageInfo>[];
+      final listener = ImageStreamListener((image, _) => images.add(image));
+      fixture.completer.addListener(listener);
+      await tester.idle();
+      expect(refresh.numFramesAsked, 1);
+      expect(fixture.codec.numFramesAsked, 2);
+      refresh.completeNextFrame(
+        FakeFrameInfo(Duration.zero, image300x100.clone()),
+      );
+      await tester.idle();
+      expect(images.length, 2);
+      expect(images.last.image.isCloneOf(image300x100), true);
+      for (final image in images) {
+        image.dispose();
+      }
+      fixture.completer.removeListener(listener);
+      handle.dispose();
+      expect(refresh.disposeCount, 1);
+    },
+  );
+
+  for (final asyncGenerator in [false, true]) {
+    Stream<Codec> codecStream(Future<Codec> future) async* {
+      yield await future;
+    }
+
+    testWidgets(
+      'late codec is disposed after completer disposal (async generator: $asyncGenerator)',
+      (tester) async {
+        final future = Completer<Codec>();
+        final stream = asyncGenerator
+            ? codecStream(future.future)
+            : future.future.asStream();
+        final completer = MultiImageStreamCompleter(codec: stream, scale: 1);
+        final listener = ImageStreamListener((image, _) => image.dispose());
+        completer.addListener(listener);
+        await tester.idle();
+        completer.removeListener(listener);
+        final codec = MockCodec();
+        future.complete(codec);
+        await tester.idle();
+        expect(codec.disposeCount, 1);
+        expect(codec.numFramesAsked, 0);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'late codec error is ignored after disposal (async generator: $asyncGenerator)',
+      (tester) async {
+        final future = Completer<Codec>();
+        final stream = asyncGenerator
+            ? codecStream(future.future)
+            : future.future.asStream();
+        final completer = MultiImageStreamCompleter(codec: stream, scale: 1);
+        final listener = ImageStreamListener((image, _) => image.dispose());
+        completer.addListener(listener);
+        await tester.idle();
+        completer.removeListener(listener);
+        future.completeError(StateError('late decode failure'));
+        await tester.idle();
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('Decoding starts when a listener is added after codec is ready', (
     WidgetTester tester,
