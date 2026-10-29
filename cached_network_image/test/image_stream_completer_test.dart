@@ -124,6 +124,55 @@ void main() {
     );
   });
 
+  test('Completer unsubscribes from codec stream when disposed', () async {
+    final codecStream = StreamController<Codec>();
+
+    final MultiImageStreamCompleter completer = MultiImageStreamCompleter(
+      codec: codecStream.stream,
+      scale: 1.0,
+    );
+
+    expect(codecStream.hasListener, true);
+
+    final ImageStreamListener listener = ImageStreamListener(
+      (ImageInfo info, bool syncCall) {},
+    );
+    completer.addListener(listener);
+    completer.removeListener(listener);
+
+    // Allow the stream subscription cancellation to finish.
+    await Future<void>.delayed(Duration.zero);
+
+    expect(codecStream.hasListener, false);
+
+    await codecStream.close();
+  });
+
+  test('Completer retains codec subscription while kept alive', () async {
+    final codecStream = StreamController<Codec>();
+
+    final MultiImageStreamCompleter completer = MultiImageStreamCompleter(
+      codec: codecStream.stream,
+      scale: 1.0,
+    );
+    final ImageStreamCompleterHandle handle = completer.keepAlive();
+    final ImageStreamListener listener = ImageStreamListener(
+      (ImageInfo info, bool syncCall) {},
+    );
+
+    completer.addListener(listener);
+    completer.removeListener(listener);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(codecStream.hasListener, true);
+
+    handle.dispose();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(codecStream.hasListener, false);
+    await codecStream.close();
+  });
+
   testWidgets('Decoding starts when a listener is added after codec is ready', (
     WidgetTester tester,
   ) async {
