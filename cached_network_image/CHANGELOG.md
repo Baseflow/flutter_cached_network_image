@@ -1,4 +1,4 @@
-## [4.0.6] - 2026-10-25
+## [4.0.6] - 2026-10-29
 
 * Animated images no longer leak decoded frames or codecs when removed, including when released from the image cache
 * A newer refreshed image is no longer replaced by an older pending refresh
