@@ -32,10 +32,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
         if (_disposed) {
           event.dispose();
         } else if (_timer != null) {
-          if (_nextImageCodec != event && _nextImageCodec != _codec) {
-            _nextImageCodec?.dispose();
-          }
-          _nextImageCodec = event;
+          _replacePendingCodec(event);
         } else {
           _handleCodecReady(event);
         }
@@ -99,9 +96,8 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   void _handleCodecReady(ui.Codec codec) {
     // Every activation supersedes a pending refresh, even when listener
     // removal cancelled its timer before a newer codec arrived.
-    final pending = _nextImageCodec;
+    _replacePendingCodec(codec);
     _nextImageCodec = null;
-    if (pending != codec && pending != _codec) pending?.dispose();
     if (_codec != codec) _codec?.dispose();
     _codec = codec;
     _framesEmitted = 0;
@@ -126,9 +122,9 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       _emitFrame(
         ImageInfo(image: frame.image, scale: _scale, debugLabel: debugLabel),
       );
-      if (_disposed || _codec != codec) return;
       _shownTimestamp = timestamp;
       _frameDuration = frame.duration;
+      if (_disposed || _codec != codec) return;
       if (_framesEmitted % _codec!.frameCount == 0 && _nextImageCodec != null) {
         _switchToNewCodec();
       } else {
@@ -137,6 +133,8 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
         if (_codec!.repetitionCount == -1 ||
             completedCycles <= _codec!.repetitionCount) {
           _decodeNextFrameAndSchedule();
+        } else {
+          _timer = null;
         }
       }
       return;
@@ -229,6 +227,12 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     }
   }
 
+  void _replacePendingCodec(ui.Codec? next) {
+    final previous = _nextImageCodec;
+    _nextImageCodec = next;
+    if (previous != next && previous != _codec) previous?.dispose();
+  }
+
   void _discardNextFrame() {
     _nextFrame?.image.dispose();
     _nextFrame = null;
@@ -252,8 +256,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     _codecSubscription = null;
     _chunkSubscription?.cancel();
     _chunkSubscription = null;
-    if (_nextImageCodec != _codec) _nextImageCodec?.dispose();
-    _nextImageCodec = null;
+    _replacePendingCodec(null);
     _codec?.dispose();
     _codec = null;
   }

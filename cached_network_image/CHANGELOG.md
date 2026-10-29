@@ -1,11 +1,8 @@
 ## [4.0.6] - 2026-10-25
 
-* Dispose an already-decoded animation frame when the image stream completer is disposed, including when the last keep-alive handle is released
-* Safely transfer frame ownership when a listener removes itself or releases the final keep-alive handle during frame delivery
-* Release active and pending codecs on disposal, dispose replaced codecs, and drain late codec results without retaining the disposed completer
-* Discard superseded pending refreshes when a newer codec arrives after listener removal, preventing older images from returning on resume
-* Preserve the new animation's frame count when a listener synchronously replaces the codec during frame delivery
-* Pause animation decoding when the final listener removes itself while a keep-alive handle remains, selecting a pending refresh at cycle boundaries before pausing
+* Animated images no longer leak decoded frames or codecs when removed, including when released from the image cache
+* A newer refreshed image is no longer replaced by an older pending refresh
+* Refreshed images appear after playback finishes or resumes, without cutting a displayed animation frame short
 
 ## [4.0.5] - 2026-10-17
 
