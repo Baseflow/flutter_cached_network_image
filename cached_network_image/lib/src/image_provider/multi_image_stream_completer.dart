@@ -9,6 +9,9 @@ import 'package:flutter/scheduler.dart';
 double get timeDilation => _timeDilation;
 double _timeDilation = 1;
 
+// Browsers commonly clamp animated image frame delays below 10ms to 100ms.
+const Duration _browserMinimumFrameDelay = Duration(milliseconds: 10);
+
 /// An ImageStreamCompleter with support for loading multiple images.
 class MultiImageStreamCompleter extends ImageStreamCompleter {
   /// The constructor to create an MultiImageStreamCompleter. The [codec]
@@ -18,6 +21,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   MultiImageStreamCompleter({
     required Stream<ui.Codec> codec,
     required this._scale,
+    this.minFrameDuration,
     String? debugLabel,
     Stream<ImageChunkEvent>? chunkEvents,
     InformationCollector? informationCollector,
@@ -56,6 +60,13 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       );
     }
   }
+
+  /// Minimum duration for frames in animated images, including WebP and APNG.
+  ///
+  /// Frames with a duration of 10ms or less are displayed for at least this
+  /// duration. Frames longer than 10ms keep the duration reported by the
+  /// image codec. If null, all frame durations are used without adjustment.
+  final Duration? minFrameDuration;
 
   ui.Codec? _codec;
   ui.Codec? _nextImageCodec;
@@ -108,6 +119,11 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     _frameCallbackScheduled = false;
     if (!hasListeners || _nextFrame == null) return;
     if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
+      final frameDuration = _nextFrame!.duration;
+      _frameDuration =
+          minFrameDuration != null && frameDuration <= _browserMinimumFrameDelay
+          ? minFrameDuration!
+          : frameDuration;
       _emitFrame(
         ImageInfo(
           image: _nextFrame!.image,
@@ -116,7 +132,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
         ),
       );
       _shownTimestamp = timestamp;
-      _frameDuration = _nextFrame!.duration;
+
       _nextFrame = null;
       if (_framesEmitted % _codec!.frameCount == 0 && _nextImageCodec != null) {
         _switchToNewCodec();

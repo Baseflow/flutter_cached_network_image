@@ -1,3 +1,7 @@
+## [4.1.0] - 2026-10-27
+
+* Add an opt-in `minFrameDuration` setting for short frames in animated images, including WebP and APNG
+
 ## [4.0.5] - 2026-10-17
 
 * Stop decoding a static image again each time a listener is re-added, which blanked images on web (Firefox and Safari) after navigating back to a route

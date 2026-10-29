@@ -34,6 +34,29 @@ void main() {
   });
 
   group('widget tests', () {
+    testWidgets('passes minFrameDuration to the image provider',
+        (tester) async {
+      const minFrameDuration = Duration(milliseconds: 20);
+      cacheManager.returns('animation', kTransparentImage);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CachedNetworkImage(
+            imageUrl: 'animation',
+            cacheManager: cacheManager,
+            minFrameDuration: minFrameDuration,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final image = tester.widget<Image>(find.byType(Image).first);
+      expect(
+        (image.image as CachedNetworkImageProvider).minFrameDuration,
+        minFrameDuration,
+      );
+    });
+
     testWidgets('progress indicator called when success', (tester) async {
       var imageUrl = '123';
       // Create the widget by telling the tester to build it.
