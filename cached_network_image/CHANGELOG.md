@@ -1,6 +1,11 @@
-## [4.1.0] - 2026-10-27
+## [4.0.7] - 2026-11-02
 
 * Add an opt-in `minFrameDuration` setting for short frames in animated images, including WebP and APNG
+## [4.0.6] - 2026-10-29
+
+* Animated images no longer leak decoded frames or codecs when removed, including when released from the image cache
+* A newer refreshed image is no longer replaced by an older pending refresh
+* Refreshed images appear after playback finishes or resumes, without cutting a displayed animation frame short
 
 ## [4.0.5] - 2026-10-17
 
