@@ -1,6 +1,8 @@
-## [4.0.7] - 2026-11-02
+## [4.1.0] - 2026-11-02
 
-* Add an opt-in `minFrameDuration` setting for short frames in animated images, including WebP and APNG
+* Add opt-in `minFrameDuration` to `CachedNetworkImage` and `CachedNetworkImageProvider` for animated images, including GIF, WebP and APNG. The default `null` preserves codec timing.
+* Pass `Duration(milliseconds: 100)` to match browser timing for frames of 10ms or less. Longer frames retain their codec duration, and smaller settings never shorten a frame.
+
 ## [4.0.6] - 2026-10-29
 
 * Animated images no longer leak decoded frames or codecs when removed, including when released from the image cache

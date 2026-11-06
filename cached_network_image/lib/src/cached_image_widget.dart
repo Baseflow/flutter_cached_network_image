@@ -199,12 +199,13 @@ class CachedNetworkImage extends StatelessWidget {
   /// Listener to be called when images fails to load.
   final ValueChanged<Object>? errorListener;
 
-  /// Minimum duration for frames in animated images, including WebP and APNG.
+  /// Minimum duration for short frames in animated images (GIF, WebP and APNG).
   ///
-  /// Frames with a duration of 10ms or less are displayed for at least this
-  /// duration. Frames longer than 10ms keep the duration reported by the image
-  /// codec. Defaults to null, which preserves all durations reported by the
-  /// image codec.
+  /// Frames with a codec duration of 10ms or less are displayed for the greater
+  /// of their codec duration and this value. Longer frames keep their codec
+  /// duration. Defaults to null, which preserves all codec durations.
+  /// Pass `const Duration(milliseconds: 100)` to match browser timing for short
+  /// frames. Values at or below 10ms never shorten a frame.
   final Duration? minFrameDuration;
 
   /// CachedNetworkImage shows a network image using a caching mechanism. It also

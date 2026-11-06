@@ -58,6 +58,38 @@ CachedNetworkImage(
 ),
 ```
 
+### Animated image timing
+
+`minFrameDuration` is an opt-in setting on `CachedNetworkImage` and
+`CachedNetworkImageProvider` for animated GIF, WebP and APNG images. The default
+`null` preserves the durations reported by the image codec.
+
+Pass `const Duration(milliseconds: 100)` to match browser timing for short frames:
+
+```dart
+CachedNetworkImage(
+  imageUrl: animationUrl,
+  minFrameDuration: const Duration(milliseconds: 100),
+)
+```
+
+Or use the provider directly:
+
+```dart
+Image(
+  image: CachedNetworkImageProvider(
+    animationUrl,
+    minFrameDuration: const Duration(milliseconds: 100),
+  ),
+)
+```
+
+Only frames whose codec duration is **10ms or less** are adjusted, using the
+greater of the codec duration and the supplied minimum. Frames longer than 10ms
+keep their original duration. For example, a 20ms setting holds 0ms and 10ms
+frames for 20ms, while an 11ms frame remains 11ms. Smaller settings (including
+zero or negative durations) never shorten a frame.
+
 ## How it works
 The cached network images stores and retrieves files using the [flutter_cache_manager](https://pub.dartlang.org/packages/flutter_cache_manager). 
 

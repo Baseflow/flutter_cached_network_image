@@ -34,8 +34,9 @@ void main() {
   });
 
   group('widget tests', () {
-    testWidgets('passes minFrameDuration to the image provider',
-        (tester) async {
+    testWidgets('passes minFrameDuration to the image provider', (
+      tester,
+    ) async {
       const minFrameDuration = Duration(milliseconds: 20);
       cacheManager.returns('animation', kTransparentImage);
 

@@ -9,8 +9,9 @@ import 'package:flutter/scheduler.dart';
 double get timeDilation => _timeDilation;
 double _timeDilation = 1;
 
-// Browsers commonly clamp animated image frame delays below 10ms to 100ms.
-const Duration _browserMinimumFrameDelay = Duration(milliseconds: 10);
+// Browsers commonly treat animated image delays of 10ms or less as 100ms.
+// This threshold selects short frames; the opt-in minimum is caller-provided.
+const Duration _browserZeroDelayThreshold = Duration(milliseconds: 10);
 
 /// An ImageStreamCompleter with support for loading multiple images.
 class MultiImageStreamCompleter extends ImageStreamCompleter {
@@ -67,11 +68,13 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     }
   }
 
-  /// Minimum duration for frames in animated images, including WebP and APNG.
+  /// Minimum duration for short frames in animated images (GIF, WebP and APNG).
   ///
-  /// Frames with a duration of 10ms or less are displayed for at least this
-  /// duration. Frames longer than 10ms keep the duration reported by the
-  /// image codec. If null, all frame durations are used without adjustment.
+  /// Frames with a codec duration of 10ms or less are displayed for the greater
+  /// of their codec duration and this value. Longer frames keep their codec
+  /// duration. Defaults to null, which preserves all codec durations.
+  /// Pass `const Duration(milliseconds: 100)` to match browser timing for short
+  /// frames. Values at or below 10ms never shorten a frame.
   final Duration? minFrameDuration;
 
   ui.Codec? _codec;
@@ -132,7 +135,8 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       _nextFrame = null;
       _frameDuration =
           minFrameDuration != null &&
-              frame.duration <= _browserMinimumFrameDelay
+              frame.duration <= _browserZeroDelayThreshold &&
+              frame.duration < minFrameDuration!
           ? minFrameDuration!
           : frame.duration;
       _emitFrame(
