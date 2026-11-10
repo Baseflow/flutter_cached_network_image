@@ -1,3 +1,7 @@
+## [2.0.5] - 2026-11-10
+
+* Bump `flutter_cache_manager` to `^3.5.0`
+
 ## [2.0.4] - 2026-10-23
 
 * Report a failure to read or decode a cached file on the `HttpGet` render method to the image stream, evict the image and the broken cache entry, and close the streams, instead of leaving the image loading forever
