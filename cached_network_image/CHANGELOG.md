@@ -1,3 +1,7 @@
+## [4.0.7] - 2026-11-10
+
+* Bump `flutter_cache_manager` to `^3.5.0`
+
 ## [4.0.6] - 2026-10-29
 
 * Animated images no longer leak decoded frames or codecs when removed, including when released from the image cache
