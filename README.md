@@ -61,6 +61,34 @@ CachedNetworkImage(
 ## How it works
 The cached network images stores and retrieves files using the [flutter_cache_manager](https://pub.dartlang.org/packages/flutter_cache_manager). 
 
+## How to test
+
+By default `CachedNetworkImage` uses [DefaultCacheManager](https://pub.dev/documentation/flutter_cache_manager/latest/flutter_cache_manager/DefaultCacheManager-class.html), which is great to get you up and running quickly without any configuration.
+
+However, when testing widgets that use it you might run into an error such as this:
+```
+Warning: At least one test in this suite creates an HttpClient. 
+When running a test suite that uses TestWidgetsFlutterBinding, 
+all HTTP requests will return status code 400, and no network request 
+will actually be made. Any test expecting a real network connection 
+and status code will fail. To test code that needs an HttpClient, 
+provide your own HttpClient implementation to the code under test, 
+so that your test can consistently provide a testable response to 
+the code under test.
+```
+
+One way to fix this is by providing a mock. For example, using [mocktail](https://pub.dev/packages/mocktail):
+
+```dart
+class _MockCacheManager extends Mock implements BaseCacheManager {}
+// ...
+setUp(() {
+  CachedNetworkImageProvider.defaultCacheManager = _MockCacheManager();
+});
+```
+
+Note that you will need to mock the default cache manager for any test for a widget that contains a `CachedNetworkImage` instance in its tree of children.
+
 ## FAQ
 ### My app crashes when the image loading failed. (I know, this is not really a question.)
 Does it really crash though? The debugger might pause, as the Dart VM doesn't recognize it as a caught exception; the console might print errors; even your crash reporting tool might report it (I know, that really sucks). However, does it really crash? Probably everything is just running fine. If you really get an app crashes you are fine to report an issue, but do that with a small example so we can reproduce that crash.
