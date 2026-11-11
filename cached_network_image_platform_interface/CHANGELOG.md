@@ -1,3 +1,7 @@
+## [5.0.4] - 2026-11-10
+
+* Bump `flutter_cache_manager` to `^3.5.0`
+
 ## [5.0.3] - 2026-09-29
 
 * Bump `flutter_cache_manager` to `^3.4.5` and `material_ui` to `^1.3.0`
