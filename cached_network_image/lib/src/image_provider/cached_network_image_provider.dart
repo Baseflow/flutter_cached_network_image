@@ -64,13 +64,7 @@ class CachedNetworkImageProvider
   /// Render option for images on the web platform.
   final ImageRenderMethodForWeb imageRenderMethodForWeb;
 
-  /// Minimum duration for short frames in animated images (GIF, WebP and APNG).
-  ///
-  /// Frames with a codec duration of 10ms or less are displayed for the greater
-  /// of their codec duration and this value. Longer frames keep their codec
-  /// duration. Defaults to null, which preserves all codec durations.
-  /// Pass `const Duration(milliseconds: 100)` to match browser timing for short
-  /// frames. Values at or below 10ms never shorten a frame.
+  /// {@macro cached_network_image.minFrameDuration}
   final Duration? minFrameDuration;
 
   @override
@@ -208,5 +202,7 @@ class CachedNetworkImageProvider
   );
 
   @override
-  String toString() => 'CachedNetworkImageProvider("$url", scale: $scale)';
+  String toString() =>
+      'CachedNetworkImageProvider("$url", scale: $scale'
+      '${minFrameDuration == null ? '' : ', minFrameDuration: $minFrameDuration'})';
 }

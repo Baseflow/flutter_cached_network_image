@@ -68,6 +68,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
     }
   }
 
+  /// {@template cached_network_image.minFrameDuration}
   /// Minimum duration for short frames in animated images (GIF, WebP and APNG).
   ///
   /// Frames with a codec duration of 10ms or less are displayed for the greater
@@ -75,6 +76,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   /// duration. Defaults to null, which preserves all codec durations.
   /// Pass `const Duration(milliseconds: 100)` to match browser timing for short
   /// frames. Values at or below 10ms never shorten a frame.
+  /// {@endtemplate}
   final Duration? minFrameDuration;
 
   ui.Codec? _codec;
@@ -133,11 +135,12 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       final frame = _nextFrame!;
       final codec = _codec!;
       _nextFrame = null;
+      final minimum = minFrameDuration;
       _frameDuration =
-          minFrameDuration != null &&
+          minimum != null &&
               frame.duration <= _browserZeroDelayThreshold &&
-              frame.duration < minFrameDuration!
-          ? minFrameDuration!
+              frame.duration < minimum
+          ? minimum
           : frame.duration;
       _emitFrame(
         ImageInfo(image: frame.image, scale: _scale, debugLabel: debugLabel),

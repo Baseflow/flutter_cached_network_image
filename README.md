@@ -90,6 +90,10 @@ keep their original duration. For example, a 20ms setting holds 0ms and 10ms
 frames for 20ms, while an 11ms frame remains 11ms. Smaller settings (including
 zero or negative durations) never shorten a frame.
 
+To evict an animation, pass the same `minFrameDuration` to
+`CachedNetworkImage.evictFromCache` (along with any custom `cacheKey` and `scale`).
+This removes that memory-cache variant, not every timing variant of the URL.
+
 ## How it works
 The cached network images stores and retrieves files using the [flutter_cache_manager](https://pub.dartlang.org/packages/flutter_cache_manager). 
 

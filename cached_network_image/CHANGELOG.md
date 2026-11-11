@@ -1,5 +1,6 @@
 ## [4.1.0] - 2026-11-02
 
+* Allow `evictFromCache` to match `minFrameDuration` and custom cache keys when evicting memory entries.
 * Add opt-in `minFrameDuration` to `CachedNetworkImage` and `CachedNetworkImageProvider` for animated images, including GIF, WebP and APNG. The default `null` preserves codec timing.
 * Pass `Duration(milliseconds: 100)` to match browser timing for frames of 10ms or less. Longer frames retain their codec duration, and smaller settings never shorten a frame.
 

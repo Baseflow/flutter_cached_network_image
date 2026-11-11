@@ -104,14 +104,10 @@ void main() {
   late Image image20x10;
   late Image image200x100;
   late Image image300x100;
-  late Image repeatedImage20x10;
-  late Image repeatedImage200x100;
   setUp(() async {
     image20x10 = await createTestImage(width: 20, height: 10);
     image200x100 = await createTestImage(width: 200, height: 100);
     image300x100 = await createTestImage(width: 300, height: 100);
-    repeatedImage20x10 = await createTestImage(width: 20, height: 10);
-    repeatedImage200x100 = await createTestImage(width: 200, height: 100);
   });
 
   testWidgets('Codec future fails', (WidgetTester tester) async {
@@ -120,76 +116,6 @@ void main() {
     codecStream.addError('failure message');
     await tester.idle();
     expect(tester.takeException(), 'failure message');
-  });
-
-  testWidgets('minimum frame duration applies only through 10ms', (
-    WidgetTester tester,
-  ) async {
-    final codecStream = StreamController<Codec>();
-    final mockCodec = MockCodec()..frameCount = 5;
-    final images = <Image>[];
-    final completer = MultiImageStreamCompleter(
-      codec: codecStream.stream,
-      scale: 1.0,
-      minFrameDuration: const Duration(milliseconds: 20),
-    );
-    completer.addListener(
-      ImageStreamListener((ImageInfo info, bool synchronousCall) {
-        images.add(info.image);
-      }),
-    );
-    codecStream.add(mockCodec);
-    await tester.idle();
-
-    mockCodec.completeNextFrame(FakeFrameInfo(Duration.zero, image20x10));
-    await tester.idle();
-    await tester.pump();
-    expect(images, hasLength(1));
-    expect(images.single.isCloneOf(image20x10), isTrue);
-
-    mockCodec.completeNextFrame(
-      FakeFrameInfo(const Duration(milliseconds: 10), image200x100),
-    );
-    await tester.idle();
-    // A zero-duration frame is held for the configured 20ms minimum.
-    await tester.pump(const Duration(milliseconds: 19));
-    expect(images, hasLength(1));
-    await tester.pump(const Duration(milliseconds: 1));
-    expect(images, hasLength(2));
-    expect(images.last.isCloneOf(image200x100), isTrue);
-
-    mockCodec.completeNextFrame(
-      FakeFrameInfo(const Duration(milliseconds: 11), image300x100),
-    );
-    await tester.idle();
-    // A 10ms frame is also held for 20ms, using the provided value as-is.
-    await tester.pump(const Duration(milliseconds: 19));
-    expect(images, hasLength(2));
-    await tester.pump(const Duration(milliseconds: 1));
-    expect(images, hasLength(3));
-    expect(images.last.isCloneOf(image300x100), isTrue);
-
-    mockCodec.completeNextFrame(
-      FakeFrameInfo(const Duration(milliseconds: 50), repeatedImage20x10),
-    );
-    await tester.idle();
-    // An 11ms frame keeps its codec duration rather than using the minimum.
-    await tester.pump(const Duration(milliseconds: 10));
-    expect(images, hasLength(3));
-    await tester.pump(const Duration(milliseconds: 1));
-    expect(images, hasLength(4));
-    expect(images.last.isCloneOf(repeatedImage20x10), isTrue);
-
-    mockCodec.completeNextFrame(
-      FakeFrameInfo(const Duration(milliseconds: 200), repeatedImage200x100),
-    );
-    await tester.idle();
-    // A longer frame also keeps its codec duration.
-    await tester.pump(const Duration(milliseconds: 49));
-    expect(images, hasLength(4));
-    await tester.pump(const Duration(milliseconds: 1));
-    expect(images, hasLength(5));
-    expect(images.last.isCloneOf(repeatedImage200x100), isTrue);
   });
 
   // Expected holds for codec durations 0, 5, 10, 11 and 50ms respectively.
@@ -207,6 +133,8 @@ void main() {
     testWidgets('frame holds with minFrameDuration ${timingCase.key}ms', (
       WidgetTester tester,
     ) async {
+      final image = await createTestImage(width: 20, height: 10);
+      addTearDown(image.dispose);
       final codecStream = StreamController<Codec>();
       final codec = MockCodec()
         ..frameCount = 6
@@ -222,7 +150,11 @@ void main() {
       var emittedFrames = 0;
       final listener = ImageStreamListener((info, _) {
         emittedFrames++;
-        info.dispose();
+        try {
+          expect(info.image.isCloneOf(image), isTrue);
+        } finally {
+          info.dispose();
+        }
       });
       completer.addListener(listener);
       addTearDown(() async {
@@ -232,7 +164,7 @@ void main() {
       codecStream.add(codec);
       await tester.idle();
       const codecDurations = [0, 5, 10, 11, 50, 200];
-      codec.completeNextFrame(FakeFrameInfo(Duration.zero, image20x10.clone()));
+      codec.completeNextFrame(FakeFrameInfo(Duration.zero, image.clone()));
       await tester.idle();
       await tester.pump();
       expect(emittedFrames, 1);
@@ -241,7 +173,7 @@ void main() {
         codec.completeNextFrame(
           FakeFrameInfo(
             Duration(milliseconds: codecDurations[index + 1]),
-            image20x10.clone(),
+            image.clone(),
           ),
         );
         await tester.idle();

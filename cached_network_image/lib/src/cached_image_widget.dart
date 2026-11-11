@@ -42,17 +42,26 @@ class CachedNetworkImage extends StatelessWidget {
   /// Evict an image from both the disk file based caching system of the
   /// [BaseCacheManager] as the in memory [ImageCache] of the [ImageProvider].
   /// [url] is used by both the disk and memory cache. The scale is only used
-  /// to clear the image from the [ImageCache].
+  /// to clear the image from the [ImageCache]. Pass the same [cacheKey], [scale]
+  /// and [minFrameDuration] used to load the image to evict its memory entry.
+  /// Other timing variants are not evicted. Entries using disk resize dimensions
+  /// or [ResizeImage] require eviction with their matching image provider.
   static Future<bool> evictFromCache(
     String url, {
     String? cacheKey,
     BaseCacheManager? cacheManager,
     double scale = 1,
+    Duration? minFrameDuration,
   }) async {
     final effectiveCacheManager =
         cacheManager ?? CachedNetworkImageProvider.defaultCacheManager;
     await effectiveCacheManager.removeFile(cacheKey ?? url);
-    return CachedNetworkImageProvider(url, scale: scale).evict();
+    return CachedNetworkImageProvider(
+      url,
+      cacheKey: cacheKey,
+      scale: scale,
+      minFrameDuration: minFrameDuration,
+    ).evict();
   }
 
   final CachedNetworkImageProvider _image;
@@ -199,13 +208,7 @@ class CachedNetworkImage extends StatelessWidget {
   /// Listener to be called when images fails to load.
   final ValueChanged<Object>? errorListener;
 
-  /// Minimum duration for short frames in animated images (GIF, WebP and APNG).
-  ///
-  /// Frames with a codec duration of 10ms or less are displayed for the greater
-  /// of their codec duration and this value. Longer frames keep their codec
-  /// duration. Defaults to null, which preserves all codec durations.
-  /// Pass `const Duration(milliseconds: 100)` to match browser timing for short
-  /// frames. Values at or below 10ms never shorten a frame.
+  /// {@macro cached_network_image.minFrameDuration}
   final Duration? minFrameDuration;
 
   /// CachedNetworkImage shows a network image using a caching mechanism. It also
