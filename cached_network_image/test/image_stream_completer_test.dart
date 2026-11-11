@@ -118,6 +118,80 @@ void main() {
     expect(tester.takeException(), 'failure message');
   });
 
+  // Expected holds for codec durations 0, 5, 10, 11 and 50ms respectively.
+  final timingCases = <int?, List<int>>{
+    null: [0, 5, 10, 11, 50],
+    -1: [0, 5, 10, 11, 50],
+    0: [0, 5, 10, 11, 50],
+    5: [5, 5, 10, 11, 50],
+    10: [10, 10, 10, 11, 50],
+    20: [20, 20, 20, 11, 50],
+    100: [100, 100, 100, 11, 50],
+    150: [150, 150, 150, 11, 50],
+  };
+  for (final timingCase in timingCases.entries) {
+    testWidgets('frame holds with minFrameDuration ${timingCase.key}ms', (
+      WidgetTester tester,
+    ) async {
+      final image = await createTestImage(width: 20, height: 10);
+      addTearDown(image.dispose);
+      final codecStream = StreamController<Codec>();
+      final codec = MockCodec()
+        ..frameCount = 6
+        ..repetitionCount = 0;
+      final minimum = timingCase.key;
+      final completer = MultiImageStreamCompleter(
+        codec: codecStream.stream,
+        scale: 1,
+        minFrameDuration: minimum == null
+            ? null
+            : Duration(milliseconds: minimum),
+      );
+      var emittedFrames = 0;
+      final listener = ImageStreamListener((info, _) {
+        emittedFrames++;
+        try {
+          expect(info.image.isCloneOf(image), isTrue);
+        } finally {
+          info.dispose();
+        }
+      });
+      completer.addListener(listener);
+      addTearDown(() async {
+        completer.removeListener(listener);
+        await codecStream.close();
+      });
+      codecStream.add(codec);
+      await tester.idle();
+      const codecDurations = [0, 5, 10, 11, 50, 200];
+      codec.completeNextFrame(FakeFrameInfo(Duration.zero, image.clone()));
+      await tester.idle();
+      await tester.pump();
+      expect(emittedFrames, 1);
+
+      for (var index = 0; index < timingCase.value.length; index++) {
+        codec.completeNextFrame(
+          FakeFrameInfo(
+            Duration(milliseconds: codecDurations[index + 1]),
+            image.clone(),
+          ),
+        );
+        await tester.idle();
+
+        // Measure the currently displayed frame, not the queued next frame.
+        final hold = timingCase.value[index];
+        if (hold > 0) {
+          await tester.pump(Duration(milliseconds: hold - 1));
+          expect(emittedFrames, index + 1);
+          await tester.pump(const Duration(milliseconds: 1));
+        } else {
+          await tester.pump();
+        }
+        expect(emittedFrames, index + 2);
+      }
+    });
+  }
+
   test('Completer unsubscribes to chunk events when disposed', () async {
     final codecStream = StreamController<Codec>();
     final chunkStream = StreamController<ImageChunkEvent>();

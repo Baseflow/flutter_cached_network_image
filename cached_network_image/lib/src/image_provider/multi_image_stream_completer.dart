@@ -9,6 +9,10 @@ import 'package:flutter/scheduler.dart';
 double get timeDilation => _timeDilation;
 double _timeDilation = 1;
 
+// Browsers commonly treat animated image delays of 10ms or less as 100ms.
+// This threshold selects short frames; the opt-in minimum is caller-provided.
+const Duration _browserZeroDelayThreshold = Duration(milliseconds: 10);
+
 /// An ImageStreamCompleter with support for loading multiple images.
 class MultiImageStreamCompleter extends ImageStreamCompleter {
   /// The constructor to create an MultiImageStreamCompleter. The [codec]
@@ -22,6 +26,7 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
   MultiImageStreamCompleter({
     required Stream<ui.Codec> codec,
     required this._scale,
+    this.minFrameDuration,
     String? debugLabel,
     Stream<ImageChunkEvent>? chunkEvents,
     InformationCollector? informationCollector,
@@ -62,6 +67,17 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       );
     }
   }
+
+  /// {@template cached_network_image.minFrameDuration}
+  /// Minimum duration for short frames in animated images (GIF, WebP and APNG).
+  ///
+  /// Frames with a codec duration of 10ms or less are displayed for the greater
+  /// of their codec duration and this value. Longer frames keep their codec
+  /// duration. Defaults to null, which preserves all codec durations.
+  /// Pass `const Duration(milliseconds: 100)` to match browser timing for short
+  /// frames. Values at or below 10ms never shorten a frame.
+  /// {@endtemplate}
+  final Duration? minFrameDuration;
 
   ui.Codec? _codec;
   ui.Codec? _nextImageCodec;
@@ -119,11 +135,17 @@ class MultiImageStreamCompleter extends ImageStreamCompleter {
       final frame = _nextFrame!;
       final codec = _codec!;
       _nextFrame = null;
+      final minimum = minFrameDuration;
+      _frameDuration =
+          minimum != null &&
+              frame.duration <= _browserZeroDelayThreshold &&
+              frame.duration < minimum
+          ? minimum
+          : frame.duration;
       _emitFrame(
         ImageInfo(image: frame.image, scale: _scale, debugLabel: debugLabel),
       );
       _shownTimestamp = timestamp;
-      _frameDuration = frame.duration;
       if (_disposed || _codec != codec) return;
       if (_framesEmitted % _codec!.frameCount == 0 && _nextImageCodec != null) {
         _switchToNewCodec();

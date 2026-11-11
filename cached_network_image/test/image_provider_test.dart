@@ -10,6 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'fake_cache_manager.dart';
 import 'image_data.dart';
@@ -28,6 +29,151 @@ void main() {
     PaintingBinding.instance.imageCache.clear();
     PaintingBinding.instance.imageCache.clearLiveImages();
   });
+
+  test('minFrameDuration participates in provider equality and hashCode', () {
+    final provider = CachedNetworkImageProvider(
+      'animation',
+      minFrameDuration: const Duration(milliseconds: 20),
+    );
+    final sameProvider = CachedNetworkImageProvider(
+      'animation',
+      minFrameDuration: const Duration(milliseconds: 20),
+    );
+    final differentProvider = CachedNetworkImageProvider(
+      'animation',
+      minFrameDuration: const Duration(milliseconds: 30),
+    );
+    final defaultProvider = CachedNetworkImageProvider('animation');
+
+    expect(provider, sameProvider);
+    expect(provider.hashCode, sameProvider.hashCode);
+    expect(provider, isNot(differentProvider));
+    expect(provider, isNot(defaultProvider));
+  });
+
+  test('toString distinguishes non-null frame durations', () {
+    expect(
+      CachedNetworkImageProvider('animation').toString(),
+      'CachedNetworkImageProvider("animation", scale: 1.0)',
+    );
+    for (final milliseconds in [0, 20, 100]) {
+      final minimum = Duration(milliseconds: milliseconds);
+      expect(
+        CachedNetworkImageProvider(
+          'animation',
+          minFrameDuration: minimum,
+        ).toString(),
+        'CachedNetworkImageProvider("animation", scale: 1.0, '
+        'minFrameDuration: $minimum)',
+      );
+    }
+  });
+
+  for (final minimum in [null, const Duration(milliseconds: 100)]) {
+    for (final cacheKey in [null, 'custom-key']) {
+      test('evicts matching timing $minimum and key $cacheKey', () async {
+        const url = 'animation';
+        final scale = cacheKey == null ? 1.0 : 2.0;
+        final provider = CachedNetworkImageProvider(
+          url,
+          cacheKey: cacheKey,
+          scale: scale,
+          minFrameDuration: minimum,
+        );
+        final other = CachedNetworkImageProvider(
+          url,
+          cacheKey: cacheKey,
+          scale: scale,
+          minFrameDuration: const Duration(milliseconds: 20),
+        );
+        for (final key in [provider, other]) {
+          final image = await createTestImage(width: 1, height: 1);
+          imageCache.putIfAbsent(
+            key,
+            () => OneFrameImageStreamCompleter(
+              Future.value(ImageInfo(image: image)),
+            ),
+          );
+          await Future<void>.delayed(Duration.zero);
+          expect(imageCache.statusForKey(key).keepAlive, isTrue);
+        }
+        when(
+          () => cacheManager.removeFile(cacheKey ?? url),
+        ).thenAnswer((_) async {});
+
+        expect(
+          await CachedNetworkImage.evictFromCache(
+            url,
+            cacheKey: cacheKey,
+            cacheManager: cacheManager,
+            scale: scale,
+            minFrameDuration: const Duration(milliseconds: 150),
+          ),
+          isFalse,
+        );
+        expect(imageCache.statusForKey(provider).keepAlive, isTrue);
+        expect(
+          await CachedNetworkImage.evictFromCache(
+            url,
+            cacheKey: cacheKey,
+            cacheManager: cacheManager,
+            scale: scale,
+            minFrameDuration: minimum,
+          ),
+          isTrue,
+        );
+        expect(imageCache.statusForKey(provider).untracked, isTrue);
+        expect(imageCache.statusForKey(other).keepAlive, isTrue);
+        verify(() => cacheManager.removeFile(cacheKey ?? url)).called(2);
+      });
+    }
+
+    for (final useBuffer in [false, true]) {
+      test('passes $minimum to completer (loadBuffer: $useBuffer)', () async {
+        const url = 'animation';
+        // No bytes are needed: inspect the completer built by each entry point.
+        when(
+          () => cacheManager.getFileStream(
+            url,
+            key: any(named: 'key'),
+            headers: any(named: 'headers'),
+            withProgress: any(named: 'withProgress'),
+          ),
+        ).thenAnswer((_) => const Stream<FileResponse>.empty());
+        final provider = CachedNetworkImageProvider(
+          url,
+          cacheManager: cacheManager,
+          minFrameDuration: minimum,
+        );
+        final ImageStreamCompleter completer;
+        if (useBuffer) {
+          // ignore: deprecated_member_use_from_same_package
+          completer = provider.loadBuffer(
+            provider,
+            (buffer, {cacheWidth, cacheHeight, allowUpscaling = false}) =>
+                throw StateError('Unexpected decode'),
+          );
+        } else {
+          completer = provider.loadImage(
+            provider,
+            (buffer, {getTargetSize}) => throw StateError('Unexpected decode'),
+          );
+        }
+        final listener = ImageStreamListener((info, _) => info.dispose());
+        completer.addListener(listener);
+        addTearDown(() => completer.removeListener(listener));
+        expect(
+          completer,
+          isA<MultiImageStreamCompleter>().having(
+            (value) => value.minFrameDuration,
+            'minFrameDuration',
+            minimum,
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+      }, skip: isBrowser); // The web loader does not use the fake file stream.
+    }
+  }
 
   test(
     'Expect thrown exception with statusCode - evicts from cache',
